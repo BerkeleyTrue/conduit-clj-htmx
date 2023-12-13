@@ -1,21 +1,20 @@
-{:paths ["src" "resources" "target/resources"]
+{:paths ["src" "resources" "target/resources" "dev"]
  :deps
  {org.clojure/clojure                 {:mvn/version "1.11.1"}
   aero/aero                           {:mvn/version "1.1.6"}
   integrant/integrant                 {:mvn/version "0.8.1"}
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
   metosin/muuntaja                    {:mvn/version "0.6.8"}
+  metosin/reitit                      {:mvn/version "0.7.0-alpha7"}
+  ring/ring                           {:mvn/version "1.11.0-RC2"}
   ring/ring-defaults                  {:mvn/version "0.3.4"}
+  com.taoensso/timbre                 {:mvn/version "6.3.1"}}
 
-  ;; Notes on logging: https://gist.github.com/jacobobryant/76b7a08a07d5ef2cc076b048d078f1f3
-  org.slf4j/slf4j-simple     {:mvn/version "2.0.0-alpha5"}
-  org.slf4j/log4j-over-slf4j {:mvn/version "1.7.36"}
-  org.slf4j/jul-to-slf4j     {:mvn/version "1.7.36"}
-  org.slf4j/jcl-over-slf4j   {:mvn/version "1.7.36"}}
  :aliases
  {:repl/conjure
   {:extra-deps {nrepl/nrepl {:mvn/version "1.0.0"}
-                cider/cider-nrepl {:mvn/version "0.42.1"}}
+                cider/cider-nrepl {:mvn/version "0.42.1"}
+                integrant/repl {:mvn/version "0.3.3"}}
    :main-opts ["--main" "nrepl.cmdline"
                "--middleware" "[cider.nrepl/cider-middleware]"
                "--interactive"]}}}
