@@ -1,11 +1,9 @@
 (ns conduit.core
   (:require
    [clojure.tools.logging :as log]
-   [aero.core :as aero]
-   [integrant.core :as ig]))
-
-(defmethod aero/reader 'ig/ref [_ _ value]
-  (ig/ref value))
+   [integrant.core :as ig]
+   [conduit.server :as server]
+   [conduit.config :refer [config]]))
 
 ;; log uncaught exceptions in threads
 (Thread/setDefaultUncaughtExceptionHandler
@@ -22,7 +20,7 @@
   (shutdown-agents))
 
 (defn start-app [& _]
-  (->> (:server (aero/read-config "config.edn"))
+  (->> (:server config)
        (ig/prep)
        (ig/init)
        (reset! system))

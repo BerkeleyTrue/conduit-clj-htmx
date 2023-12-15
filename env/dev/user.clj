@@ -1,15 +1,11 @@
 (ns user
   (:require
-   [aero.core :as aero]
    [integrant.core :as ig]
-   [integrant.repl :as ig-repl :refer [go halt reset]]))
+   [integrant.repl :as ig-repl :refer [go halt reset]]
+   [conduit.config :refer [config]]
+   [conduit.core :refer [start-app]]))
 
-(defmethod aero/reader 'ig/ref [_ _ value]
-  (ig/ref value))
-
-(def config (:server (aero/read-config "config.edn")))
-
-(ig-repl/set-prep! #(ig/prep config))
+(ig-repl/set-prep! #(ig/prep (:server config)))
 
 (comment
   (go) ; starts the system

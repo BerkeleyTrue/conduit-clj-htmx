@@ -1,11 +1,11 @@
 (ns conduit.tasks
   (:require
+   [aero.core :as aero]
    [babashka.tasks :as tasks :refer [clojure]]
-   [clojure.java.io :as io]
-   [aero.core :as aero]))
+   [clojure.java.io :as io]))
 
 (def config
-  (delay (:tasks (aero/read-config "config.edn"))))
+  (delay (:tasks (aero/read-config "tasks.edn"))))
 
 (defn read-args []
   (:clj-args @config))

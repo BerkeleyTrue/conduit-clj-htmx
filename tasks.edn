@@ -1,0 +1,7 @@
+{:tasks
+ {:clj-args
+  ["-J-XX:-OmitStackTraceInFastThrow"
+   "-J-XX:+CrashOnOutOfMemoryError"
+   "-J-Duser.timezone=UTC"
+   "-J-Dclojure.tools.logging.factory=clojure.tools.logging.impl/slf4j-factory"
+   "-M:dev"]}}

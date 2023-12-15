@@ -1,6 +1,7 @@
-{:paths ["src" "resources" "target/resources" "dev"]
+{:paths ["src" "resources" "target/resources" "env"]
  :deps
  {org.clojure/clojure                 {:mvn/version "1.11.1"}
+  org.clojure/tools.logging           {:mvn/version "1.2.4"}
   aero/aero                           {:mvn/version "1.1.6"}
   integrant/integrant                 {:mvn/version "0.8.1"}
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
@@ -17,4 +18,12 @@
                 integrant/repl {:mvn/version "0.3.3"}}
    :main-opts ["--main" "nrepl.cmdline"
                "--middleware" "[cider.nrepl/cider-middleware]"
-               "--interactive"]}}}
+               "--interactive"]
+   :extra-paths ["env/dev"]}
+  :dev
+  {:extra-deps {integrant/repl  {:mvn/version "0.3.3"}
+                cider/cider-nrepl {:mvn/version "0.42.1"}
+                nrepl/nrepl {:mvn/version "1.0.0"}
+                ring/ring-devel {:mvn/version "1.10.0"}
+                ring/ring-mock  {:mvn/version "0.4.0"}}
+   :extra-paths ["env/dev"]}}}
