@@ -14,7 +14,6 @@
   "Starts the app in dev mode"
   [& args]
   (io/make-parents "target/resources/_")
-  (spit ".nrepl-port" "7888")
   (apply clojure (concat args (read-args))))
 
 (comment (dev))
