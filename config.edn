@@ -1,0 +1,11 @@
+{:tasks
+ {:clj-args ["-J-XX:-OmitStackTraceInFastThrow"
+             "-J-XX:+CrashOnOutOfMemoryError"
+             "-J-Duser.timezone=UTC"
+             "-J-Dclojure.tools.logging.factory=clojure.tools.logging.impl/slf4j-factory"
+             "-M" "-m" "conduit.core"
+             "--port" "7888"
+             "--middleware" "[cider.nrepl/cider-middleware,refactor-nrepl.middleware/wrap-refactor]"]}
+ :server
+ {:adapter/jetty {:port 3000 :handler #ig/ref :handler/greet}
+  :handler/greet {:name "Berks"}}}
