@@ -8,6 +8,7 @@
 (ig-repl/set-prep! #(ig/prep config))
 
 (comment
+  (ig/prep config)
   (go) ; starts the system
   (halt) ; stops the system
   (reset)) ; resets the system

@@ -9,4 +9,6 @@
  {:routes #ig/ref :router/routes}
 
  :router/routes
- {:routes #ig/refset :reitit/routes}}
+ {:routes #ig/refset :reitit/routes}
+
+ :reitit.routes/health {}}
