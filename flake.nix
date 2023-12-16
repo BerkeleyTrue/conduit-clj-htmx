@@ -18,9 +18,18 @@
         pkgs,
         config,
         ...
-      }: {
+      }: let
+        dev = pkgs.writeShellScriptBin "dev" ''
+          echo "Starting dev repl"
+          ${pkgs.babashka}/bin/bb dev
+        '';
+      in {
         formatter.default = pkgs.alejandra;
         boulder.commands = [
+          {
+            exec = dev;
+            description = "Start a dev repl";
+          }
         ];
 
         devShells.default = pkgs.mkShell {
