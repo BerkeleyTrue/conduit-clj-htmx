@@ -3,9 +3,9 @@
    [integrant.core :as ig]
    [integrant.repl :as ig-repl :refer [go halt reset]]
    [conduit.config :refer [config]]
-   [conduit.core :refer [start-app]]))
+   [conduit.core]))
 
-(ig-repl/set-prep! #(ig/prep (:server config)))
+(ig-repl/set-prep! #(ig/prep config))
 
 (comment
   (go) ; starts the system

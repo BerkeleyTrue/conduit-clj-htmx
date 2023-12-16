@@ -7,6 +7,7 @@
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
   metosin/muuntaja                    {:mvn/version "0.6.8"}
   metosin/reitit                      {:mvn/version "0.7.0-alpha7"}
+  metosin/ring-http-response          {:mvn/version "0.9.3"}
   ring/ring                           {:mvn/version "1.11.0-RC2"}
   ring/ring-defaults                  {:mvn/version "0.3.4"}
   com.taoensso/timbre                 {:mvn/version "6.3.1"}}

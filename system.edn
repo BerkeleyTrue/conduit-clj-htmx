@@ -1,3 +1,12 @@
-{:server
- {:adapter/jetty {:port 3000 :handler #ig/ref :handler/greet}
-  :handler/greet {:name "Berks"}}}
+{:server/http
+ {:port 3000
+  :handler #ig/ref :handler/ring}
+
+ :handler/ring
+ {:router #ig/ref :router/core}
+
+ :router/core
+ {:routes #ig/ref :router/routes}
+
+ :router/routes
+ {:routes #ig/refset :reitit/routes}}
