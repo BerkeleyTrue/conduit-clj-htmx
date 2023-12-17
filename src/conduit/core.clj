@@ -2,7 +2,7 @@
   (:require
    [taoensso.timbre :refer [error]]
    [integrant.core :as ig]
-   [conduit.server]
+   [conduit.infra.core]
    [conduit.config :refer [config]]))
 
 ;; log uncaught exceptions in threads
@@ -17,11 +17,14 @@
 (defonce system (atom nil))
 
 (defn stop-app []
-  (some-> (deref system) (ig/halt!))
+  (some->
+    (deref system)
+    (ig/halt!))
   (shutdown-agents))
 
 (defn start-app [& _]
-  (->> config
+  (->>
+    config
        (ig/prep)
        (ig/init)
        (reset! system))

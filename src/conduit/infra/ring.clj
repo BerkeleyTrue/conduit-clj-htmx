@@ -1,22 +1,24 @@
 (ns conduit.infra.ring
   (:require
-    [integrant.core :as ig]
-    [reitit.ring :as ring]))
+   [integrant.core :as ig]
+   [taoensso.timbre :refer [info]]
+   [ring.util.response :as response]))
 
-(derive :reitit.routes/health :reitit/routes)
-
-(comment (isa? :reitit.routes/health :reitit/routes))
-
-(defmethod ig/init-key :reitit.routes/health
+(defmethod ig/init-key :infra.routes/health
   [_ _]
   ["/ping" {:name ::health
-            :get (fn [_] {:status 200
-                          :body "pong"})}])
+            :get
+            (fn [_]
+              (->
+                "pong"
+                (response/response)
+                (response/content-type "text/html")))}])
 
-(defmethod ig/init-key :router/routes
-  [_ {:keys [routes]}]
-  (apply conj [] routes))
+(derive :infra.routes/health :infra/routes)
 
-(defmethod ig/init-key :router/core
-  [_ {:keys [routes] :as opts}]
-  (ring/router ["" opts routes]))
+(comment (isa? :infra.routes/health :infra/routes))
+
+(defmethod ig/init-key :infra.router/routes
+  [_ {:keys [infra-routes routes]}]
+  (info "init routes " infra-routes)
+  (apply conj [] infra-routes))

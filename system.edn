@@ -1,14 +1,13 @@
-{:server/http
- {:port 3000
-  :handler #ig/ref :handler/ring}
+{:infra/http
+ {:port 3000 :handler #ig/ref :infra.ring/handler}
 
- :handler/ring
- {:router #ig/ref :router/core}
+ :infra.ring/handler
+ {:router #ig/ref :infra.router/core}
 
- :router/core
- {:routes #ig/ref :router/routes}
+ :infra.router/core
+ {:routes #ig/ref :infra.router/routes}
 
- :router/routes
- {:routes #ig/refset :reitit/routes}
+ :infra.router/routes
+ {:infra-routes #ig/refset :infra/routes}
 
- :reitit.routes/health {}}
+ :infra.routes/health {}}

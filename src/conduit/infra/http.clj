@@ -1,12 +1,12 @@
-(ns conduit.infra.jetty
+(ns conduit.infra.http
   (:require
    [integrant.core :as ig]
    [ring.adapter.jetty :as jetty])
   (:import
    [org.eclipse.jetty.server Server]))
 
-(defmethod ig/init-key :server/http [_ {:keys [handler port]}]
+(defmethod ig/init-key :infra/http [_ {:keys [handler port]}]
   (jetty/run-jetty handler {:port port :join? false}))
 
-(defmethod ig/halt-key! :server/http [_ ^Server server]
+(defmethod ig/halt-key! :infra/http [_ ^Server server]
   (.stop server))
