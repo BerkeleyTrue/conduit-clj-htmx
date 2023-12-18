@@ -8,6 +8,8 @@
  {:routes #ig/ref :infra.router/routes}
 
  :infra.router/routes
- {:infra-routes #ig/refset :infra/routes}
+ {:infra-routes #ig/refset :infra/routes
+  :routes #ig/refset :app/routes}
 
- :infra.routes/health {}}
+ :infra.routes/health {}
+ :app.routes/drivers {}}

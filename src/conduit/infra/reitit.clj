@@ -7,7 +7,7 @@
 
 (defmethod ig/init-key :infra.router/core
   [_ {:keys [routes] :as opts}]
-  (info "init router " opts routes)
+  (info "init router " opts)
   (ring/router ["" opts routes]))
 
 (defmethod ig/init-key :infra.ring/handler [_ {:keys [router]}]

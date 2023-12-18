@@ -10,6 +10,7 @@
   metosin/ring-http-response          {:mvn/version "0.9.3"}
   ring/ring                           {:mvn/version "1.11.0-RC2"}
   ring/ring-defaults                  {:mvn/version "0.3.4"}
+  hiccup/hiccup                       {:mvn/version "2.0.0-RC2"}
   com.taoensso/timbre                 {:mvn/version "6.3.1"}}
 
  :aliases
