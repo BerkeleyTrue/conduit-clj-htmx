@@ -1,0 +1,2 @@
+{:lint-as
+ {conduit.infra.hiccup/defhtml clojure.core/defn}}

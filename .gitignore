@@ -7,7 +7,10 @@
 /tailwindcss
 /target
 .calva/
-.clj-kondo/
+.clj-kondo/.cache
+.clj-kondo/.lock
+bb/.clj-kondo/.cache
+bb/.clj-kondo/.lock
 .lsp/
 .portal/
 .direnv
