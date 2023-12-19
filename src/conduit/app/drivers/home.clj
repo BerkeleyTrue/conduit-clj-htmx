@@ -6,4 +6,4 @@
 (defn get-home-page
   "Returns the home page."
   [_]
-  (utils/response (layout [:h1 "Welcome to Conduit!"])))
+  (utils/response (layout {:content [:h1 "Welcome to Conduit!"]})))
