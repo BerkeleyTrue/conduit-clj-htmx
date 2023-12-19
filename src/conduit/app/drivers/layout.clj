@@ -1,9 +1,9 @@
 (ns conduit.app.drivers.layout
   (:require
-   [hiccup2.core :as h]
-   [hiccup.page :as page]))
+   [hiccup.util :as util]
+   [conduit.infra.hiccup :refer [defhtml]]))
 
-(defn header [{:keys [links user current-uri]}]
+(defhtml header [{:keys [links user current-uri]}]
   [:nav.navbar.navbar-light
    {:hx-boost "true"
     :hx-push-url "true"}
@@ -15,8 +15,8 @@
              [:a.nav-link
               {:href uri
                :class (when (= uri current-uri) "active")}
-              title]]
-           links))
+              title]])
+          links)
      (when (:id user)
        [:li.nav-item
         [:a.nav-link
@@ -25,7 +25,7 @@
          (:username user)]])]]])
 
 (comment
-  (h/html
+  (str
     (header
       {:links
        [{:uri "/",
@@ -45,7 +45,7 @@
      :user {}
      :current-uri "/"}))
 
-(defn footer []
+(defhtml footer []
   [:footer
    [:div.container
     [:a.logo-font {:href "/"} "conduit"]
@@ -54,7 +54,7 @@
      [:a {:href "https://thinkster.io"} "Thinkster"]
      ". Code &amp; design licensed\n\t\t\t\tunder MIT."]]])
 
-(defn layout [{:keys [content links user current-uri]}]
+(defhtml layout [{:keys [content links user current-uri]}]
   (let [links (or links
                   [{:uri "/"
                     :title "Home"}
@@ -65,7 +65,7 @@
         user (or user {})
         current-uri (or current-uri "/")]
     (list
-      (page/doctype :html5)
+      (util/raw-string "<!DOCTYPE html>\n")
       [:html.fullscreen
        {:lang "en"
         :data-theme "catppuccin"}
@@ -134,5 +134,5 @@
         (footer)]])))
 
 (comment
-  (h/html (layout {:content [:h1 "Hello World"]}))
+  (str (layout {:content [:h1 "Hello World"]}))
   ,)

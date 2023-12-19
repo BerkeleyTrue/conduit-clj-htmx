@@ -1,9 +1,11 @@
 (ns conduit.infra.utils
   (:require
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [conduit.infra.hiccup :refer []]))
 
-(defn response [body]
+(defn response [hiccup-str]
   (->
-    body
+    hiccup-str
+    (str)
     (response/response)
     (response/content-type "text/html")))
