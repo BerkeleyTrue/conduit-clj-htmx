@@ -109,6 +109,8 @@ In Progress...
 #### Doing
 
 - Add seed data import
+  - [ ] Add Datalevin
+  - [ ] Add init script
   - [ ] Add comments
   - [ ] Add users
   - [ ] Add articles
