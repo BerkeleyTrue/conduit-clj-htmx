@@ -1,8 +1,11 @@
-{:deps
- {conduit/tasks {:local/root "bb"}
-  aero/aero     {:mvn/version "1.1.6"}}
+{:deps {conduit/tasks {:local/root "bb"}}
+
+ :pods {clj-kondo/clj-kondo {:version "2023.12.15"}}
+
  :tasks
- {dev
-  conduit.tasks/dev
-  lint
-  conduit.tasks/lint}}
+ {:requires [[pod.borkdude.clj-kondo :as clj-kondo]]
+
+  dev conduit.tasks/dev
+
+  lint {:doc "Run linter on project"
+        :task (clj-kondo/print! (clj-kondo/run! {:lint ["./src"]}))}}}

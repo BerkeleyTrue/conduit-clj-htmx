@@ -13,11 +13,5 @@
   (io/make-parents "target/resources/_")
   (apply clojure (concat args (:clj-args @config))))
 
-(defn lint
-  "Lints project using clj-kondo"
-  [& args]
-  (apply clojure (concat args (:lint @config))))
-
 (comment
-  (dev)
-  (lint))
+  (dev))

@@ -2,7 +2,4 @@
  ["-J-XX:-OmitStackTraceInFastThrow"
   "-J-XX:+CrashOnOutOfMemoryError"
   "-J-Duser.timezone=UTC"
-  "-M:dev"]
- :lint
- ["-M:lint"]}
-
+  "-M:dev"]}
