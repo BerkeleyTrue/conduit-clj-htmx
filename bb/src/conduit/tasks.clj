@@ -5,15 +5,19 @@
    [clojure.java.io :as io]))
 
 (def config
-  (delay (:tasks (aero/read-config "tasks.edn"))))
-
-(defn read-args []
-  (:clj-args @config))
+  (delay (aero/read-config "tasks.edn")))
 
 (defn dev
   "Starts the app in dev mode"
   [& args]
   (io/make-parents "target/resources/_")
-  (apply clojure (concat args (read-args))))
+  (apply clojure (concat args (:clj-args @config))))
 
-(comment (dev))
+(defn lint
+  "Lints project using clj-kondo"
+  [& args]
+  (apply clojure (concat args (:lint @config))))
+
+(comment
+  (dev)
+  (lint))

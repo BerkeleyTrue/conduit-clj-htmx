@@ -2,4 +2,7 @@
  {conduit/tasks {:local/root "bb"}
   aero/aero     {:mvn/version "1.1.6"}}
  :tasks
- {dev              conduit.tasks/dev}}
+ {dev
+  conduit.tasks/dev
+  lint
+  conduit.tasks/lint}}

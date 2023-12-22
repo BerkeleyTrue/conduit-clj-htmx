@@ -12,4 +12,5 @@
   :routes #ig/refset :app/routes}
 
  :infra.routes/health {}
+ :infra.db/datalevin {:config "data/datalevin/db"}
  :app.routes/drivers {}}
