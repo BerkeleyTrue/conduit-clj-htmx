@@ -1,7 +1,6 @@
 {:paths ["src" "resources" "target/resources" "env"]
  :deps
  {org.clojure/clojure                 {:mvn/version "1.11.1"}
-  org.clojure/tools.logging           {:mvn/version "1.2.4"}
   aero/aero                           {:mvn/version "1.1.6"}
   integrant/integrant                 {:mvn/version "0.8.1"}
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
@@ -21,6 +20,8 @@
   {:extra-deps {nrepl/nrepl {:mvn/version "1.0.0"}
                 cider/cider-nrepl {:mvn/version "0.42.1"}
                 integrant/repl {:mvn/version "0.3.3"}}
+   :jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED"
+              "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"]
    :main-opts ["--main" "nrepl.cmdline"
                "--middleware" "[cider.nrepl/cider-middleware]"
                "--interactive"]
@@ -31,6 +32,12 @@
                 nrepl/nrepl {:mvn/version "1.0.0"}
                 ring/ring-devel {:mvn/version "1.10.0"}
                 ring/ring-mock  {:mvn/version "0.4.0"}}
+   :jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED" ; needed for datalevin
+              "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+              "-XX:+CrashOnOutOfMemoryError" ; crash on OOM instead of hanging
+              "-Duser.timezone=UTC" ; use UTC everywhere
+              "-XX:-OmitStackTraceInFastThrow" ; don't omit stack traces
+              ,]
    :main-opts ["--main" "nrepl.cmdline"
                "--middleware" "[cider.nrepl/cider-middleware]"
                "--interactive"]
