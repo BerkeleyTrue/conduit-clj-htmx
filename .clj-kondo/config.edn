@@ -1,2 +1,4 @@
 {:lint-as
- {conduit.infra.hiccup/defhtml clojure.core/defn}}
+ {conduit.infra.hiccup/defhtml clojure.core/defn
+  conduit.infra.hiccup/defelem :hiccup.def/defelem
+  :schema.core/defschema clojure.core/def}}

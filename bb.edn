@@ -8,4 +8,5 @@
   dev conduit.tasks/dev
 
   lint {:doc "Run linter on project"
-        :task (clj-kondo/print! (clj-kondo/run! {:lint ["./src"]}))}}}
+        :task (clj-kondo/print!
+                (clj-kondo/run! {:lint ["./src"]}))}}}

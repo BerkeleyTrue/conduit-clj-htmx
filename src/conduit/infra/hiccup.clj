@@ -6,7 +6,6 @@
 (defmacro defhtml
   "Define a function, but wrap its output in an implicit [[hiccup.core/html]]
   macro."
-  {:clj-kondo/lint-as 'clojure.core/defn}
   [name & fdecl]
   (let [[fhead fbody] (split-with #(not (or (list? %) (vector? %))) fdecl)
         wrap-html     (fn [[args & body]] `(~args (h/html {:mode :html} ~@body)))]
@@ -36,7 +35,6 @@
   "Defines a function that will return a element vector. If the first argument
   passed to the resulting function is a map, it merges it with the attribute
   map of the returned element value."
-  {:clj-kondo/lint-as :hiccup.def/defelem}
   [name & fdecl]
   `(do (defn ~name ~@fdecl)
        (alter-meta! (var ~name) update-in [:arglists] #'update-arglists)
