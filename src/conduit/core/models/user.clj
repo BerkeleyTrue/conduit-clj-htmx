@@ -23,7 +23,7 @@
    :body s/Str
    :tags #{s/Str}
 
-   :created-at s/str})
+   :created-at s/Str})
 
 (s/defschema Comment
   {:comment-id s/Int
