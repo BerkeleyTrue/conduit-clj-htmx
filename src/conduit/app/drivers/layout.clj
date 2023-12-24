@@ -1,7 +1,7 @@
 (ns conduit.app.drivers.layout
   (:require
    [hiccup.util :as util]
-   [conduit.infra.hiccup :refer [defhtml]]))
+   [conduit.infra.hiccup :refer [defhtml hyper]]))
 
 (defhtml header [{:keys [links user current-uri]}]
   [:nav.navbar.navbar-light
@@ -104,26 +104,25 @@
               width: 100%;
            }"]]
        [:body
-        {:_
-         "
-             on every htmx:afterRequest
-               log `htmx:afterRequest`
-               if event.detail.successful
-                 if #htmx-alert
-                   then set {hidden: true} on #htmx-alert
-                 end
-               else if event.detail.failed and event.detail.xhr
-                 log `server error: ${event.detail.xhr.status} - ${event.detail.xhr.statusText}`
-                 if #htmx-alert
-                   then set {hidden: false, innerText: &#39;Oops, something went wrong with the server...&#39;} on #htmx-alert
-                 end
-               else
-                 log `htmx:afterRequest unknown error`
-                 if #htmx-alert
-                   then set {hidden: false, innerText: &#39;Unexpected error, check your connection and refresh the page&#39;} on #htmx-alert
-                 end
-               end
-           "}
+        (hyper
+          "on every htmx:afterRequest
+            log 'htmx:afterRequest'
+            if event.detail.successful
+              if #htmx-alert
+                then set {hidden: true} on #htmx-alert
+              end
+            else if event.detail.failed and event.detail.xhr
+              log `server error: ${event.detail.xhr.status} - ${event.detail.xhr.statusText}`
+              if #htmx-alert
+                then set {hidden: false, innerText: 'Oops, something went wrong with the server...'} on #htmx-alert
+              end
+            else
+              log `htmx:afterRequest unknown error`
+              if #htmx-alert
+                then set {hidden: false, innerText: 'Unexpected error, check your connection and refresh the page'} on #htmx-alert
+              end
+            end
+          ")
         [:div#htmx-alert.alert.alert-warning.fixed
          {:role "alert"
           :hidden "true"}]

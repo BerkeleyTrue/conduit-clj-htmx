@@ -2,7 +2,7 @@
   (:require
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]
-   [conduit.infra.hiccup :refer [defhtml]]))
+   [conduit.infra.hiccup :refer [defhtml hyper]]))
 
 (defhtml homeComponent []
   [:div
@@ -24,26 +24,26 @@
        [:ul.nav.nav-pills.outline-active
         {:id "tabs"}
         [:li.nav-item ; only if signed in
-         {:_
-          "on click
-             remove .active from .nav-link in #tabs
-             add .active to .nav-link in me
-             set {hidden: true} on #tag-tab
-          "
-          :hx-get "/articles/feed?limit=10"
-          :hx-trigger "click load delay:150ms"
-          :hx-target "#articles"}
+         (hyper
+           "on click
+              remove .active from .nav-link in #tabs
+              add .active to .nav-link in me
+              set {hidden: true} on #tag-tab
+           "
+           {:hx-get "/articles/feed?limit=10"
+            :hx-trigger "click load delay:150ms"
+            :hx-target "#articles"})
          [:a {:class "nav-link active"} "Your Feed"]]
         [:li.nav-item
-         {:_
-          "on click
+         (hyper
+           "on click
              remove .active from .nav-link in #tabs
              add .active to .nav-link in me
              set {hidden: true} on #tag-tab
-          "
-          :hx-get "/articles?limit=10"
-          :hx-trigger "click load delay:150ms" ; only if not signed in
-          :hx-target "#articles"}
+           "
+           {:hx-get "/articles?limit=10"
+            :hx-trigger "click load delay:150ms" ; only if not signed in
+            :hx-target "#articles"})
          [:a.nav-link
           {:class "active"} ; only if not signed in
           "Global Feed"]]
@@ -66,16 +66,16 @@
         :hx-trigger "load delay:150ms"}
        [:p "Popular Tags"]
        [:div.tag-list
-        {:id "tags"
-         :_
-         "on click
-            if event.target.tagName == 'A'
-            -- log event.target
-            remove @hidden from #tag-tab
-            remove .active from .nav-link in #tabs
-            put '#' + event.target.innerHTML into <a/> in #tag-tab
-            add .active to <a/> in #tag-tab
-         "}
+        (hyper
+          "on click
+             if event.target.tagName == 'A'
+               -- log event.target
+               remove @hidden from #tag-tab
+               remove .active from .nav-link in #tabs
+               put '#' + event.target.innerHTML into <a/> in #tag-tab
+               add .active to <a/> in #tag-tab
+          "
+          {:id "tags"})
         "Loading tags..."]]]]]])
 
 (defn get-home-page

@@ -1,10 +1,10 @@
 (ns conduit.infra.hiccup
   (:require
-    [hiccup2.core :as h]
-    [hiccup.util :as util]))
+   [hiccup2.core :as h]
+   [hiccup.util :as util]))
 
 (defmacro defhtml
-  "Define a function, but wrap its output in an implicit [[hiccup.core/html]]
+  "Define a function, but wrap its output in an implicit [[hiccup2.core/html]]
   macro."
   [name & fdecl]
   (let [[fhead fbody] (split-with #(not (or (list? %) (vector? %))) fdecl)
@@ -41,6 +41,24 @@
        (alter-var-root (var ~name) wrap-attrs)))
 
 (defelem link-to
-  "Wraps some content in a HTML hyperlink with the supplied URL."
+  "Wraps some content in a HTML hyperlink with the supplied URL.
+  (link-to attr-map? url content)
+  (link-to \"/foo\" \"Foo\") => [:a {:href \"/foo\"} \"Foo\"]"
   [url & content]
   [:a {:href (util/to-uri url)} content])
+
+(defn hyper
+  "Returns an attr-map with a hyper attribute set to the given argument as a hiccup raw string.
+  (hyper string attr-map?)
+  (hyper \"foo\") => {:_ #object[hiccup.util.RawString \"foo\"]}
+  (hyper \"foo\" {:href \"/goofy/goober\"}) =>
+    {:_ #object[hiccup.util.RawString 0x47051022 \"foo\"],
+     :href \"/goofy/goober\"}"
+  ([hyp] (hyper hyp {}))
+  ([hyp attr-map]
+   (let [hyp-raw (util/raw-string hyp)]
+     (merge {:_ hyp-raw} attr-map))))
+
+(comment
+  (hyper "foo")
+  (hyper "foo" {:href "/goofy/goober"}))

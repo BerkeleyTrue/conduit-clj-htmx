@@ -1,6 +1,6 @@
 (ns conduit.app.drivers.auth
   (:require
-   [conduit.infra.hiccup :refer [defhtml]]
+   [conduit.infra.hiccup :refer [defhtml hyper]]
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]))
 
@@ -19,12 +19,13 @@
            [:a {:href "/register"} "Need an account?"])]
         [:ul.error-messages {:id "errors" :hidden ""}]
         [:form
-         {:_ "on submit set { hidden: true } on #errors"
-          :id "authen"
-          :hx-post "/register"
-          :hx-target "body"
-          :hx-swap "outerHTML"
-          :hx-push-url "true"}
+         (hyper
+           "on submit set { hidden: true } on #errors"
+           {:id "authen"
+            :hx-post "/register"
+            :hx-target "body"
+            :hx-swap "outerHTML"
+            :hx-push-url "true"})
          (when isRegister
            [:fieldset.form-group
             [:input.form-control.form-control-lg
