@@ -1,7 +1,8 @@
 (ns conduit.infra.ring
   (:require
    [integrant.core :as ig]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [ring.middleware.defaults :refer [wrap-defaults site-defaults]]))
 
 (defmethod ig/init-key :infra.routes/health
   [_ _]
@@ -20,3 +21,8 @@
 (defmethod ig/init-key :infra.router/routes
   [_ {:keys [infra-routes routes]}]
   (into [] (concat infra-routes routes)))
+
+(defn middleware [handler]
+  (->
+    handler
+    (wrap-defaults site-defaults)))

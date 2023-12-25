@@ -31,7 +31,7 @@
               set {hidden: true} on #tag-tab
            "
            {:hx-get "/articles/feed?limit=10"
-            :hx-trigger "click load delay:150ms"
+            ;:hx-trigger "click load delay:150ms"
             :hx-target "#articles"})
          [:a {:class "nav-link active"} "Your Feed"]]
         [:li.nav-item
@@ -42,7 +42,7 @@
              set {hidden: true} on #tag-tab
            "
            {:hx-get "/articles?limit=10"
-            :hx-trigger "click load delay:150ms" ; only if not signed in
+            ;:hx-trigger "click load delay:150ms" ; only if not signed in
             :hx-target "#articles"})
          [:a.nav-link
           {:class "active"} ; only if not signed in
@@ -62,8 +62,8 @@
      [:div.col-md-3
       [:div.sidebar
        {:hx-get "/tags"
-        :hx-target "#tags"
-        :hx-trigger "load delay:150ms"}
+        :hx-target "#tags"}
+        ;:hx-trigger "load delay:150ms"}
        [:p "Popular Tags"]
        [:div.tag-list
         (hyper
