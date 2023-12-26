@@ -56,3 +56,9 @@
 (defn get-register-page [_]
   (utils/response
    (render-auth {:isRegister true})))
+
+(defn post-login-page [request]
+  (let [body (:body request)]
+    (print body)
+    (utils/response
+     (render-auth {:isRegister false}))))

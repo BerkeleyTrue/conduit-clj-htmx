@@ -1,7 +1,8 @@
 (ns conduit.app.drivers.layout
   (:require
    [hiccup.util :as util]
-   [conduit.infra.hiccup :refer [defhtml hyper]]))
+   [conduit.infra.hiccup :refer [defhtml hyper]]
+   [conduit.app.drivers.hot-reload :refer [hot-reload-script]]))
 
 (defhtml header [{:keys [links user current-uri]}]
   [:nav.navbar.navbar-light
@@ -130,7 +131,8 @@
                  :user user
                  :current-uri current-uri})
         content
-        (footer)]])))
+        (footer)
+        (hot-reload-script)]])))
 
 (comment
   (str (layout {:content [:h1 "Hello World"]}))

@@ -1,9 +1,7 @@
 (ns conduit.env
   (:require
-   [taoensso.timbre :refer [info]]))
+   [conduit.dev-middleware :refer [wrap-dev]]))
 
 (def defaults
-  {:init
-   (fn []
-     (info "Starting system..."))})
-
+  {:middleware wrap-dev
+   :dev-routes []})

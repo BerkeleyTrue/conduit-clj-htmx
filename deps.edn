@@ -14,7 +14,8 @@
   datalevin/datalevin                 {:mvn/version "0.8.25"}
   helpshift/faker                     {:mvn/version "0.3.0"}
   prismatic/schema                    {:mvn/version "1.4.1"}
-  org.slf4j/slf4j-nop                 {:mvn/version "2.0.0"}}
+  org.slf4j/slf4j-nop                 {:mvn/version "2.0.0"}
+  org.clojure/core.async              {:mvn/version "1.6.681"}}
 
  :aliases
  {:repl/conjure
@@ -32,7 +33,8 @@
                 cider/cider-nrepl {:mvn/version "0.42.1"}
                 nrepl/nrepl {:mvn/version "1.0.0"}
                 ring/ring-devel {:mvn/version "1.10.0"}
-                ring/ring-mock  {:mvn/version "0.4.0"}}
+                ring/ring-mock  {:mvn/version "0.4.0"}
+                com.nextjournal/beholder {:mvn/version "1.0.2"}}
    :jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED" ; needed for datalevin
               "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
               "-XX:+CrashOnOutOfMemoryError" ; crash on OOM instead of hanging
