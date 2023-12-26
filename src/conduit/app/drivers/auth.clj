@@ -11,7 +11,10 @@
      [:div.container.page
       [:div.row
        [:div.col-md-6.offset-md-3.col-xs-12
-        [:h1.text-xs-center "Sign in"]
+        [:h1.text-xs-center
+         (if isRegister
+           "Sign up"
+           "Sign in")]
         [:p.text-xs-center
          {:hx-boost "true"}
          (if isRegister
@@ -22,7 +25,7 @@
          (hyper
            "on submit set { hidden: true } on #errors"
            {:id "authen"
-            :hx-post "/register"
+            :hx-post (if isRegister "/register" "/login")
             :hx-target "body"
             :hx-swap "outerHTML"
             :hx-push-url "true"})
