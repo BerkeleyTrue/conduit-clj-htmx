@@ -1,7 +1,7 @@
 (ns conduit.app.drivers.layout
   (:require
    [hiccup.util :as util]
-   [conduit.infra.hiccup :refer [defhtml hyper]]
+   [conduit.infra.hiccup :refer [defhtml hyper htmx-csrf]]
    [conduit.app.drivers.hot-reload :refer [hot-reload-script]]))
 
 (defhtml header [{:keys [links user current-uri]}]
@@ -27,24 +27,24 @@
 
 (comment
   (str
-    (header
-      {:links
-       [{:uri "/",
-         :title "Home"}
-        {:uri "/editor",
-         :title "New Article"}
-        {:uri "/settings",
-         :title "Settings"}
-        {:uri "/login",
-         :title "Sign in"}
-        {:uri "/register",
-         :title "Sign up"}]
-       :user {}
-       :current-uri "/"}))
-  (header
-    {:links [{:uri "/" :title "Home"}]
+   (header
+    {:links
+     [{:uri "/",
+       :title "Home"}
+      {:uri "/editor",
+       :title "New Article"}
+      {:uri "/settings",
+       :title "Settings"}
+      {:uri "/login",
+       :title "Sign in"}
+      {:uri "/register",
+       :title "Sign up"}]
      :user {}
      :current-uri "/"}))
+  (header
+   {:links [{:uri "/" :title "Home"}]
+    :user {}
+    :current-uri "/"}))
 
 (defhtml footer []
   [:footer
@@ -66,48 +66,48 @@
         user (or user {})
         current-uri (or current-uri "/")]
     (list
-      (util/raw-string "<!DOCTYPE html>\n")
-      [:html.fullscreen
-       {:lang "en"
-        :data-theme "catppuccin"}
-       [:head
-        [:meta {:charset "utf-8"}]
-        [:title "Conduit"]
-        [:link
-         {:href "http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css",
-          :rel "stylesheet",
-          :type "text/css"}]
-        [:link
-         {:href "https://fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic",
-          :rel "stylesheet",
-          :type "text/css"}]
-        [:link
-         {:rel "icon",
-          :type "image/x-icon",
-          :href "https://www.realworld.how/img/favicon.ico"}]
-        (comment "Import the custom Bootstrap 4 theme from our hosted CDN")
-        [:link
-         {:rel "stylesheet",
-          :href "https://demo.productionready.io/main.css"}]
-        [:script
-         {:src "https://unpkg.com/htmx.org@1.9.5",
-          :integrity
-          "sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO",
-          :crossorigin "anonymous"}]
-        [:script
-         {:src "https://unpkg.com/hyperscript.org@0.9.11",
-          :crossorigin "anonymous"}]
-        [:style
-         ".fixed {
-              position: fixed;
-              top: 0;
-              z-index: 1020;
-              width: 100%;
-           }"]
-        (hot-reload-script)]
-       [:body
-        (hyper
-          "on every htmx:afterRequest
+     (util/raw-string "<!DOCTYPE html>\n")
+     [:html.fullscreen
+      {:lang "en"
+       :data-theme "catppuccin"}
+      [:head
+       [:meta {:charset "utf-8"}]
+       [:title "Conduit"]
+       [:link
+        {:href "http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css",
+         :rel "stylesheet",
+         :type "text/css"}]
+       [:link
+        {:href "https://fonts.googleapis.com/css?family=Titillium+Web:700|Source+Serif+Pro:400,700|Merriweather+Sans:400,700|Source+Sans+Pro:400,300,600,700,300italic,400italic,600italic,700italic",
+         :rel "stylesheet",
+         :type "text/css"}]
+       [:link
+        {:rel "icon",
+         :type "image/x-icon",
+         :href "https://www.realworld.how/img/favicon.ico"}]
+       (comment "Import the custom Bootstrap 4 theme from our hosted CDN")
+       [:link
+        {:rel "stylesheet",
+         :href "https://demo.productionready.io/main.css"}]
+       [:script
+        {:src "https://unpkg.com/htmx.org@1.9.5",
+         :integrity
+         "sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO",
+         :crossorigin "anonymous"}]
+       [:script
+        {:src "https://unpkg.com/hyperscript.org@0.9.11",
+         :crossorigin "anonymous"}]
+       [:style
+        ".fixed {
+           position: fixed;
+           top: 0;
+           z-index: 1020;
+           width: 100%;
+         }"]
+       (hot-reload-script)]
+      [:body
+       (hyper
+        "on every htmx:afterRequest
             log 'htmx:afterRequest'
             if event.detail.successful
               if #htmx-alert
@@ -125,15 +125,15 @@
               end
             end
           ")
-        [:div#htmx-alert.alert.alert-warning.fixed
-         {:role "alert"
-          :hidden "true"}]
-        (header {:links links
-                 :user user
-                 :current-uri current-uri})
-        content
-        (footer)]])))
+       [:div#htmx-alert.alert.alert-warning.fixed
+        {:role "alert"
+         :hidden "true"}]
+       (header {:links links
+                :user user
+                :current-uri current-uri})
+       content
+       (footer)
+       (htmx-csrf)]])))
 
 (comment
-  (str (layout {:content [:h1 "Hello World"]}))
-  ,)
+  (str (layout {:content [:h1 "Hello World"]})))
