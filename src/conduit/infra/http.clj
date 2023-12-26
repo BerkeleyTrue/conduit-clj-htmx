@@ -1,13 +1,13 @@
 (ns conduit.infra.http
   (:require
    [integrant.core :as ig]
-   [ring.adapter.jetty :as jetty])
-  (:import
-   [org.eclipse.jetty.server Server]))
+   [aleph.http :as http]
+   [taoensso.timbre :as timbre]))
 
-; TODO: replace with aleph.http
 (defmethod ig/init-key :infra/http [_ {:keys [handler port]}]
-  (jetty/run-jetty handler {:port port :join? false :async? true}))
+  (timbre/info "Starting HTTP server on port" port)
+  (http/start-server handler {:port port}))
 
-(defmethod ig/halt-key! :infra/http [_ ^Server server]
-  (.stop server))
+(defmethod ig/halt-key! :infra/http [_ ^java.lang.AutoCloseable server]
+  (timbre/info "Stopping HTTP server")
+  (.close server))

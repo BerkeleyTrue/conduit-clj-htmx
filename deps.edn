@@ -15,7 +15,8 @@
   helpshift/faker                     {:mvn/version "0.3.0"}
   prismatic/schema                    {:mvn/version "1.4.1"}
   org.slf4j/slf4j-nop                 {:mvn/version "2.0.0"}
-  org.clojure/core.async              {:mvn/version "1.6.681"}}
+  org.clojure/core.async              {:mvn/version "1.6.681"}
+  aleph/aleph                         {:mvn/version "0.6.3"}}
 
  :aliases
  {:repl/conjure

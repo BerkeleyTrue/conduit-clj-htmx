@@ -47,15 +47,8 @@
   (hot-reload-script))
 
 (defn ->get-sse [on-start-ch]
-  (fn get-sse [_ response _]
+  (fn get-sse [_]
     (let [out (chan)]
-      (->
-       out
-       (util/response)
-       (util/content-type "text/event-stream")
-       (util/header "Cache-Control" "no-cache")
-       (util/header "Connection" "keep-alive")
-       (response))
       (go
         (println "SSE: connection established")
         (>! out "data: connected\n\n")
@@ -63,4 +56,10 @@
         (<! on-start-ch)
         (>! out "data: updated\n\n")
         (println "SSE: updated")
-        (close! out)))))
+        (close! out))
+      (->
+        out
+        (util/response)
+        (util/content-type "text/event-stream")
+        (util/header "Cache-Control" "no-cache")
+        (util/header "Connection" "keep-alive")))))
