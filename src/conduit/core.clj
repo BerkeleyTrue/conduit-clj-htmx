@@ -3,7 +3,7 @@
    [taoensso.timbre :refer [error]]
    [integrant.core :as ig]
    [conduit.infra.core]
-   [conduit.app.drivers.core]
+   [conduit.app.core]
    [conduit.config :refer [config]]))
 
 ;; log uncaught exceptions in threads

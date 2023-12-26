@@ -1,5 +1,7 @@
 {:infra/http
- {:port 3000 :handler #ig/ref :infra.ring/handler}
+ {:port 3000
+  :handler #ig/ref :infra.ring/handler
+  :on-start-ch #ig/ref :app/on-start-ch}
 
  :infra.ring/handler
  {:router #ig/ref :infra.router/core}
@@ -13,4 +15,6 @@
 
  :infra.routes/health {}
  :infra.db/datalevin {:config "data/datalevin/db"}
- :app.routes/drivers {}}
+
+ :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch}
+ :app/on-start-ch {}}

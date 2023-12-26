@@ -1,6 +1,7 @@
 (ns conduit.app.drivers.hot-reload
   (:require
    [clojure.core.async :refer [go chan <! >! close!]]
+   [manifold.stream :refer [->source]]
    [ring.util.response :as util]
    [hiccup.util :refer [raw-string]]
    [conduit.infra.hiccup :refer [defhtml]]))
@@ -48,17 +49,20 @@
 
 (defn ->get-sse [on-start-ch]
   (fn get-sse [_]
-    (let [out (chan)]
+    (let [out (chan 1)]
       (go
         (println "SSE: connection established")
         (>! out "data: connected\n\n")
+        (println "SSE: waiting for update")
         ; wait for the on-start-ch
         (<! on-start-ch)
+        (println "SSE: update received")
         (>! out "data: updated\n\n")
         (println "SSE: updated")
         (close! out))
       (->
         out
+        (->source)
         (util/response)
         (util/content-type "text/event-stream")
         (util/header "Cache-Control" "no-cache")
