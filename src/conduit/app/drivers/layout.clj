@@ -103,7 +103,8 @@
               top: 0;
               z-index: 1020;
               width: 100%;
-           }"]]
+           }"]
+        (hot-reload-script)]
        [:body
         (hyper
           "on every htmx:afterRequest
@@ -131,8 +132,7 @@
                  :user user
                  :current-uri current-uri})
         content
-        (footer)
-        (hot-reload-script)]])))
+        (footer)]])))
 
 (comment
   (str (layout {:content [:h1 "Hello World"]}))
