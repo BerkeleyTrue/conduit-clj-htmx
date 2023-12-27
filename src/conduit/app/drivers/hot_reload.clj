@@ -51,14 +51,14 @@
   (fn get-sse [_]
     (let [out (chan 1)]
       (go
-        (println "SSE: connection established")
+        ; (println "SSE: connection established")
         (>! out "data: connected\n\n")
-        (println "SSE: waiting for update")
+        ; (println "SSE: waiting for update")
         ; wait for the on-start-ch
         (<! on-start-ch)
-        (println "SSE: update received")
+        ; (println "SSE: update received")
         (>! out "data: updated\n\n")
-        (println "SSE: updated")
+        ; (println "SSE: updated")
         (close! out))
       (->
         out

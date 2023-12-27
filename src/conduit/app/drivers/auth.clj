@@ -1,5 +1,6 @@
 (ns conduit.app.drivers.auth
   (:require
+   [taoensso.timbre :as timbre]
    [conduit.infra.hiccup :refer [defhtml hyper]]
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]))
@@ -23,12 +24,12 @@
         [:ul.error-messages {:id "errors" :hidden ""}]
         [:form
          (hyper
-           "on submit set { hidden: true } on #errors"
-           {:id "authen"
-            :hx-post (if isRegister "/register" "/login")
-            :hx-target "body"
-            :hx-swap "outerHTML"
-            :hx-push-url "true"})
+          "on submit set { hidden: true } on #errors"
+          {:id "authen"
+           :hx-post (if isRegister "/register" "/login")
+           :hx-target "body"
+           :hx-swap "outerHTML"
+           :hx-push-url "true"})
          (when isRegister
            [:fieldset.form-group
             [:input.form-control.form-control-lg
@@ -61,7 +62,7 @@
    (render-auth {:isRegister true})))
 
 (defn post-login-page [request]
-  (let [body (:body request)]
-    (print body)
+  (let [params (:params request)]
+    (timbre/info "params" params)
     (utils/response
      (render-auth {:isRegister false}))))
