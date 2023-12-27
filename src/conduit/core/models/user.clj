@@ -1,33 +1,48 @@
 (ns conduit.core.models.user
   (:require
-    [schema.core :as s]))
+   [malli.core :as m]))
 
-(s/defschema User
-  {:user-id s/Int
-   :username s/Str
-   :email s/Str
-   :password s/Str ; TODO: use a better type
-   :bio s/Str
-   :image s/Str
-   :followers #{s/Int} ; user ids
+(def User
+  [:map
+   {:title "User"
+    :description "A user"}
+   [:user/id number?]
+   [:username string?]
+   [:email string?]
+   [:password string?]
+   [:bio string?]
+   [:image string?]
+   [:followers [:set number?]] ; user ids
 
-   :created-at s/Str
-   :updated-at s/Str})
+   [:created-at string?]
+   [:updated-at string?]])
 
-(s/defschema Article
-  {:articleId s/Int
-   :authorId s/Int
-   :title s/Str
-   :slug s/Str
-   :description s/Str
-   :body s/Str
-   :tags #{s/Str}
+(def Article
+  [:map
+   {:title "Article"
+    :description "An article"}
+   [:articleId number?]
+   [:authorId number?]
+   [:title string?]
+   [:slug string?]
+   [:description string?]
+   [:body string?]
+   [:tags [:set string?]]
 
-   :created-at s/Str})
+   [:created-at string?]])
 
-(s/defschema Comment
-  {:comment-id s/Int
-   :article-id s/Int
-   :author-id s/Int
-   :body s/Str
-   :created-at s/Str})
+(def Comment
+  [:map
+   {:title "Comment"
+    :description "A comment"}
+   [:comment-id number?]
+   [:article-id number?]
+   [:author-id number?]
+   [:body string?]
+
+   [:created-at string?]])
+
+(comment
+  (m/schema User)
+  (m/schema Article)
+  (m/schema Comment))
