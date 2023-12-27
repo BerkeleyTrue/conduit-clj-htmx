@@ -2,6 +2,7 @@
   (:require
    [integrant.core :as ig]
    [integrant.repl :as ig-repl :refer [go halt reset]]
+   [reitit.core :as r]
    [nextjournal.beholder :as beholder]
    [conduit.config :refer [get-config]]
    [conduit.core]))
@@ -16,6 +17,8 @@
   (reset) ; resets the system
   (get-config)
   (ig/prep (get-config))
+  (let [x (:infra.router/core (ig/init (get-config) [:infra.router/routes :infra.router/core]))]
+    (r/options x))
   (swap!
     watcher
     (fn [old]
