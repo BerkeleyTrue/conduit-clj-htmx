@@ -30,8 +30,7 @@
 
        :defaults (->
                   site-defaults
-                  (assoc :params false)
-                  (assoc :exception {})
+                  (assoc :exception true)
                   (assoc-in [:session :store] session-store))}})))
 
 (defmethod ig/init-key :infra.ring/handler [_ {:keys [router]}]
