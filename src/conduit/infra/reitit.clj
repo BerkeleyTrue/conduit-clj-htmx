@@ -5,40 +5,38 @@
    [muuntaja.format.form :as muu.form]
    [ring.util.response :as response]
    [ring.middleware.defaults :refer [site-defaults]]
-   [ring.middleware.session.cookie :refer [cookie-store]]
-   [reitit.coercion.malli :as coercion.malli]
    [reitit.ring :as ring]
    [reitit.ring.middleware.defaults :refer [defaults-middleware]]
+   [reitit.coercion.malli :as coercion.malli]
    [conduit.env :as env]))
 
-; TODO: replace with datalevin store
-(def default-session-storage
-  (cookie-store))
-
 (defmethod ig/init-key :infra.router/core
-  [_ {:keys [routes] :as opts}]
-  (timbre/info "init router " opts)
-  (ring/router
-   ["" opts routes]
-   {:data
-    {:coercion
-      (coercion.malli/create
-       {:transformers
-        {:body {:default coercion.malli/default-transformer-provider
-                :formats {"application/x-www-form-urlencoded" muu.form/format}}}})
-     :middleware (conj
-                   defaults-middleware
-                   (:middleware env/defaults))
+  [_ {:keys [routes session-store] :as opts}]
+  (let [routes (conj routes ["/public" (ring/create-resource-handler)])]
+    (timbre/info "init router " routes)
+    (ring/router
+     ["" opts routes]
+     {:data
+      {:coercion
+       (coercion.malli/create
+        {:transformers
+         {:body
+          {:default coercion.malli/default-transformer-provider
+           :formats {"application/x-www-form-urlencoded" muu.form/format}}}})
 
-     :defaults (->
-                 site-defaults
-                 (assoc :params false)
-                 (assoc-in [:session :store] default-session-storage))}}))
+       :middleware (conj
+                    defaults-middleware
+                    (:middleware env/defaults))
+
+       :defaults (->
+                  site-defaults
+                  (assoc :params false)
+                  (assoc :exception {})
+                  (assoc-in [:session :store] session-store))}})))
 
 (defmethod ig/init-key :infra.ring/handler [_ {:keys [router]}]
   (let [default-handler (ring/routes ; default handler
                          (ring/redirect-trailing-slash-handler)
-                         (ring/create-resource-handler {:path "/"})
                          (ring/create-default-handler
                           {:not-found
                            (constantly

@@ -7,7 +7,8 @@
  {:router #ig/ref :infra.router/core}
 
  :infra.router/core
- {:routes #ig/ref :infra.router/routes}
+ {:routes #ig/ref :infra.router/routes
+  :session-store #ig/ref :infra.middleware.session/datalevin}
 
  :infra.router/routes
  {:infra-routes #ig/refset :infra/routes
@@ -15,6 +16,8 @@
 
  :infra.routes/health {}
  :infra.db/datalevin {:config "data/datalevin/db"}
+ :infra.db/datalevin-kv {:config "data/datalevin/kv"}
+ :infra.middleware.session/datalevin {:db #ig/ref :infra.db/datalevin-kv}
 
  :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch}
  :app/on-start-ch {}}

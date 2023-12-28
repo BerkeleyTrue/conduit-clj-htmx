@@ -11,24 +11,24 @@
  (reify Thread$UncaughtExceptionHandler
    (uncaughtException [_ thread ex]
      (error
-       {:what :uncaught-exception
-        :exception ex
-        :where (str "Uncaught exception on" (.getName thread))}))))
+      {:what :uncaught-exception
+       :exception ex
+       :where (str "Uncaught exception on" (.getName thread))}))))
 
 (defonce system (atom nil))
 
 (defn stop-app []
   (some->
-    (deref system)
-    (ig/halt!))
+   (deref system)
+   (ig/halt!))
   (shutdown-agents))
 
 (defn start-app [& _]
   (->>
-    config
-       (ig/prep)
-       (ig/init)
-       (reset! system))
+   config
+   (ig/prep)
+   (ig/init)
+   (reset! system))
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-app)))
 
 (defn -main [& _]

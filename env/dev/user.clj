@@ -17,7 +17,8 @@
   (reset) ; resets the system
   (get-config)
   (ig/prep (get-config))
-  (let [x (:infra.router/core (ig/init (get-config) [:infra.router/routes :infra.router/core]))]
+  (let [x (:infra.router/core (ig/init (get-config) [:infra.router/routes
+                                                     :infra.router/core]))]
     (r/options x))
   (swap!
     watcher
