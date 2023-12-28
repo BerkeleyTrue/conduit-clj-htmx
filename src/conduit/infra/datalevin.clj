@@ -3,6 +3,26 @@
     [integrant.core :as ig]
     [datalevin.core :as d]))
 
+(defn get-value-kv [db dbi key]
+  (try
+    (d/get-value db dbi key)
+    (catch Exception _
+      ; (timbre/error ex)
+      nil)))
+
+(defn put-value-kv [db dbi key val]
+  (try
+    (d/transact-kv db [[:put dbi key val]])
+    (catch Exception _
+      ; (timbre/error ex)
+      nil)))
+
+(defn del-value-kv [db dbi key]
+  (try
+    (d/transact-kv db [[:del dbi key]])
+    (catch Exception _
+      ; (timbre/error ex)
+      nil)))
 
 (defmethod ig/init-key :infra.db/datalevin [_ {:keys [config]}]
   (d/get-conn config))
