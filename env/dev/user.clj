@@ -4,6 +4,7 @@
    [integrant.repl :as ig-repl :refer [go halt reset]]
    [reitit.core :as r]
    [nextjournal.beholder :as beholder]
+   [datalevin.core :as d]
    [conduit.config :refer [get-config]]
    [conduit.core]))
 
@@ -29,4 +30,9 @@
        (fn [_e]
          (reset)) "src")))
   (beholder/stop @watcher)
-  ,)
+  (let [db (:infra.db/datalevin-kv
+             (ig/init (get-config)
+                      [:infra.middleware.session/datalevin
+                       :infra.db/datalevin-kv]))]
+    (d/get-value db "foo" :bar nil)))
+,
