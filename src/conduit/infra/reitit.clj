@@ -2,6 +2,7 @@
   (:require
    [taoensso.timbre :as timbre]
    [integrant.core :as ig]
+   [muuntaja.core :as m]
    [muuntaja.format.form :as muu.form]
    [ring.util.response :as response]
    [ring.middleware.defaults :refer [site-defaults]]
@@ -17,12 +18,7 @@
     (ring/router
      ["" opts routes]
      {:data
-      {:coercion
-       (coercion.malli/create
-        {:transformers
-         {:body
-          {:default coercion.malli/default-transformer-provider
-           :formats {"application/x-www-form-urlencoded" muu.form/format}}}})
+      {:coercion (coercion.malli/create)
 
        :middleware (conj
                     defaults-middleware
@@ -31,7 +27,10 @@
        :defaults (->
                   site-defaults
                   (assoc :exception true)
-                  (assoc-in [:session :store] session-store))}})))
+                  (assoc-in [:parameters :urlencoded] false)
+                  (assoc-in [:session :store] session-store))
+       :muuntaja (m/create (-> m/default-options
+                               (assoc-in [:formats "application/x-www-form-urlencoded"] muu.form/format)))}})))
 
 (defmethod ig/init-key :infra.ring/handler [_ {:keys [router]}]
   (let [default-handler (ring/routes ; default handler
