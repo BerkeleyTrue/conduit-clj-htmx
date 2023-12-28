@@ -6,7 +6,8 @@
    [nextjournal.beholder :as beholder]
    [datalevin.core :as d]
    [conduit.config :refer [get-config]]
-   [conduit.core]))
+   [conduit.core]
+   [taoensso.timbre :as timbre]))
 
 (ig-repl/set-prep! #(ig/prep (get-config)))
 (def watcher (atom nil))
@@ -34,5 +35,6 @@
              (ig/init (get-config)
                       [:infra.middleware.session/datalevin
                        :infra.db/datalevin-kv]))]
-    (d/get-value db "foo" :bar nil)))
-,
+    (d/clear-dbi db "session-store")
+    (timbre/info "val: " (d/get-value db "foo" :transacted nil)))
+  ,)
