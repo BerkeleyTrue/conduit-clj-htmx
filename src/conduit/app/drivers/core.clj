@@ -12,12 +12,7 @@
         :get home/get-home-page}]
    ["__hotreload" {:name :hotreload
                    :get (hot-reload/->get-sse on-start-ch)}]
-   ["login"
-    {:name :login
-     :get auth/get-login-page
-     :post auth/post-login-page}]
-   ["register"
-    {:name :register
-     :get auth/get-register-page}]])
+   auth/login-routes
+   auth/register-routes])
 
 (derive :app.routes/drivers :app/routes)

@@ -1,6 +1,7 @@
 (ns conduit.app.drivers.auth
   (:require
    [taoensso.timbre :as timbre]
+   [valip.predicates :as v]
    [conduit.infra.hiccup :refer [defhtml hyper]]
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]))
@@ -57,12 +58,29 @@
   (utils/response
    (render-auth {:isRegister false})))
 
-(defn get-register-page [_]
-  (utils/response
-   (render-auth {:isRegister true})))
-
 (defn post-login-page [request]
   (let [params (:params request)]
     (timbre/info "params" params)
     (utils/response
      (render-auth {:isRegister false}))))
+
+(def login-routes
+  ["login"
+   {:name ::login
+    :get get-login-page
+    :post
+    {:handler post-login-page
+     :parameters {:form
+                  [:map
+                   [:email [:and [:string]
+                                 [:fn v/email-address?]]]
+                   [:password string?]]}}}])
+
+(defn get-register-page [_]
+  (utils/response
+   (render-auth {:isRegister true})))
+
+(def register-routes
+  ["register"
+   {:name :register
+    :get get-register-page}])
