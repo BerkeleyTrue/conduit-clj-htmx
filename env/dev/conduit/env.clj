@@ -1,7 +1,7 @@
 (ns conduit.env
   (:require
-   [conduit.dev-middleware :refer [wrap-dev]]))
+   [conduit.dev-middleware :refer [dev-middleware]]))
 
 (def defaults
-  {:middleware wrap-dev
+  {:middleware dev-middleware
    :dev-routes []})

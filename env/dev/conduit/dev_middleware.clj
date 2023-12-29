@@ -3,8 +3,8 @@
    [ring.middleware.stacktrace :refer [wrap-stacktrace]]
    [ring.middleware.reload :refer [wrap-reload]]))
 
-(defn wrap-dev [handler]
-  (->
-   handler
-   (wrap-stacktrace)
-   (wrap-reload)))
+(def dev-middleware
+  [{:name ::dev-stacktrace
+    :wrap wrap-stacktrace}
+   {:name ::dev-reload
+    :wrap wrap-reload}])

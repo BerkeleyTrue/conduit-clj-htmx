@@ -7,7 +7,10 @@
    [ring.util.response :as response]
    [ring.middleware.defaults :refer [site-defaults]]
    [reitit.ring :as ring]
-   [reitit.ring.middleware.defaults :refer [defaults-middleware]]
+   [reitit.ring.coercion :as coercion]
+   [reitit.ring.middleware.muuntaja :as muu.mid]
+   [reitit.ring.middleware.exception :as exception]
+   [reitit.ring.middleware.defaults :refer [ring-defaults-middleware]]
    [reitit.coercion.malli :as coercion.malli]
    [conduit.env :as env]))
 
@@ -20,15 +23,23 @@
      {:data
       {:coercion (coercion.malli/create)
 
-       :middleware (conj
-                    defaults-middleware
-                    (:middleware env/defaults))
+       :middleware (into
+                    (:middleware env/defaults)
+                    (into
+                      [exception/exception-middleware]
+                      (conj
+                        ring-defaults-middleware
+                        muu.mid/format-middleware
+                        coercion/coerce-exceptions-middleware
+                        coercion/coerce-request-middleware
+                        coercion/coerce-response-middleware)))
 
        :defaults (->
                   site-defaults
                   (assoc :exception true)
                   (assoc-in [:parameters :urlencoded] false)
                   (assoc-in [:session :store] session-store))
+
        :muuntaja (m/create (-> m/default-options
                                (assoc-in [:formats "application/x-www-form-urlencoded"] muu.form/format)))}})))
 
