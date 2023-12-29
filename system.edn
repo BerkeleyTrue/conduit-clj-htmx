@@ -1,7 +1,9 @@
 {:infra/http
  {:port 3000
   :handler #ig/ref :infra.ring/handler
-  :on-start-ch #ig/ref :app/on-start-ch}
+  :on-start-ch #ig/ref :app/on-start-ch
+  :shutdown-timeout #profile {:default 15
+                              :dev 0}}
 
  :infra.ring/handler
  {:router #ig/ref :infra.router/core}

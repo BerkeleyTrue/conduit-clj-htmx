@@ -4,4 +4,6 @@
 
 (def defaults
   {:middleware dev-middleware
-   :dev-routes []})
+   :dev-routes []
+   :config
+   {:profile :dev}})

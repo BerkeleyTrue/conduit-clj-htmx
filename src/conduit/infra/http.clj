@@ -5,9 +5,10 @@
    [aleph.http :as http]
    [taoensso.timbre :as timbre]))
 
-(defmethod ig/init-key :infra/http [_ {:keys [handler port on-start-ch]}]
+(defmethod ig/init-key :infra/http [_ {:keys [handler port on-start-ch shutdown-timeout]}]
   (timbre/info "Starting HTTP server on port" port)
-  (let [s (http/start-server handler {:port port})]
+  (let [s (http/start-server handler {:port port
+                                      :shutdown-timeout shutdown-timeout})]
     (timbre/info "HTTP server started")
     (put! on-start-ch "started")
     s))

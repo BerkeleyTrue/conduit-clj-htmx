@@ -49,7 +49,7 @@
 
 (defn ->get-sse [on-start-ch]
   (fn get-sse [_]
-    (let [out (chan 1)]
+    (let [out (chan)]
       (go
         ; (println "SSE: connection established")
         (>! out "data: connected\n\n")
