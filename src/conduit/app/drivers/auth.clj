@@ -72,9 +72,8 @@
     {:handler post-login-page
      :parameters {:form
                   [:map
-                   [:email [:and [:string]
-                                 [:fn v/email-address?]]]
-                   [:password string?]]}}}])
+                   [:email :email]
+                   [:password :password]]}}}])
 
 (defn get-register-page [_]
   (utils/response
