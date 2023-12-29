@@ -12,6 +12,7 @@
    [reitit.ring.middleware.exception :as exception]
    [reitit.ring.middleware.defaults :refer [ring-defaults-middleware]]
    [reitit.coercion.malli :as coercion.malli]
+   [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core
@@ -26,11 +27,11 @@
        :middleware (into
                     (:middleware env/defaults)
                     (into
-                      [exception/exception-middleware]
+                      [exception/exception-middleware] ; TODO: don't need both this ans wrap-stacktrace, need to come up with a better way to handle exceptions
                       (conj
                         ring-defaults-middleware
                         muu.mid/format-middleware
-                        coercion/coerce-exceptions-middleware
+                        coerce-exceptions-htmx-middleware
                         coercion/coerce-request-middleware
                         coercion/coerce-response-middleware)))
 
