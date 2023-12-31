@@ -42,6 +42,7 @@
             babashka
             clojure
             clojure-lsp
+            neil
           ];
         };
       };
