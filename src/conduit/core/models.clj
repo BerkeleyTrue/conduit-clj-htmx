@@ -1,4 +1,4 @@
-(ns conduit.core.models.user
+(ns conduit.core.models
   (:require
    [malli.core :as m]))
 

@@ -4,6 +4,7 @@
    [integrant.core :as ig]
    [conduit.infra.core]
    [conduit.app.core]
+   [conduit.core.domain]
    [conduit.config :refer [config]]))
 
 ;; log uncaught exceptions in threads

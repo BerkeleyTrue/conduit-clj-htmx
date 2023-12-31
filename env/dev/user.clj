@@ -2,7 +2,6 @@
   (:require
    [integrant.core :as ig]
    [integrant.repl :as ig-repl :refer [go halt reset]]
-   [reitit.core :as r]
    [nextjournal.beholder :as beholder]
    [datalevin.core :as d]
    [conduit.config :refer [get-config]]
@@ -19,9 +18,9 @@
   (reset) ; resets the system
   (get-config)
   (ig/prep (get-config))
-  (let [x (:infra.router/core (ig/init (get-config) [:infra.router/routes
-                                                     :infra.router/core]))]
-    (r/options x))
+  (let [x (:infra.db/datalevin (ig/init (get-config) [:infra.db/datalevin]))]
+    (println (d/schema x))
+    (d/close x))
   (swap!
     watcher
     (fn [old]

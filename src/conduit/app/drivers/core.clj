@@ -6,13 +6,13 @@
     [conduit.app.drivers.hot-reload :as hot-reload]))
 
 (defmethod ig/init-key :app.routes/drivers
-  [_ {:keys [on-start-ch]}]
+  [_ {:keys [on-start-ch user-service]}]
   ["/"
    ["" {:name :get-home
         :get home/get-home-page}]
    ["__hotreload" {:name :hotreload
                    :get (hot-reload/->get-sse on-start-ch)}]
-   auth/login-routes
-   auth/register-routes])
+   (auth/->login-routes user-service)
+   (auth/->register-routes)])
 
 (derive :app.routes/drivers :app/routes)

@@ -17,9 +17,17 @@
   :routes #ig/refset :app/routes}
 
  :infra.routes/health {}
+
  :infra.db/datalevin {:config "data/datalevin/db"}
  :infra.db/datalevin-kv {:config "data/datalevin/kv"}
+
  :infra.middleware.session/datalevin {:db #ig/ref :infra.db/datalevin-kv}
 
- :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch}
- :app/on-start-ch {}}
+ :app/on-start-ch {}
+
+ :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch
+                      :user-service #ig/ref :core.services/user}
+
+ :app.repos/user {:db #ig/ref :infra.db/datalevin}
+
+ :core.services/user {:user-repo #ig/ref :app.repos/user}}
