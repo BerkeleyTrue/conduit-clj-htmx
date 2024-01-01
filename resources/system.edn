@@ -28,6 +28,6 @@
  :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch
                       :user-service #ig/ref :core.services/user}
 
- :app.repos/user {:db #ig/ref :infra.db/datalevin}
+ :app.repos/user {:conn #ig/ref :infra.db/datalevin}
 
  :core.services/user {:user-repo #ig/ref :app.repos/user}}

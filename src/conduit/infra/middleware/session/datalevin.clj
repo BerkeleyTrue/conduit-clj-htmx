@@ -24,6 +24,6 @@
   (DatalevinStore. db))
 
 (defmethod ig/init-key :infra.middleware.session/datalevin [_ {:keys [db]}]
-  (timbre/info "Initializing Datalevin session store" db)
+  (timbre/info "Initializing atalevin session store")
   (d/open-dbi db dbi)
   (datalevin-store db))
