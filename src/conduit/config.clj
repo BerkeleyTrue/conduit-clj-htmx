@@ -1,5 +1,6 @@
 (ns conduit.config
   (:require
+   [clojure.java.io :as io]
    [aero.core :as aero]
    [integrant.core :as ig]
    [conduit.env :as env]))
@@ -11,6 +12,6 @@
   (ig/refset value))
 
 (defn get-config []
-  (aero/read-config "system.edn" (:config env/defaults)))
+  (aero/read-config (io/resource "system.edn") (:config env/defaults)))
 
 (def config (get-config))
