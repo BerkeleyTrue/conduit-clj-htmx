@@ -12,32 +12,25 @@
 (comment
   (->fn-name '->foo-bar))
 
-(defmacro deffact [name & args]
-  "takes a deffact function and returns factory function
+(defmacro defact [name & args]
+  "takes a function and returns factory function
+  (defact name doc-string? [deps] condition-map? [args] body...)
   (deffact ->foo-bar [deps] [args] (body)) =>
     (defn ->foo-bar [deps]
       (fn foo-bar [args] (body)))"
   (let [fn-name# (->fn-name name)
-        docstring (if (string? (first args))
-                    (first args)
-                    nil)
-        deps# (if docstring
-                (second args)
-                (first args))
-        args# (if docstring
-                ; if there is a docstring, the args are the third element
-                (nth args 2)
-                (second args))
-        body  (if docstring
-                ; if there is a docstring, the body is the everything but the first four elements
-                (drop 3 args)
-                (drop 2 args))]
+        [docstring & args] (if (string? (first args))
+                             args
+                             (concat [nil] args))
+        [deps# & args] args
+        [condition-map# fn-args# & body] (if (map? (first args))
+                                           args
+                                           (concat [{}] args))]
 
-    `(defn ~name {:doc ~docstring} ~deps#
-       (fn ~fn-name# ~args# ~@body))))
-
+    `(defn ~name {:doc ~docstring} ~deps# ~condition-map#
+       (fn ~fn-name# ~fn-args# ~@body))))
 
 (comment
-  (macroexpand-1 '(deffact ->foo-bar [deps] [args] (body)))
-  (macroexpand-1 '(deffact ->foo-bar "docstring" [deps]  [args] (body) (body2)))
-  ,)
+  (macroexpand-1 '(defact ->foo-bar [deps] [args] (do body)))
+  (macroexpand-1 '(defact ->foo-bar "docstring" [deps] [args] (do body) (print "foo")))
+  (macroexpand-1 '(defact ->foo-bar "docstring" [deps] {:pre [(deps? deps)]} [args] (do body) (print "foo"))))
