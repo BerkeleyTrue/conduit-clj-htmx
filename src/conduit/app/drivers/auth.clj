@@ -3,7 +3,8 @@
    [taoensso.timbre :as timbre]
    [conduit.infra.hiccup :refer [defhtml hyper]]
    [conduit.infra.utils :as utils]
-   [conduit.app.drivers.layout :refer [layout]]))
+   [conduit.app.drivers.layout :refer [layout]]
+   [conduit.utils.dep-macro :refer [defact]]))
 
 (defhtml render-auth [{:keys [isRegister]}]
   (layout
@@ -57,13 +58,14 @@
   (utils/response
    (render-auth {:isRegister false})))
 
-(defn ->post-login-page [login-service]
-  (fn post-login-page [request]
-    (let [params (:params request)
-          _ (timbre/info "params" params)
-          user (login-service params)]
-      (utils/response
-       (render-auth {:isRegister false})))))
+(defact ->post-login-page [login-service]
+  {:pre [(fn? login-service)]}
+  [request]
+  (let [params (:params request)
+        _ (timbre/info "params" params)
+        user (login-service params)]
+    (utils/response
+     (render-auth {:isRegister false}))))
 
 (defn ->login-routes [login-service]
   ["login"
