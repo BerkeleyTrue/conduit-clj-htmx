@@ -4,6 +4,7 @@
    [integrant.core :as ig]
    [conduit.utils.dep-macro :refer [defact]]))
 
+(defn noop [])
 (def user-schema
   {:user/email
    {:db/ident       :user/email
@@ -27,21 +28,44 @@
                       :user/password password
                       :user/created-at created-at}]))
 
-(defn ->find-user-by-email [conn]
+(defact ->get-by-email [conn]
   {:pre [(d/conn? conn)]}
-  (fn find-user-by-email [{:keys [email]}]
-    (let [query (d/q '[:find ?e ?email ?username ?password ?created-at
-                       :in $ ?email
-                       :where
-                       [?e :user/email ?email]
-                       [?e :user/username ?username]
-                       [?e :user/password ?password]
-                       [?e :user/created-at ?created-at]]
-                     (d/db conn)
-                     email)]
-      (first query))))
+  [{:keys [email]}]
+  (let [query (d/q '[:find ?e ?email ?username ?password ?created-at
+                     :in $ ?email
+                     :where
+                     [?e :user/email ?email]
+                     [?e :user/username ?username]
+                     [?e :user/password ?password]
+                     [?e :user/created-at ?created-at]]
+                   (d/db conn)
+                   email)]
+    (first query)))
+
+(defact ->get-by-username [conn]
+  {:pre [(d/conn? conn)]}
+  [{:keys [username]}]
+  (let [query (d/q '[:find ?e ?email ?username ?password ?created-at
+                     :in $ ?username
+                     :where
+                     [?e :user/email ?email]
+                     [?e :user/username ?username]
+                     [?e :user/password ?password]
+                     [?e :user/created-at ?created-at]]
+                   (d/db conn)
+                   username)]
+    (first query)))
+
+(defact ->get-following [_] [])
+(defact ->update [_] [])
+(defact ->follow [_] [])
+(defact ->unfollow [_] [])
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [conn]}]
-  (assert (d/conn? conn))
   {:create-user (->create-user conn)
-   :find-user-by-email (->find-user-by-email conn)})
+   :get-by-email (->get-by-email conn)
+   :get-by-username (->get-by-username conn)
+   :get-following (->get-following conn)
+   :update (->update conn)
+   :follow (->follow conn)
+   :unfollow (->unfollow conn)})
