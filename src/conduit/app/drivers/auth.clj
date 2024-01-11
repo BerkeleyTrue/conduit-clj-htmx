@@ -58,21 +58,24 @@
   (utils/response
    (render-auth {:isRegister false})))
 
-(defact ->post-login-page [login-service]
-  {:pre [(fn? login-service)]}
+(defact ->post-login-page [{:keys [login]}]
+  {:pre [(fn? login)]}
   [request]
   (let [params (:params request)
         _ (timbre/info "params" params)
-        user (login-service params)]
-    (utils/response
-     (render-auth {:isRegister false}))))
+        user (login params)
+        _ (timbre/info "user: " user)]
+    (if (nil? user)
+      (utils/list-errors-response {:login "No user with that email and password was found"})
+      (utils/response
+       (render-auth {:isRegister false})))))
 
-(defn ->login-routes [login-service]
+(defn ->login-routes [user-service]
   ["login"
    {:name ::login
     :get get-login-page
     :post
-    {:handler (->post-login-page login-service)
+    {:handler (->post-login-page user-service)
      :parameters {:form
                   [:map
                    [:email :email]
