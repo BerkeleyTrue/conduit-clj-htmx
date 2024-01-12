@@ -1,6 +1,7 @@
 (ns conduit.app.drivers.auth
   (:require
    [taoensso.timbre :as timbre]
+   [ring.util.response :as response]
    [conduit.infra.hiccup :refer [defhtml hyper]]
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]
@@ -62,13 +63,10 @@
   {:pre [(fn? login)]}
   [request]
   (let [params (:params request)
-        _ (timbre/info "params" params)
-        user (login params)
-        _ (timbre/info "user: " user)]
+        user (login params)]
     (if (nil? user)
       (utils/list-errors-response {:login "No user with that email and password was found"})
-      (utils/response
-       (render-auth {:isRegister false})))))
+      (response/redirect "/"))))
 
 (defn ->login-routes [user-service]
   ["login"
@@ -81,11 +79,29 @@
                    [:email :email]
                    [:password :password]]}}}])
 
+(defact ->post-signup [{:keys [register]}]
+  {:pre [(fn? register)]}
+  [request]
+  (let [params (:params request)
+        _ (timbre/info "params" params)
+        user (register params)
+        _ (timbre/info "user: " user)]
+    (if (nil? user)
+      (utils/list-errors-response {:register "Couldn't create user with that email and password"})
+      (response/redirect "/"))))
+
 (defn get-register-page [_]
   (utils/response
    (render-auth {:isRegister true})))
 
-(defn ->register-routes []
+(defn ->register-routes [user-service]
   ["register"
    {:name :register
-    :get get-register-page}])
+    :get get-register-page
+    :post
+    {:handler (->post-signup user-service)
+     :parameters {:form
+                  [:map
+                   [:email :email]
+                   [:username [:string {:min 4 :max 32}]]
+                   [:password :password]]}}}])

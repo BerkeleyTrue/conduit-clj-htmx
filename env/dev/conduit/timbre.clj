@@ -8,4 +8,3 @@
  {:timestamp-opts {:pattern "HH:mm:ss"
                    :locale (java.util.Locale. "en")
                    :time-zone (ZoneId/systemDefault)}})
-

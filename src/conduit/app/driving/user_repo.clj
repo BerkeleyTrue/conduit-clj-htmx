@@ -4,7 +4,6 @@
    [integrant.core :as ig]
    [conduit.utils.dep-macro :refer [defact]]))
 
-(defn noop [])
 (def user-schema
   {:user/email
    {:db/ident       :user/email
@@ -18,6 +17,7 @@
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}})
 
+; TODO: return user
 (defact ->create-user
   [conn]
   {:pre [(d/conn? conn)]}
@@ -26,7 +26,16 @@
                       :user/username username
                       :user/email email
                       :user/password password
-                      :user/created-at created-at}]))
+                      :user/created-at created-at}])
+  (first (d/q '[:find ?e ?email ?username ?password ?created-at
+                :in $ ?email
+                :where
+                [?e :user/email ?email]
+                [?e :user/username ?username]
+                [?e :user/password ?password]
+                [?e :user/created-at ?created-at]]
+              (d/db conn)
+              email)))
 
 (defact ->get-by-email [conn]
   {:pre [(d/conn? conn)]}

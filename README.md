@@ -41,6 +41,18 @@ In Progress...
 
 ### Todo
 
+- Add seed data import
+  - [ ] Add Datalevin
+  - [ ] Add init script
+  - [ ] Add comments
+  - [ ] Add users
+  - [ ] Add articles
+  - [ ] Add get route
+  - [ ] Add author details
+  - [ ] Add default user on cli flag
+- Home
+  - [x] Render Page
+  - [ ] Load tags
 - Settings page
   - [ ] Get settings page
   - [ ] make errors dynamic
@@ -108,17 +120,17 @@ In Progress...
 
 #### Doing
 
-- Add seed data import
-  - [ ] Add Datalevin
-  - [ ] Add init script
-  - [ ] Add comments
-  - [ ] Add users
-  - [ ] Add articles
-  - [ ] Add get route
-  - [ ] Add author details
-  - [ ] Add default user on cli flag
-- Home
-  - [x] Render Page
-  - [ ] Load tags
+- Auth
+  - [ ] Add is authed middleware
+  - [x] Return and list errors from form
+  - [ ] Login
+    - [x] Post to Login
+    - [ ] Flash message on success
+  - [ ] Sign Up
+    - [ ] Post
+    - [ ] Create user
+    - [ ] Flash message on success
+    - [ ] Sign out
+    - [ ] Can re-login
 
 #### Done

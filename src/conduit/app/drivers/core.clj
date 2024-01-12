@@ -13,6 +13,6 @@
    ["__hotreload" {:name :hotreload
                    :get (hot-reload/->get-sse on-start-ch)}]
    (auth/->login-routes user-service)
-   (auth/->register-routes)])
+   (auth/->register-routes user-service)])
 
 (derive :app.routes/drivers :app/routes)
