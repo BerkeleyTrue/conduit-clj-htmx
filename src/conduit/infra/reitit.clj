@@ -9,12 +9,12 @@
    [reitit.ring :as ring]
    [reitit.ring.coercion :as coercion]
    [reitit.ring.middleware.muuntaja :as muu.mid]
-   [reitit.ring.middleware.exception :as exception]
    [reitit.ring.middleware.defaults :refer [ring-defaults-middleware]]
    [reitit.coercion.malli :as coercion.malli]
    [buddy.auth.middleware :refer [wrap-authentication]]
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
    [conduit.infra.middleware.auth :refer [auth-backend]]
+   [conduit.infra.middleware.logger :refer [logger]]
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core
@@ -29,7 +29,8 @@
        :middleware (into
                     (:middleware env/defaults)
                     (into
-                      [exception/exception-middleware] ; TODO: don't need both this ans wrap-stacktrace, need to come up with a better way to handle exceptions
+                      [{:name :logger
+                        :wrap logger}]
                       (conj
                         ring-defaults-middleware  ; session is added here
                         muu.mid/format-middleware
