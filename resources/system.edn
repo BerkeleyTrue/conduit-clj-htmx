@@ -18,8 +18,11 @@
 
  :infra.routes/health {}
 
- :infra.db/datalevin {:config "data/datalevin/db"}
  :infra.db/datalevin-kv {:config "data/datalevin/kv"}
+
+ :infra.db/xtdb {:index-dir "data/xtdb/index"
+                 :doc-dir "data/xtdb/doc"
+                 :log-dir "data/xtdb/log"}
 
  :infra.middleware.session/datalevin {:db #ig/ref :infra.db/datalevin-kv}
 
@@ -28,6 +31,6 @@
  :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch
                       :user-service #ig/ref :core.services/user}
 
- :app.repos/user {:conn #ig/ref :infra.db/datalevin}
+ :app.repos/user {:conn #ig/ref :infra.db/xtdb}
 
  :core.services/user {:user-repo #ig/ref :app.repos/user}}

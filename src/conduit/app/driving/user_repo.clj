@@ -2,7 +2,8 @@
   (:require
    [datalevin.core :as d]
    [integrant.core :as ig]
-   [conduit.utils.dep-macro :refer [defact]]))
+   [conduit.utils.dep-macro :refer [defact]]
+   [conduit.utils.xtdb :refer [xtdb?]]))
 
 (def user-schema
   {:user/email
@@ -17,10 +18,9 @@
     :db/cardinality :db.cardinality/one
     :db/unique      :db.unique/identity}})
 
-; TODO: return user
 (defact ->create-user
   [conn]
-  {:pre [(d/conn? conn)]}
+  {:pre [(xtdb? conn)]}
   [{:keys [email password username created-at]}]
   (d/transact! conn [{:db/id -1
                       :user/username username
