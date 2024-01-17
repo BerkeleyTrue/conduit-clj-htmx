@@ -1,68 +1,59 @@
 (ns conduit.app.driving.user-repo
   (:require
-   [datalevin.core :as d]
    [integrant.core :as ig]
+   [xtdb.api :as xt]
    [conduit.utils.dep-macro :refer [defact]]
-   [conduit.utils.xtdb :refer [xtdb?]]))
-
-(def user-schema
-  {:user/email
-   {:db/ident       :user/email
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/unique      :db.unique/identity}
-
-   :user/username
-   {:db/ident       :user/username
-    :db/valueType   :db.type/string
-    :db/cardinality :db.cardinality/one
-    :db/unique      :db.unique/identity}})
+   [conduit.utils.xtdb :refer [node?]])
+  (:import [java.util UUID]))
 
 (defact ->create-user
-  [conn]
-  {:pre [(xtdb? conn)]}
+  [node]
+  {:pre [(node? node)]}
   [{:keys [email password username created-at]}]
-  (d/transact! conn [{:db/id -1
-                      :user/username username
-                      :user/email email
-                      :user/password password
-                      :user/created-at created-at}])
-  (first (d/q '[:find ?e ?email ?username ?password ?created-at
-                :in $ ?email
-                :where
-                [?e :user/email ?email]
-                [?e :user/username ?username]
-                [?e :user/password ?password]
-                [?e :user/created-at ?created-at]]
-              (d/db conn)
-              email)))
+  (xt/submit-tx node [[::xt/put
+                       {:xt/id email
+                        :user/username username
+                        :user/email email
+                        :user/password password
+                        :user/created-at created-at}]])
+  (sync node)
+  (first (xt/q
+           (xt/db node)
+           '[:find ?e ?email ?username ?password ?created-at
+             :in $ ?email
+             :where
+             [?e :user/email ?email]
+             [?e :user/username ?username]
+             [?e :user/password ?password]
+             [?e :user/created-at ?created-at]]
+           email)))
 
 (defact ->get-by-email [conn]
-  {:pre [(d/conn? conn)]}
+  {:pre [(node? conn)]}
   [{:keys [email]}]
-  (let [query (d/q '[:find ?e ?email ?username ?password ?created-at
-                     :in $ ?email
-                     :where
-                     [?e :user/email ?email]
-                     [?e :user/username ?username]
-                     [?e :user/password ?password]
-                     [?e :user/created-at ?created-at]]
-                   (d/db conn)
-                   email)]
+  (let [query (xt/q '[:find ?e ?email ?username ?password ?created-at
+                      :in $ ?email
+                      :where
+                      [?e :user/email ?email]
+                      [?e :user/username ?username]
+                      [?e :user/password ?password]
+                      [?e :user/created-at ?created-at]]
+                    (xt/db conn)
+                    email)]
     (first query)))
 
-(defact ->get-by-username [conn]
-  {:pre [(d/conn? conn)]}
+(defact ->get-by-username [node]
+  {:pre [(node? node)]}
   [{:keys [username]}]
-  (let [query (d/q '[:find ?e ?email ?username ?password ?created-at
-                     :in $ ?username
-                     :where
-                     [?e :user/email ?email]
-                     [?e :user/username ?username]
-                     [?e :user/password ?password]
-                     [?e :user/created-at ?created-at]]
-                   (d/db conn)
-                   username)]
+  (let [query (xt/q '[:find ?e ?email ?username ?password ?created-at
+                      :in $ ?username
+                      :where
+                      [?e :user/email ?email]
+                      [?e :user/username ?username]
+                      [?e :user/password ?password]
+                      [?e :user/created-at ?created-at]]
+                    (xt/db node)
+                    username)]
     (first query)))
 
 (defact ->get-following [_] [])

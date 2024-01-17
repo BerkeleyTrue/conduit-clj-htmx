@@ -1,9 +1,7 @@
 (ns conduit.utils.xtdb
-  (:import
-    [xtdb.api IXtdb])
+  (:import [xtdb.node XtdbNode])
   (:require
-    [taoensso.timbre :as timbre]))
+    [xtdb.node]))
 
-(defn xtdb? [node?]
-  (timbre/info "Checking if node is an xtdb instance: " (pr-str node?))
-  (instance? IXtdb node?))
+(defn node? [?node]
+  (instance? XtdbNode ?node))
