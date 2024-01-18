@@ -3,7 +3,9 @@
    [clojure.java.io :as io]
    [integrant.core :as ig]
    [xtdb.api :as xt]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [conduit.app.driving.user-repo :as user-repo]))
+
 
 (defmethod ig/init-key :infra.db/xtdb [_ {:keys [index-dir doc-dir log-dir]}]
   (let [node (xt/start-node
@@ -13,6 +15,7 @@
                                                 :db-dir (io/file doc-dir)}}
                :xtdb/index-store {:kv-store {:xtdb/module 'xtdb.lmdb/->kv-store
                                              :db-dir (io/file index-dir)}}})
+        _ (xt/submit-tx node user-repo/transaction-functions)
         f (future (xt/sync node))]
 
     (while (not (realized? f))

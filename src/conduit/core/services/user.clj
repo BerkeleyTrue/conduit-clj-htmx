@@ -2,19 +2,23 @@
   (:require
    [conduit.utils.auth :as auth]
    [integrant.core :as ig]
-   [conduit.utils.dep-macro :refer [defact]]))
+   [conduit.utils.dep-macro :refer [defact]])
+  (:import
+   [java.util UUID Date]))
 
 (defact ->register [{:keys [create-user get-by-email]}]
-  {:pre [(fn? create-user)]}
+  {:pre [(fn? create-user) (fn? get-by-email)]}
   [{:keys [username email password]}]
   (let [user (get-by-email {:email email})]
     (if (not (nil? user))
       {:error "Email is alread in use"}
       (let [hashed-password (auth/hash-password password)
-            user (create-user {:username username
+            id (str (UUID/randomUUID))
+            user (create-user {:id id
+                               :username username
                                :email email
                                :password hashed-password
-                               :created-at (str (java.util.Date.))})]
+                               :created-at (str (Date.))})]
         (if (nil? user)
           {:error "Couldn't create user with that email and password"}
           {:user user})))))
