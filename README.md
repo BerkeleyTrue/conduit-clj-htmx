@@ -42,7 +42,7 @@ In Progress...
 ### Todo
 
 - Add seed data import
-  - [ ] Add Datalevin
+  - [ ] Add xtdb
   - [ ] Add init script
   - [ ] Add comments
   - [ ] Add users
@@ -134,3 +134,7 @@ In Progress...
     - [ ] Can re-login
 
 #### Done
+
+- [x] refactor to xtdb
+  - [x] swap out datalevin for xtdb
+  - [x] swap session to xtdb or some kv store other then datalevin

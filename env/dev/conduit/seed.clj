@@ -1,7 +1,6 @@
 (ns conduit.seed
   (:require
-    [conduit.config :refer [get-config]]
-    [conduit.infra.datalevin :as d]))
+    [conduit.config :refer [get-config]]))
 
 
 (def config (get-config))

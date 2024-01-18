@@ -10,7 +10,7 @@
 
  :infra.router/core
  {:routes #ig/ref :infra.router/routes
-  :session-store #ig/ref :infra.middleware.session/datalevin}
+  :session-store #ig/ref :infra.middleware.session/xtdb}
 
  :infra.router/routes
  {:infra-routes #ig/refset :infra/routes
@@ -18,13 +18,11 @@
 
  :infra.routes/health {}
 
- :infra.db/datalevin-kv {:config "data/datalevin/kv"}
-
  :infra.db/xtdb {:index-dir "data/xtdb/index"
                  :doc-dir "data/xtdb/doc"
                  :log-dir "data/xtdb/log"}
 
- :infra.middleware.session/datalevin {:db #ig/ref :infra.db/datalevin-kv}
+ :infra.middleware.session/xtdb {:node #ig/ref :infra.db/xtdb}
 
  :app/on-start-ch {}
 

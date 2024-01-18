@@ -1,4 +1,5 @@
 (ns conduit.infra.middleware.session.datalevin
+  "No longer used, but kept for reference."
   (:require
    [ring.middleware.session.store :refer [SessionStore]]
    [integrant.core :as ig]
@@ -20,10 +21,7 @@
   (delete-session [_ key]
     (d/transact-kv db [[:del dbi key]])))
 
-(defn datalevin-store [db]
-  (DatalevinStore. db))
-
 (defmethod ig/init-key :infra.middleware.session/datalevin [_ {:keys [db]}]
-  (timbre/info "Initializing atalevin session store")
+  (timbre/info "Initializing datalevin session store")
   (d/open-dbi db dbi)
-  (datalevin-store db))
+  (->DatalevinStore db))

@@ -25,5 +25,5 @@
 
     node))
 
-(defmethod ig/halt-key! :infra.db/datalevin [_ node]
+(defmethod ig/halt-key! :infra.db/xtdb [_ node]
   (.close node))
