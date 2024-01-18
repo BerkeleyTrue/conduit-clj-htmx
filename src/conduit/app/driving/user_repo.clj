@@ -6,7 +6,7 @@
    [conduit.utils.xtdb :refer [node?]]))
 
 (def transaction-functions
-  [[:xt/put
+  [[::xt/put
     {:xt/id :add-to-following
      :xt/fn
      '(fn add-to-following [ctx eid new-follower]
