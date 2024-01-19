@@ -10,29 +10,26 @@
   SessionStore
   (read-session [_ key]
     (when (not (nil? key))
-      (first
-       (xt/q
-        (xt/db node)
-        '{:find [?session-id ?session-data]
-          :where [[?session-id :session/id key]
-                  [?session-id :session/data ?session-data]]
-          :in [key]}
-        key))))
+      (->
+        node
+        (xt/db)
+        (xt/entity key)
+        (:session/data))))
 
   (write-session [_ key val]
-    (let [key (or key (str key (UUID/randomUUID)))]
-      (xt/submit-tx
-        node
-        [[::xt/put
-          {:xt/id key
-           :session/id key
-           :session/data val}]])
+    (let [key (or key (str key (UUID/randomUUID)))
+          tx-res (xt/submit-tx
+                   node
+                   [[::xt/put
+                     {:xt/id key
+                      :session/id key
+                      :session/data val}]])]
+      (xt/await-tx node tx-res)
       key))
 
   (delete-session [_ key]
-    (xt/submit-tx
-      node
-      [[::xt/delete key]])))
+    (xt/await-tx node (xt/submit-tx node [[::xt/delete key]]))
+    nil))
 
 (defmethod ig/init-key :infra.middleware.session/xtdb [_ {:keys [node]}]
   (timbre/info "Initializing xtdb session store")
