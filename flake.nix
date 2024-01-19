@@ -23,12 +23,19 @@
           echo "Starting dev repl"
           ${pkgs.babashka}/bin/bb dev
         '';
+        koacha = pkgs.writeShellScriptBin "koacha" ''
+          ${pkgs.clojure}/bin/clj -M:test "$@"
+        '';
       in {
         formatter.default = pkgs.alejandra;
         boulder.commands = [
           {
             exec = dev;
             description = "Start a dev repl";
+          }
+          {
+            exec = koacha;
+            description = "start test runner";
           }
         ];
 

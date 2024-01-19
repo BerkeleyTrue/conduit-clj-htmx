@@ -1,0 +1,25 @@
+#kaocha/v1
+{:tests [{;; Every suite must have an :id
+          :id :unit
+          :source-paths ["src" "env/test"]
+          :test-paths ["test"]}]
+ ;; Colorize output (use ANSI escape sequences).
+ :color?      true
+
+ ;; Watch the file system for changes and re-run. You can change this here to be
+ ;; on by default, then disable it when necessary with `--no-watch`.
+ :watch?      true
+
+ ;; Specifiy the reporter function that generates output. Must be a namespaced
+ ;; symbol, or a vector of symbols. The symbols must refer to vars, which Kaocha
+ ;; will make sure are loaded. When providing a vector of symbols, or pointing
+ ;; at a var containing a vector, then kaocha will call all referenced functions
+ ;; for reporting.
+ :reporter    kaocha.report/documentation
+
+ ;; Enable/disable output capturing.
+ :capture-output? true
+
+ ;; Plugin specific configuration. Show the 10 slowest tests of each type, rather
+ ;; than only 3.
+ :kaocha.plugin.profiling/count 10}
