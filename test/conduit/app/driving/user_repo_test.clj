@@ -19,7 +19,7 @@
               :email "foo@bar.com"
               :password "password"
               :created-at "2020-01-01"})
-            {:user/id id
+            {:xt/id id
              :user/email "foo@bar.com"}))))
 
     (testing "getting a user by email"
@@ -33,7 +33,7 @@
               :created-at "2020-01-01"})
             ((user-repo/->get-by-email *node*)
              {:email "bar@baz.com"}))
-          {:user/id :user/id2
+          {:xt/id :user/id2
            :user/email "bar@baz.com"})))
 
     (testing "getting a user by username"
@@ -42,10 +42,11 @@
           (do
             ((user-repo/->create-user *node*)
              {:id :user/id3
+              :email "bar@baz2.com"
               :username "bar"
               :password "password"
               :created-at "2020-01-01"})
-            ((user-repo/->get-by-email *node*)
-             {:email "bar@baz.com"}))
-          {:user/id :user/id3
+            ((user-repo/->get-by-username *node*)
+             {:username "bar"}))
+          {:xt/id :user/id3
            :user/username "bar"})))))
