@@ -9,6 +9,7 @@
  ;; Watch the file system for changes and re-run. You can change this here to be
  ;; on by default, then disable it when necessary with `--no-watch`.
  :watch?      true
+ :fail-fast?  true
 
  ;; Specifiy the reporter function that generates output. Must be a namespaced
  ;; symbol, or a vector of symbols. The symbols must refer to vars, which Kaocha
