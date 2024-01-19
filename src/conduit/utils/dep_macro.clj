@@ -12,12 +12,13 @@
 (comment
   (->fn-name '->foo-bar))
 
-(defmacro defact [name & args]
+(defmacro defact
   "takes a function and returns factory function
   (defact name doc-string? [deps] condition-map? [args] body...)
   (deffact ->foo-bar [deps] [args] (body)) =>
     (defn ->foo-bar [deps]
       (fn foo-bar [args] (body)))"
+  [name & args]
   (let [fn-name# (->fn-name name)
         [docstring & args] (if (string? (first args))
                              args

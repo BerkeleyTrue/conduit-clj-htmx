@@ -1,20 +1,9 @@
 (ns conduit.infra.middleware.session.xtdb-test
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
-   [xtdb.api :as xt]
    [ring.middleware.session.store :refer [read-session write-session delete-session]]
+   [fixtures.use-node :refer [db-fixture *node*]]
    [conduit.infra.middleware.session.xtdb :as session]))
-
-(def ^:dynamic *node* nil)
-
-(defn db-fixture [f]
-  (let [node (xt/start-node {})]
-    (binding [*node* node]
-      (try
-        (f)
-        (finally
-          (.close node))))
-    (.close node)))
 
 (use-fixtures :each db-fixture)
 
