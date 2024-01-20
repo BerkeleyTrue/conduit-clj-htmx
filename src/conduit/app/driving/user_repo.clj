@@ -25,16 +25,16 @@
    [::xt/put
     {:xt/id :users/update
      :xt/fn
-     '(fn update [ctx eid email username bio image]
+     '(fn update-user [ctx eid {:keys [email username bio image] :as foo}]
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
           [[::xt/put
             (->
               user
-              (update :user/email (or email (:email user)))
-              (update :user/username (or username (:username user)))
-              (update :user/bio (or bio (:bio user)))
-              (update :user/image (or image (:image user))))]]))}]])
+              (update :user/email (fn [old] (or email old)))
+              (update :user/username (fn [old] (or username old)))
+              (update :user/bio (fn [old] (or bio old)))
+              (update :user/image (fn [old] (or image old))))]]))}]])
 
 (defn get-by-email-query
   "query user by email"
@@ -92,10 +92,10 @@
                  [[::xt/fn
                    :users/update
                    id
-                   email
-                   username
-                   bio
-                   image]])]
+                   {:email email
+                    :username username
+                    :bio bio
+                    :image image}]])]
     (xt/await-tx node tx-res)
     (xt/entity (xt/db node) id)))
 

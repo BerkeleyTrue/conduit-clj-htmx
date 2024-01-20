@@ -131,8 +131,12 @@
         (to-equal
           (update-user
             {:id :user/id7
-             :email "foo2@bar.com"
-             :image "foo/bar/baz2.png"})
+             :email "foo2@bar2.com"
+             :username "new"
+             :image "foo/bar/baz2.png"
+             :bio "foo bar baz"})
           {:xt/id :user/id7
-           :user/email "foo@bar.com"
-           :user/image "foo/bar/baz.png"})))))
+           :user/email "foo2@bar2.com"
+           :user/image "foo/bar/baz2.png"
+           :user/bio "foo bar baz"
+           :user/username "new"})))))

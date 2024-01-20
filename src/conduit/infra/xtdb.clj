@@ -6,7 +6,6 @@
    [taoensso.timbre :as timbre]
    [conduit.app.driving.user-repo :as user-repo]))
 
-
 (defmethod ig/init-key :infra.db/xtdb [_ {:keys [index-dir doc-dir log-dir]}]
   (let [node (xt/start-node
               {:xtdb/tx-log {:kv-store {:xtdb/module 'xtdb.lmdb/->kv-store
@@ -27,3 +26,16 @@
 
 (defmethod ig/halt-key! :infra.db/xtdb [_ node]
   (.close node))
+
+(defmethod ig/init-key :infra.db/xtdb-listener [_ {:keys [node]}]
+  (xt/listen
+   node
+   {::xt/event-type ::xt/indexed-tx
+    :with-tx-ops? true}
+   (fn [tx]
+     (when-not (:committed? tx)
+       (let [ops (:xtdb.api/tx-ops tx)]
+         (timbre/error "error committing operations: " (pr-str ops)))))))
+
+(defmethod ig/halt-key! :infra.db/xtdb-listener [_ listener]
+  (.close listener))

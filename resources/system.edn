@@ -22,6 +22,8 @@
                  :doc-dir "data/xtdb/doc"
                  :log-dir "data/xtdb/log"}
 
+ :infra.db/xtdb-listener {:node #ig/ref :infra.db/xtdb}
+
  :infra.middleware.session/xtdb {:node #ig/ref :infra.db/xtdb}
 
  :app/on-start-ch {}
