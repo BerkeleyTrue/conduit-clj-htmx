@@ -2,10 +2,10 @@
   (:require
    [clojure.test :refer [deftest is testing use-fixtures]]
    [ring.middleware.session.store :refer [read-session write-session delete-session]]
-   [fixtures.use-node :refer [db-fixture *node*]]
+   [fixtures.use-node :refer [->db-fixture *node*]]
    [conduit.infra.middleware.session.xtdb :as session]))
 
-(use-fixtures :each db-fixture)
+(use-fixtures :each (->db-fixture []))
 
 (deftest test-session
   (testing "session"
