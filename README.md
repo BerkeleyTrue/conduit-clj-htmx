@@ -121,10 +121,12 @@ In Progress...
 #### Doing
 
 - Auth
-  - [ ] Add is authed middleware
+  - [x] Add is authed middleware
   - [x] Return and list errors from form
   - [ ] Login
     - [x] Post to Login
+    - [x] Add user to session
+    - [ ] Add user data to layout
     - [ ] Flash message on success
   - [ ] Sign Up
     - [ ] Post
