@@ -13,12 +13,12 @@
    [reitit.coercion.malli :as coercion.malli]
    [buddy.auth.middleware :refer [wrap-authentication]]
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
-   [conduit.infra.middleware.auth :refer [auth-backend]]
+   [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware]]
    [conduit.infra.middleware.logger :refer [logger]]
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core
-  [_ {:keys [routes session-store] :as opts}]
+  [_ {:keys [routes session-store user-service] :as opts}]
   (let [routes (conj routes ["/public" (ring/create-resource-handler)])]
     (timbre/info "init router " routes)
     (ring/router
@@ -36,6 +36,7 @@
                         muu.mid/format-middleware
 
                         [wrap-authentication auth-backend] ; requires session middleware
+                        (->authen-middleware user-service)
                         coerce-exceptions-htmx-middleware
                         coercion/coerce-request-middleware
                         coercion/coerce-response-middleware)))

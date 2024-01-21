@@ -30,7 +30,13 @@
     (when (and user (auth/verify-password password (:password user)))
       user)))
 
-(defact ->get-user [_] [])
+(defact ->get-by-id
+  "get a user by user id"
+  [{:keys [get-by-id]}]
+  {:pre [(fn? get-by-id)]}
+  [user-id]
+  (get-by-id {:id user-id}))
+
 (defact ->get-id-from-username [_] [])
 (defact ->get-profile [_] [])
 (defact ->get-following [_] [])
@@ -40,7 +46,7 @@
 (defmethod ig/init-key :core.services/user [_ {:keys [user-repo]}]
   {:register (->register user-repo)
    :login (->login user-repo)
-   :get-user (->get-user user-repo)
+   :get-by-id (->get-by-id user-repo)
    :get-id-from-username (->get-id-from-username user-repo)
    :get-profile (->get-profile user-repo)
    :get-following (->get-following user-repo)

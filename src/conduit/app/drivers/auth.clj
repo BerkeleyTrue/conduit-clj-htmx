@@ -66,7 +66,9 @@
         user (login params)]
     (if (nil? user)
       (utils/list-errors-response {:login "No user with that email and password was found"})
-      (response/redirect "/"))))
+      (->
+        (response/redirect "/")
+        (update :session assoc :identity (:user-id user))))))
 
 (defn ->login-routes [user-service]
   ["login"
@@ -88,7 +90,9 @@
         _ (timbre/info "user: " user)]
     (if (nil? user)
       (utils/list-errors-response {:register "Couldn't create user with that email and password"})
-      (response/redirect "/"))))
+      (->
+        (response/redirect "/")
+        (update :session assoc :identity (:user-id user))))))
 
 (defn get-register-page [_]
   (utils/response

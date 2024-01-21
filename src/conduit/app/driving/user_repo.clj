@@ -64,6 +64,12 @@
     (xt/await-tx node tx-res)
     (xt/entity (xt/db node) id)))
 
+(defact ->get-by-id
+  [node]
+  {:pre [(node? node)]}
+  [{:keys [id]}]
+  (xt/entity (xt/db node) id))
+
 (defact ->get-by-email [node]
   {:pre [(node? node)]}
   [{:keys [email]}]
@@ -143,6 +149,7 @@
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)
+   :get-by-id (->get-by-id node)
    :get-by-email (->get-by-email node)
    :get-by-username (->get-by-username node)
    :get-following (->get-following node)

@@ -10,7 +10,8 @@
 
  :infra.router/core
  {:routes #ig/ref :infra.router/routes
-  :session-store #ig/ref :infra.middleware.session/xtdb}
+  :session-store #ig/ref :infra.middleware.session/xtdb
+  :user-service #ig/ref :core.services/user}
 
  :infra.router/routes
  {:infra-routes #ig/refset :infra/routes
@@ -31,6 +32,6 @@
  :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch
                       :user-service #ig/ref :core.services/user}
 
- :app.repos/user {:conn #ig/ref :infra.db/xtdb}
+ :app.repos/user {:node #ig/ref :infra.db/xtdb}
 
  :core.services/user {:user-repo #ig/ref :app.repos/user}}
