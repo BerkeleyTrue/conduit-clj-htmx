@@ -6,38 +6,39 @@
   [:map
    {:title "User"
     :description "A user"}
-   [:user/id number?]
-   [:username string?]
-   [:email string?]
-   [:password string?]
-   [:bio string?]
-   [:image string?]
-   [:followers [:set number?]] ; user ids
+   [:user-id :uuid]
+   [:username :string]
+   [:email :email]
+   [:password :string]
+   [:bio {:optional true} :string]
+   [:image {:optional true} :string]
+   [:following [:set :uuid]] ; user ids
 
-   [:created-at string?]
-   [:updated-at string?]])
+   [:created-at :string]
+   [:updated-at {:optional true} :string]])
 
 (def Article
   [:map
    {:title "Article"
     :description "An article"}
-   [:articleId number?]
-   [:authorId number?]
+   [:article-id :uuid]
+   [:author-id :uuid]
    [:title string?]
    [:slug string?]
    [:description string?]
    [:body string?]
    [:tags [:set string?]]
 
-   [:created-at string?]])
+   [:created-at string?]
+   [:updated-at string?]])
 
 (def Comment
   [:map
    {:title "Comment"
-    :description "A comment"}
-   [:comment-id number?]
-   [:article-id number?]
-   [:author-id number?]
+    :description "A comment on an article"}
+   [:comment-id :uuid]
+   [:article-id :uuid]
+   [:author-id  :uuid]
    [:body string?]
 
    [:created-at string?]])

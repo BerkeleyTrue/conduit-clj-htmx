@@ -2,8 +2,38 @@
   (:require
    [integrant.core :as ig]
    [xtdb.api :as xt]
+   [malli.core :as m]
+   [conduit.core.models :refer [User]]
    [conduit.utils.dep-macro :refer [defact]]
+   [conduit.utils.malli]
    [conduit.utils.xtdb :refer [node?]]))
+
+(def UserEntity
+  [:map
+   [:xt/id :uuid]
+   [:user/email :email]
+   [:user/username :string]
+   [:user/bio {:optional true} :string]
+   [:user/image {:optional true} :string]
+   [:user/following [:set :uuid]]
+   [:user/password :string]
+   [:user/created-at :string]
+   [:user/update-at {:optional true} :string]])
+
+(m/=> format-to-domain [:=> [:cat UserEntity] User])
+(defn format-to-domain
+  "formats a user entity to a domain user"
+  [user]
+  {:user-id (:xt/id user)
+   :email (:user/email user)
+   :username (:user/username user)
+   :bio (:user/bio user)
+   :image (:user/image user)
+   :following (:user/following user)
+   :password (:user/password user)
+
+   :created-at (:user/created-at user)
+   :updated-at (:user/updated-at user)})
 
 (def transaction-functions
   [[::xt/put
@@ -30,25 +60,11 @@
               user (xtdb.api/entity db eid)]
           [[::xt/put
             (->
-              user
-              (update :user/email (fn [old] (or email old)))
-              (update :user/username (fn [old] (or username old)))
-              (update :user/bio (fn [old] (or bio old)))
-              (update :user/image (fn [old] (or image old))))]]))}]])
-
-(defn get-by-email-query
-  "query user by email"
-  [node email]
-  (->
-    node
-    (xt/db)
-    (xt/q
-      '{:find [(pull ?user [*])]
-        :where [[?user :user/email email]]
-        :in [email]}
-      email)
-    (first)
-    (first)))
+             user
+             (update :user/email (fn [old] (or email old)))
+             (update :user/username (fn [old] (or username old)))
+             (update :user/bio (fn [old] (or bio old)))
+             (update :user/image (fn [old] (or image old))))]]))}]])
 
 (defact ->create-user
   [node]
@@ -62,31 +78,46 @@
                                      :user/password password
                                      :user/created-at created-at}]])]
     (xt/await-tx node tx-res)
-    (xt/entity (xt/db node) id)))
+    (->
+     (xt/entity (xt/db node) id)
+     (format-to-domain))))
 
 (defact ->get-by-id
   [node]
   {:pre [(node? node)]}
   [{:keys [id]}]
-  (xt/entity (xt/db node) id))
+  (->
+   (xt/entity (xt/db node) id)
+   (format-to-domain)))
 
 (defact ->get-by-email [node]
   {:pre [(node? node)]}
   [{:keys [email]}]
-  (get-by-email-query node email))
+  (->
+   node
+   (xt/db)
+   (xt/q
+    '{:find [(pull ?user [*])]
+      :where [[?user :user/email email]]
+      :in [email]}
+    email)
+   (first)
+   (first)
+   (format-to-domain)))
 
 (defact ->get-by-username [node]
   {:pre [(node? node)]}
   [{:keys [username]}]
   (->
-    (xt/db node)
-    (xt/q
-      '{:find [(pull ?user [*])]
-        :where [[?user :user/username username]]
-        :in [username]}
-      username)
-    (first)
-    (first)))
+   (xt/db node)
+   (xt/q
+    '{:find [(pull ?user [*])]
+      :where [[?user :user/username username]]
+      :in [username]}
+    username)
+   (first)
+   (first)
+   (format-to-domain)))
 
 (defact ->update
   "Update user profile"
@@ -94,16 +125,18 @@
   {:pre [(node? node)]}
   [{:keys [id email username bio image]}]
   (let [tx-res (xt/submit-tx
-                 node
-                 [[::xt/fn
-                   :users/update
-                   id
-                   {:email email
-                    :username username
-                    :bio bio
-                    :image image}]])]
+                node
+                [[::xt/fn
+                  :users/update
+                  id
+                  {:email email
+                   :username username
+                   :bio bio
+                   :image image}]])]
     (xt/await-tx node tx-res)
-    (xt/entity (xt/db node) id)))
+    (->
+     (xt/entity (xt/db node) id)
+     (format-to-domain))))
 
 (defact ->follow
   "A user follows an author"
@@ -111,13 +144,15 @@
   {:pre [(node? node)]}
   [{:keys [user-id author-id]}]
   (let [tx-res (xt/submit-tx
-                 node
-                 [[::xt/fn
-                   :users/follow-author
-                   user-id
-                   author-id]])]
+                node
+                [[::xt/fn
+                  :users/follow-author
+                  user-id
+                  author-id]])]
     (xt/await-tx node tx-res)
-    (xt/entity (xt/db node) user-id)))
+    (->
+     (xt/entity (xt/db node) user-id)
+     (format-to-domain))))
 
 (defact ->unfollow
   "A user unfollows an author"
@@ -125,27 +160,31 @@
   {:pre [(node? node)]}
   [{:keys [user-id author-id]}]
   (let [tx-res (xt/submit-tx
-                 node
-                 [[::xt/fn
-                   :users/unfollow-author
-                   user-id
-                   author-id]])]
+                node
+                [[::xt/fn
+                  :users/unfollow-author
+                  user-id
+                  author-id]])]
     (xt/await-tx node tx-res)
-    (xt/entity (xt/db node) author-id)))
+    (->
+     (xt/entity (xt/db node) author-id)
+     (format-to-domain))))
 
 (defact ->get-following
   "get a list of user ids that follow this author"
   [node]
   {:pre [(node? node)]}
   [{:keys [author-id]}]
-  (let [query (xt/q
-                (xt/db node)
-                '{:find [(pull ?user [*])]
-                  :where [[?e :xt/id]
-                          [?e :following/author ?author-id]]
-                  :in [id]}
-                author-id)]
-    (first query)))
+  (->
+   (xt/q
+    (xt/db node)
+    '{:find [(pull ?user [*])]
+      :where [[?e :xt/id]
+              [?e :following/author ?author-id]]
+      :in [id]}
+    author-id)
+   (first)
+   (format-to-domain)))
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)

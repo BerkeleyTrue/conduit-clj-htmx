@@ -24,12 +24,12 @@
                              args
                              (concat [nil] args))
         [deps# & args] args
-        [condition-map# fn-args# & body] (if (map? (first args))
-                                           args
-                                           (concat [{}] args))]
+        [condition-map# & fndef] (if (map? (first args))
+                                  args
+                                  (concat [{}] args))]
 
     `(defn ~name {:doc ~docstring} ~deps# ~condition-map#
-       (fn ~fn-name# ~fn-args# ~@body))))
+       (fn ~fn-name# ~@fndef))))
 
 (comment
   (macroexpand-1 '(defact ->foo-bar [deps] [args] (do body)))

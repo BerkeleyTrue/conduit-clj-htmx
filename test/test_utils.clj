@@ -12,6 +12,11 @@
           expected-class (class expected)]
       (cond
         (or (nil? actual) (nil? expected)) nil
+        ; hash map and array map should be treated as the same
+        (and (= actual-class clojure.lang.PersistentArrayMap)
+             (= expected-class clojure.lang.PersistentHashMap)) clojure.lang.PersistentArrayMap
+        (and (= actual-class clojure.lang.PersistentHashMap)
+             (= expected-class clojure.lang.PersistentArrayMap)) clojure.lang.PersistentArrayMap
         (not= actual-class expected-class) :no-match
         :else actual-class))))
 
@@ -23,7 +28,10 @@
 
 (defmethod to-equal :no-match
   [actual expected]
-  (do-report {:type :fail :expected expected :actual actual :message "Classes do not match"})
+  (do-report {:type :fail
+              :expected expected
+              :actual actual
+              :message (str "Classes do not match. Expected: " (class expected) " Actual: " (class actual))})
   false)
 
 (defmethod to-equal clojure.lang.PersistentArrayMap
