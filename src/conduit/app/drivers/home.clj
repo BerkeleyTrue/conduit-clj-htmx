@@ -4,7 +4,7 @@
    [conduit.app.drivers.layout :refer [layout]]
    [conduit.infra.hiccup :refer [defhtml hyper]]))
 
-(defhtml homeComponent []
+(defhtml homeComponent [{:keys [authed?]}]
   [:div
    {:class "home-page"}
    [:div
@@ -23,17 +23,18 @@
        {:class "feed-toggle"}
        [:ul.nav.nav-pills.outline-active
         {:id "tabs"}
-        [:li.nav-item ; only if signed in
-         (hyper
-           "on click
-              remove .active from .nav-link in #tabs
-              add .active to .nav-link in me
-              set {hidden: true} on #tag-tab
-           "
-           {:hx-get "/articles/feed?limit=10"
-            ;:hx-trigger "click load delay:150ms"
-            :hx-target "#articles"})
-         [:a {:class "nav-link active"} "Your Feed"]]
+        (when authed?
+          [:li.nav-item ; only if signed in
+           (hyper
+             "on click
+                remove .active from .nav-link in #tabs
+                add .active to .nav-link in me
+                set {hidden: true} on #tag-tab
+             "
+             {:hx-get "/articles/feed?limit=10"
+              ; :hx-trigger "click load delay:150ms" ; TODO: implement backend
+              :hx-target "#articles"})
+           [:a {:class "nav-link active"} "Your Feed"]])
         [:li.nav-item
          (hyper
            "on click
@@ -42,10 +43,10 @@
              set {hidden: true} on #tag-tab
            "
            {:hx-get "/articles?limit=10"
-            ;:hx-trigger "click load delay:150ms" ; only if not signed in
+            :hx-trigger (if authed? nil "click load delay:150ms") ; only if not signed in
             :hx-target "#articles"})
          [:a.nav-link
-          {:class "active"} ; only if not signed in
+          {:class (if authed? "" "active")} ; only if not signed in
           "Global Feed"]]
 
         [:li.nav-item
@@ -63,7 +64,7 @@
       [:div.sidebar
        {:hx-get "/tags"
         :hx-target "#tags"}
-        ;:hx-trigger "load delay:150ms"}
+        ;:hx-trigger "load delay:150ms" ; TODO: implement backend
        [:p "Popular Tags"]
        [:div.tag-list
         (hyper
@@ -80,5 +81,7 @@
 
 (defn get-home-page
   "Returns the home page."
-  [_]
-  (utils/response (layout {:content (homeComponent)})))
+  [request]
+  (let [content (homeComponent {:authed? (:user request)})
+        layout-props (:layout-props request)]
+    (utils/response (layout layout-props content))))

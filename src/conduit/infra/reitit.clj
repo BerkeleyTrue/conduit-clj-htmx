@@ -11,7 +11,7 @@
    [reitit.ring.middleware.muuntaja :as muu.mid]
    [reitit.ring.middleware.defaults :refer [ring-defaults-middleware]]
    [reitit.coercion.malli :as coercion.malli]
-   [buddy.auth.middleware :refer [wrap-authentication]]
+   [buddy.auth.middleware :as auth]
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
    [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware]]
    [conduit.infra.middleware.logger :refer [logger]]
@@ -35,7 +35,8 @@
                         ring-defaults-middleware  ; session is added here
                         muu.mid/format-middleware
 
-                        [wrap-authentication auth-backend] ; requires session middleware
+                        [auth/wrap-authentication auth-backend] ; requires session middleware
+                        [auth/wrap-authorization auth-backend] ; requires session middleware
                         (->authen-middleware user-service)
                         coerce-exceptions-htmx-middleware
                         coercion/coerce-request-middleware

@@ -55,16 +55,11 @@
      [:a {:href "https://thinkster.io"} "Thinkster"]
      ". Code &amp; design licensed\n\t\t\t\tunder MIT."]]])
 
-(defhtml layout [{:keys [content links user current-uri]}]
-  (let [links (or links
-                  [{:uri "/"
-                    :title "Home"}
-                   {:uri "/login"
-                    :title "Sign in"}
-                   {:uri "/register",
-                    :title "Sign up"}])
+(defhtml layout
+  [{:keys [links user uri title]} content]
+  (let [links (or links [])
         user (or user {})
-        current-uri (or current-uri "/")]
+        current-uri (or uri "/")]
     (list
      (util/raw-string "<!DOCTYPE html>\n")
      [:html.fullscreen
@@ -72,7 +67,7 @@
        :data-theme "catppuccin"}
       [:head
        [:meta {:charset "utf-8"}]
-       [:title "Conduit"]
+       [:title (str "Conduit | " title)]
        [:link
         {:href "http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css",
          :rel "stylesheet",
@@ -134,6 +129,3 @@
        content
        (footer)
        (htmx-csrf)]])))
-
-(comment
-  (str (layout {:content [:h1 "Hello World"]})))

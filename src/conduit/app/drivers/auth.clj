@@ -7,57 +7,58 @@
    [conduit.app.drivers.layout :refer [layout]]
    [conduit.utils.dep-macro :refer [defact]]))
 
-(defhtml render-auth [{:keys [isRegister]}]
+(defhtml render-auth [{:keys [isRegister layout-props]}]
   (layout
-   {:content
-    [:div.auth-page
-     [:div.container.page
-      [:div.row
-       [:div.col-md-6.offset-md-3.col-xs-12
-        [:h1.text-xs-center
-         (if isRegister
-           "Sign up"
-           "Sign in")]
-        [:p.text-xs-center
-         {:hx-boost "true"}
-         (if isRegister
-           [:a {:href "/login"} "Have an account?"]
-           [:a {:href "/register"} "Need an account?"])]
-        [:ul.error-messages {:id "errors" :hidden ""}]
-        [:form
-         (hyper
-          "on submit set { hidden: true } on #errors"
-          {:id "authen"
-           :hx-post (if isRegister "/register" "/login")
-           :hx-target "body"
-           :hx-swap "outerHTML"
-           :hx-push-url "true"})
-         (when isRegister
-           [:fieldset.form-group
-            [:input.form-control.form-control-lg
-             {:id "username"
-              :name "username"
-              :placeholder "Username"
-              :type "text"}]])
-         [:fieldset.form-group
-          [:input.form-control.form-control-lg
-           {:id "email"
-            :name "email"
-            :placeholder "Email"
-            :type "text"}]]
-         [:fieldset.form-group
-          [:input.form-control.form-control-lg
-           {:id "password"
-            :name "password"
-            :placeholder "Password"
-            :type "password"}]]
-         [:button.btn.btn-lg.btn-primary.pull-xs-right
-          {:type "submit"}
-          "Sign in"]]]]]]}))
+   layout-props
+   [:div.auth-page
+    [:div.container.page
+     [:div.row
+      [:div.col-md-6.offset-md-3.col-xs-12
+       [:h1.text-xs-center
+        (if isRegister
+          "Sign up"
+          "Sign in")]
+       [:p.text-xs-center
+        {:hx-boost "true"}
+        (if isRegister
+          [:a {:href "/login"} "Have an account?"]
+          [:a {:href "/register"} "Need an account?"])]
+       [:ul.error-messages {:id "errors" :hidden ""}]
+       [:form
+        (hyper
+         "on submit set { hidden: true } on #errors"
+         {:id "authen"
+          :hx-post (if isRegister "/register" "/login")
+          :hx-target "body"
+          :hx-swap "outerHTML"
+          :hx-push-url "true"})
+        (when isRegister
+          [:fieldset.form-group
+           [:input.form-control.form-control-lg
+            {:id "username"
+             :name "username"
+             :placeholder "Username"
+             :type "text"}]])
+        [:fieldset.form-group
+         [:input.form-control.form-control-lg
+          {:id "email"
+           :name "email"
+           :placeholder "Email"
+           :type "text"}]]
+        [:fieldset.form-group
+         [:input.form-control.form-control-lg
+          {:id "password"
+           :name "password"
+           :placeholder "Password"
+           :type "password"}]]
+        [:button.btn.btn-lg.btn-primary.pull-xs-right
+         {:type "submit"}
+         "Sign in"]]]]]]))
 
-(defn get-login-page [_]
+(defn get-login-page [request]
   (utils/response
-   (render-auth {:isRegister false})))
+   (render-auth {:isRegister false
+                 :layout-props (assoc (:layout-props request) :title "Sign in")})))
 
 (defact ->post-login-page [{:keys [login]}]
   {:pre [(fn? login)]}
@@ -67,8 +68,8 @@
     (if (nil? user)
       (utils/list-errors-response {:login "No user with that email and password was found"})
       (->
-        (response/redirect "/")
-        (update :session assoc :identity (:user-id user))))))
+       (response/redirect "/")
+       (update :session assoc :identity (:user-id user))))))
 
 (defn ->login-routes [user-service]
   ["login"
@@ -91,12 +92,13 @@
     (if (nil? user)
       (utils/list-errors-response {:register "Couldn't create user with that email and password"})
       (->
-        (response/redirect "/")
-        (update :session assoc :identity (:user-id user))))))
+       (response/redirect "/")
+       (update :session assoc :identity (:user-id user))))))
 
-(defn get-register-page [_]
+(defn get-register-page [request]
   (utils/response
-   (render-auth {:isRegister true})))
+   (render-auth {:isRegister true
+                 :layout-props (assoc (:layout-props request) :title "Sign up")})))
 
 (defn ->register-routes [user-service]
   ["register"
