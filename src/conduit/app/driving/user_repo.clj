@@ -42,7 +42,11 @@
      '(fn follow-author [ctx eid author-id]
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
-          [[::xt/put (update user :user/following conj author-id)]]))}]
+          [[::xt/put
+            (->
+              user
+              (update :user/following conj author-id)
+              (assoc :user/updated-at (str (java.util.Date.))))]]))}]
 
    [::xt/put
     {:xt/id :users/unfollow-author
@@ -50,7 +54,11 @@
      '(fn unfollow-author [ctx eid author-id]
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
-          [[::xt/put (update user :user/following disj author-id)]]))}]
+          [[::xt/put
+            (->
+              user
+              (update :user/following disj author-id)
+              (assoc :user/updated-at (str (java.util.Date.))))]]))}]
 
    [::xt/put
     {:xt/id :users/update
@@ -64,7 +72,8 @@
              (update :user/email (fn [old] (or email old)))
              (update :user/username (fn [old] (or username old)))
              (update :user/bio (fn [old] (or bio old)))
-             (update :user/image (fn [old] (or image old))))]]))}]])
+             (update :user/image (fn [old] (or image old)))
+             (assoc :user/updated-at (str (java.util.Date.))))]]))}]])
 
 (defact ->create-user
   [node]
