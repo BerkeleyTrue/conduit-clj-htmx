@@ -4,6 +4,48 @@
    [conduit.infra.hiccup :refer [defhtml hyper htmx-csrf]]
    [conduit.app.drivers.hot-reload :refer [hot-reload-script]]))
 
+(defhtml flash [{:keys [lvl msg]}]
+  (when msg
+    [:div.alert.alert-dismissable
+     (hyper
+      (str
+       "
+        on start
+          log 'showing alert'
+          set { hidden: false } on me
+          transition me opacity to 1
+          if " (not= lvl :danger) "  then
+            wait 4s
+            transition me opacity to 0
+            remove me
+            send removed to #alerts
+          end
+       ")
+      {:role "alert" :hidden "true" :class (str "alert-" lvl)})
+     msg]))
+
+(defhtml flashes-component [{:keys [flashes]}]
+  (when (seq flashes)
+    [:div#alerts.fixed
+     (hyper
+      "
+        init
+          wait 0.5s
+          send start to first .alert in me
+        on removed
+          log &#39;alert removed&#39;
+          wait 0.5s
+          if my.children is empty then
+            log &#39;alerts empty&#39;
+            set { hidden: true } on me
+          else
+            wait 0.5s
+            log &#39;next alert&#39;
+            send start to first first .alert in me
+          end
+       ")
+     (map flash flashes)]))
+
 (defhtml header [{:keys [links user current-uri]}]
   [:nav.navbar.navbar-light
    {:hx-boost "true"
@@ -56,7 +98,7 @@
      ". Code &amp; design licensed\n\t\t\t\tunder MIT."]]])
 
 (defhtml layout
-  [{:keys [links user uri title]} content]
+  [{:keys [links user uri title flashes]} content]
   (let [links (or links [])
         user (or user {})
         current-uri (or uri "/")]
@@ -102,7 +144,8 @@
        (hot-reload-script)]
       [:body
        (hyper
-        "on every htmx:afterRequest
+        "
+          on every htmx:afterRequest
             log 'htmx:afterRequest'
             if event.detail.successful
               if #htmx-alert
@@ -123,6 +166,7 @@
        [:div#htmx-alert.alert.alert-warning.fixed
         {:role "alert"
          :hidden "true"}]
+       (flashes-component flashes)
        (header {:links links
                 :user user
                 :current-uri current-uri})

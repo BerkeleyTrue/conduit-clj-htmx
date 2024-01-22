@@ -32,7 +32,7 @@
                       [{:name :logger
                         :wrap logger}]
                       (conj
-                        ring-defaults-middleware  ; session is added here
+                        ring-defaults-middleware  ; session/flash is added here
                         muu.mid/format-middleware
 
                         [auth/wrap-authentication auth-backend] ; requires session middleware

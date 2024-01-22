@@ -69,6 +69,7 @@
       (utils/list-errors-response {:login "No user with that email and password was found"})
       (->
        (response/redirect "/")
+       (update :flash assoc :success "Welcome!")
        (update :session assoc :identity (:user-id user))))))
 
 (defn ->login-routes [user-service]
@@ -93,6 +94,7 @@
       (utils/list-errors-response {:register "Couldn't create user with that email and password"})
       (->
        (response/redirect "/")
+       (update :flash assoc :success "Welcome!")
        (update :session assoc :identity (:user-id user))))))
 
 (defn get-register-page [request]
