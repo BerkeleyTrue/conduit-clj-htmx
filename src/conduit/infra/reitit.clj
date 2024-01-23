@@ -18,29 +18,29 @@
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core
-  [_ {:keys [routes session-store user-service] :as opts}]
+  [_ {:keys [routes session-store user-service]}]
   (let [routes (conj routes ["/public" (ring/create-resource-handler)])]
     (timbre/info "init router " routes)
     (ring/router
-     ["" opts routes]
+     ["" {} routes]
      {:data
       {:coercion (coercion.malli/create)
 
        :middleware (into
                     (:middleware env/defaults)
                     (into
-                      [{:name :logger
-                        :wrap logger}]
-                      (conj
-                        ring-defaults-middleware  ; session/flash is added here
-                        muu.mid/format-middleware
+                     [{:name :logger
+                       :wrap logger}]
+                     (conj
+                      ring-defaults-middleware  ; session/flash is added here
+                      muu.mid/format-middleware
 
-                        [auth/wrap-authentication auth-backend] ; requires session middleware
-                        [auth/wrap-authorization auth-backend] ; requires session middleware
-                        (->authen-middleware user-service)
-                        coerce-exceptions-htmx-middleware
-                        coercion/coerce-request-middleware
-                        coercion/coerce-response-middleware)))
+                      [auth/wrap-authentication auth-backend] ; requires session middleware
+                      [auth/wrap-authorization auth-backend] ; requires session middleware
+                      (->authen-middleware user-service)
+                      coerce-exceptions-htmx-middleware
+                      coercion/coerce-request-middleware
+                      coercion/coerce-response-middleware)))
 
        :defaults (->
                   site-defaults

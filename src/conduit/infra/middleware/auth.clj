@@ -13,15 +13,16 @@
   {:pre [(fn? get-by-id)]}
   [handler]
   (fn [request]
-    (when-let [user-id (:identity request)]
-      (timbre/info "User session: " user-id)
-      (if-let [user (get-by-id user-id)]
-        (handler (->
-                  request
-                  (assoc :user user)
-                  (assoc :user-id user-id)
-                  (assoc :username (:username user))))
-        (->
-         (response/redirect "/login" :see-other)
-         (update :session dissoc :identity))))
-    (handler request)))
+    (if-let [user-id (:identity request)]
+      (do
+        (timbre/info "User session: " user-id)
+        (if-let [user (get-by-id user-id)]
+          (handler (->
+                    request
+                    (assoc :user user)
+                    (assoc :user-id user-id)
+                    (assoc :username (:username user))))
+          (->
+           (response/redirect "/login" :see-other)
+           (update :session dissoc :identity))))
+      (handler request))))
