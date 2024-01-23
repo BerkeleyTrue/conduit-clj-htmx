@@ -127,11 +127,11 @@ In Progress...
     - [x] Post to Login
     - [x] Add user to session
     - [x] Add user data to layout
-    - [x] Flash message on success
+    - [ ] Flash message on success
   - [ ] Sign Up
     - [x] Post
-    - [ ] Create user
-    - [x] Flash message on success
+    - [x] Create user
+    - [ ] Flash message on success
     - [ ] Sign out
     - [ ] Can re-login
 
