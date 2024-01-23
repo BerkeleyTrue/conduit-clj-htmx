@@ -20,7 +20,7 @@
    [:user/created-at :string]
    [:user/update-at {:optional true} :string]])
 
-(m/=> format-to-domain [:=> [:cat [:or UserEntity nil?]] User])
+(m/=> format-to-domain [:=> [:cat [:maybe UserEntity]] [:maybe User]])
 (defn format-to-domain
   "formats a user entity to a domain user"
   [user]

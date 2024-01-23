@@ -48,7 +48,11 @@
          :following #{uuid1}
          :password "password"
          :created-at "2020-01-01"
-         :updated-at nil})))))
+         :updated-at nil}))
+      (is
+        (=
+          (user-repo/format-to-domain nil)
+          nil)))))
 
 (deftest user-repo-create
   (testing "creating a user"
