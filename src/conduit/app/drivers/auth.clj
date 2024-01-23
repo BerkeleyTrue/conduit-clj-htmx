@@ -56,9 +56,11 @@
          "Sign in"]]]]]]))
 
 (defn get-login-page [request]
-  (utils/response
-   (render-auth {:isRegister false
-                 :layout-props (assoc (:layout-props request) :title "Sign in")})))
+  (if (:identity request)
+    (response/redirect "/")
+    (utils/response
+     (render-auth {:isRegister false
+                   :layout-props (assoc (:layout-props request) :title "Sign in")}))))
 
 (defact ->post-login-page [{:keys [login]}]
   {:pre [(fn? login)]}
@@ -100,9 +102,11 @@
        (update :session assoc :identity (:user-id user))))))
 
 (defn get-register-page [request]
-  (utils/response
-   (render-auth {:isRegister true
-                 :layout-props (assoc (:layout-props request) :title "Sign up")})))
+  (if (:identity request)
+    (response/redirect "/")
+    (utils/response
+     (render-auth {:isRegister true
+                   :layout-props (assoc (:layout-props request) :title "Sign up")}))))
 
 (defn ->register-routes [user-service]
   ["register"

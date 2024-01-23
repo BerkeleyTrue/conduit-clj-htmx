@@ -32,10 +32,10 @@
 
 (defact ->get-by-id
   "get a user by user id"
-  [{:keys [get-by-id]}]
-  {:pre [(fn? get-by-id)]}
+  [repo]
+  {:pre [(fn? (:get-by-id repo))]}
   [user-id]
-  (get-by-id {:id user-id}))
+  ((:get-by-id repo) {:id user-id}))
 
 (defact ->get-id-from-username [_] [])
 (defact ->get-profile [_] [])
