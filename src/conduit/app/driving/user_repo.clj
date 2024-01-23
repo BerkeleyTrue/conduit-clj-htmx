@@ -20,20 +20,23 @@
    [:user/created-at :string]
    [:user/update-at {:optional true} :string]])
 
-(m/=> format-to-domain [:=> [:cat UserEntity] User])
+(m/=> format-to-domain [:=> [:cat [:or UserEntity nil?]] User])
 (defn format-to-domain
   "formats a user entity to a domain user"
   [user]
-  {:user-id (:xt/id user)
-   :email (:user/email user)
-   :username (:user/username user)
-   :bio (:user/bio user)
-   :image (:user/image user)
-   :following (:user/following user)
-   :password (:user/password user)
+  (let [user (if (nil? user) nil user)]
+    (if (nil? user)
+      nil
+      {:user-id (:xt/id user)
+       :email (:user/email user)
+       :username (:user/username user)
+       :bio (:user/bio user)
+       :image (:user/image user)
+       :following (:user/following user)
+       :password (:user/password user)
 
-   :created-at (:user/created-at user)
-   :updated-at (:user/updated-at user)})
+       :created-at (:user/created-at user)
+       :updated-at (:user/updated-at user)})))
 
 (def transaction-functions
   [[::xt/put

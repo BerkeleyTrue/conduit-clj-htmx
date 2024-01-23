@@ -88,10 +88,12 @@
   [request]
   (let [params (:params request)
         _ (timbre/info "params" params)
-        user (register params)
-        _ (timbre/info "user: " user)]
-    (if (nil? user)
-      (utils/list-errors-response {:register "Couldn't create user with that email and password"})
+        {:keys [user error]} (register params)
+        _ (when user (timbre/info "user: " user))
+        _ (when error (timbre/info "registering error: " error))]
+    (if error
+      (utils/list-errors-response
+        {:register error})
       (->
        (response/redirect "/")
        (update :flash assoc :success "Welcome!")
