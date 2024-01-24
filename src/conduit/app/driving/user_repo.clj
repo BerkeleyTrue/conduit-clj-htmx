@@ -6,19 +6,20 @@
    [conduit.core.models :refer [User]]
    [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.malli]
-   [conduit.utils.xtdb :refer [node?]]))
+   [conduit.utils.xtdb :refer [node?]])
+  (:import [java.util UUID]))
 
 (def UserEntity
   [:map
    [:xt/id :uuid]
    [:user/email :email]
    [:user/username :string]
-   [:user/bio {:optional true} :string]
-   [:user/image {:optional true} :string]
+   [:user/bio [:maybe :string]]
+   [:user/image [:maybe :string]]
    [:user/following [:set :uuid]]
    [:user/password :string]
    [:user/created-at :string]
-   [:user/update-at {:optional true} :string]])
+   [:user/updated-at {:optional true} [:maybe :string]]])
 
 (m/=> format-to-domain [:=> [:cat [:maybe UserEntity]] [:maybe User]])
 (defn format-to-domain
@@ -27,7 +28,7 @@
   (let [user (if (nil? user) nil user)]
     (if (nil? user)
       nil
-      {:user-id (:xt/id user)
+      {:user-id (UUID/fromString (:xt/id user))
        :email (:user/email user)
        :username (:user/username user)
        :bio (:user/bio user)

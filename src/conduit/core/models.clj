@@ -15,7 +15,7 @@
    [:following [:set :uuid]] ; user ids
 
    [:created-at :string]
-   [:updated-at {:optional true} :string]])
+   [:updated-at [:maybe :string]]])
 
 (def Article
   [:map
