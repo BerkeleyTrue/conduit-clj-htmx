@@ -20,4 +20,11 @@
                                                                                                                   :password :string,
                                                                                                                   :following :set,
                                                                                                                   :created-at :string},
-                                                                                                            :nilable true}}}}}}}}}
+                                                                                                            :nilable true}}}}},
+                                        conduit.infra.flash {flash-user {:arities {2 {:args [{:op :keys,
+                                                                                              :opt {:flash :sequential}}
+                                                                                             {:op :keys,
+                                                                                              :req {:lvl :keyword,
+                                                                                                    :msg :string}}],
+                                                                                      :ret {:op :keys,
+                                                                                            :req {:flash :sequential}}}}}}}}}}
