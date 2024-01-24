@@ -71,7 +71,6 @@
       (utils/list-errors-response {:login "No user with that email and password was found"})
       (->
        (response/redirect "/")
-       (update :flash assoc :success "Welcome!")
        (update :session assoc :identity (:user-id user))))))
 
 (defn ->login-routes [user-service]

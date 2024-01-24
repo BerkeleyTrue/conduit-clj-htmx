@@ -1,31 +1,50 @@
 (ns conduit.app.drivers.layout
   (:require
    [hiccup.util :as util]
+   [conduit.app.drivers.hot-reload :refer [hot-reload-script]]
    [conduit.infra.hiccup :refer [defhtml hyper htmx-csrf]]
-   [conduit.app.drivers.hot-reload :refer [hot-reload-script]]))
+   [conduit.infra.utils :as utils]
+   [conduit.infra.flash :refer [merge-flash]]))
 
-(defhtml flash [{:keys [lvl msg]}]
-  (when msg
-    [:div.alert.alert-dismissable
-     (hyper
-      (str
-       "
-        on start
-          log 'showing alert'
-          set { hidden: false } on me
-          transition me opacity to 1
-          if " (not= lvl :danger) "  then
-            wait 4s
-            transition me opacity to 0
-            remove me
-            send removed to #alerts
-          end
-       ")
-      {:role "alert" :hidden "true" :class (str "alert-" lvl)})
-     msg]))
+(def authed-links
+  [{:uri "/"
+    :title "Home"}
+   {:uri "/editor"
+    :title "New Article"}
+   {:uri "/settings"
+    :title "Settings"}])
 
-(defhtml flashes-component [{:keys [flashes]}]
-  (when (seq flashes)
+(def unauthed-links
+  [{:uri "/"
+    :title "Home"}
+   {:uri "/login"
+    :title "Sign in"}
+   {:uri "/register"
+    :title "Sign up"}])
+
+(defhtml flash-component [[lvl msgs]]
+  (when (seq msgs)
+    (for [msg msgs]
+      [:div.alert.alert-dismissable
+       (hyper
+        (str
+         "
+            on start
+              log 'showing alert'
+              set { hidden: false } on me
+              transition me opacity to 1
+              if " (not= lvl :danger) "  then
+                wait 4s
+                transition me opacity to 0
+                remove me
+                send removed to #alerts
+              end
+         ")
+        {:role "alert" :hidden "true" :class (str "alert-" (name lvl))})
+       msg])))
+
+(defhtml flashes-component [flashm]
+  (when (seq flashm)
     [:div#alerts.fixed
      (hyper
       "
@@ -44,7 +63,7 @@
             send start to first first .alert in me
           end
        ")
-     (map flash flashes)]))
+     (map flash-component flashm)]))
 
 (defhtml header [{:keys [links user current-uri]}]
   [:nav.navbar.navbar-light
@@ -67,27 +86,6 @@
          [:img.user-pic {:src (:image user)}]
          (:username user)]])]]])
 
-(comment
-  (str
-   (header
-    {:links
-     [{:uri "/",
-       :title "Home"}
-      {:uri "/editor",
-       :title "New Article"}
-      {:uri "/settings",
-       :title "Settings"}
-      {:uri "/login",
-       :title "Sign in"}
-      {:uri "/register",
-       :title "Sign up"}]
-     :user {}
-     :current-uri "/"}))
-  (header
-   {:links [{:uri "/" :title "Home"}]
-    :user {}
-    :current-uri "/"}))
-
 (defhtml footer []
   [:footer
    [:div.container
@@ -98,7 +96,7 @@
      ". Code &amp; design licensed\n\t\t\t\tunder MIT."]]])
 
 (defhtml layout
-  [{:keys [links user uri title flashes]} content]
+  [{:keys [links user uri title flashm]} content]
   (let [links (or links [])
         user (or user {})
         current-uri (or uri "/")]
@@ -166,10 +164,41 @@
        [:div#htmx-alert.alert.alert-warning.fixed
         {:role "alert"
          :hidden "true"}]
-       (flashes-component flashes)
+       (flashes-component flashm)
        (header {:links links
                 :user user
                 :current-uri current-uri})
        content
        (footer)
        (htmx-csrf)]])))
+
+(defn render-middleware
+  "Renders the given content with the layout."
+  [handler]
+  (fn render-handler [request]
+    (let [response (handler request)]
+      (if (not (:render response))
+        response
+        (let [prev-flash (:flash request)
+              next-flash (:flash response)
+              flashm (if (and prev-flash next-flash)
+                       (merge-flash prev-flash next-flash)
+                       (or prev-flash next-flash))
+              {:keys [content title]} (:render response)
+              page (:page request)
+              uri (:uri request)
+              user (:user request)
+              user-id (:user-id request)
+              links (if (:user request) authed-links unauthed-links)]
+          (->
+           (layout
+            {:links links
+             :page page
+             :user-id user-id
+             :user user
+             :uri uri
+             :title title
+             :flashm flashm}
+            content)
+           (utils/response)
+           (assoc :flash/delete true)))))))

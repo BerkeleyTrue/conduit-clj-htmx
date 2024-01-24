@@ -15,6 +15,7 @@
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
    [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware]]
    [conduit.infra.middleware.logger :refer [logger]]
+   [conduit.infra.flash :refer [flash-response-middleware]]
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core
@@ -32,8 +33,9 @@
                      [{:name :logger
                        :wrap logger}]
                      (conj
-                      ring-defaults-middleware  ; session/flash is added here
+                      ring-defaults-middleware  ; (vector) session is added here
                       muu.mid/format-middleware
+                      flash-response-middleware
 
                       [auth/wrap-authentication auth-backend] ; requires session middleware
                       [auth/wrap-authorization auth-backend] ; requires session middleware
@@ -46,6 +48,7 @@
                   site-defaults
                   (assoc :exception true)
                   (assoc-in [:parameters :urlencoded] false)
+                  (assoc-in [:session :flash] false)
                   (assoc-in [:session :store] session-store))
 
        :muuntaja (m/create (-> m/default-options

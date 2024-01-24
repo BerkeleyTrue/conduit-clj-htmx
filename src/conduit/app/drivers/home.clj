@@ -1,8 +1,7 @@
 (ns conduit.app.drivers.home
   (:require
-   [conduit.infra.utils :as utils]
-   [conduit.app.drivers.layout :refer [layout]]
-   [conduit.infra.hiccup :refer [defhtml hyper]]))
+   [conduit.infra.hiccup :refer [defhtml hyper]]
+   [conduit.infra.flash :refer [push-flash]]))
 
 (defhtml homeComponent [{:keys [authed?]}]
   [:div
@@ -82,6 +81,8 @@
 (defn get-home-page
   "Returns the home page."
   [request]
-  (let [content (homeComponent {:authed? (:user request)})
-        layout-props (:layout-props request)]
-    (utils/response (layout layout-props content))))
+  (let [content (homeComponent {:authed? (:user request)})]
+    (->
+      {:render {:content content
+                :title "Home"}}
+      (push-flash :success "Welcome!"))))
