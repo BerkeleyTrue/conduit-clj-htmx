@@ -3,7 +3,7 @@
                                                                                                               :opt {:user/bio :nilable/string,
                                                                                                                     :user/image :nilable/string,
                                                                                                                     :user/updated-at :nilable/string},
-                                                                                                              :req {:xt/id :any,
+                                                                                                              :req {:xt/id :string,
                                                                                                                     :user/email :any,
                                                                                                                     :user/username :string,
                                                                                                                     :user/following :set,

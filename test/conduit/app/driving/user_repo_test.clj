@@ -9,6 +9,13 @@
 
 (t/use-fixtures :each (->db-fixture user-repo/transaction-functions))
 
+(def id1 (UUID/randomUUID))
+(def id2 (UUID/randomUUID))
+(def id3 (UUID/randomUUID))
+(def id4 (UUID/randomUUID))
+(def id5 (UUID/randomUUID))
+(def id6 (UUID/randomUUID))
+
 (deftest user-repo-to-domain
   (testing "formatting a user entity to a domain user"
     (let [user-id (UUID/randomUUID)
@@ -50,9 +57,9 @@
          :created-at "2020-01-01"
          :updated-at nil}))
       (is
-        (=
-          (user-repo/format-to-domain nil)
-          nil)))))
+       (=
+        (user-repo/format-to-domain nil)
+        nil)))))
 
 (deftest user-repo-create
   (testing "creating a user"
@@ -73,13 +80,13 @@
      (to-equal
       (do
         ((user-repo/->create-user *node*)
-         {:id :user/id2
+         {:id id2
           :email "bar@baz.com"
           :password "password"
           :created-at "2020-01-01"})
         ((user-repo/->get-by-email *node*)
          {:email "bar@baz.com"}))
-      {:user-id :user/id2
+      {:user-id id2
        :email "bar@baz.com"}))
 
     (testing "getting a user by username"
@@ -87,14 +94,14 @@
        (to-equal
         (do
           ((user-repo/->create-user *node*)
-           {:id :user/id3
+           {:id id3
             :email "bar@baz2.com"
             :username "bar"
             :password "password"
             :created-at "2020-01-01"})
           ((user-repo/->get-by-username *node*)
            {:username "bar"}))
-        {:user-id :user/id3
+        {:user-id id3
          :username "bar"})))))
 
 (deftest user-repo-follow
@@ -102,85 +109,88 @@
     (let [create-user (user-repo/->create-user *node*)
           follow-author (user-repo/->follow *node*)]
       (create-user
-       {:id :user/id4
+       {:id id4
         :email "foo@bar.com"
+        :password ""
         :username "foo"})
       (create-user
-       {:id :user/id5
+       {:id id5
+        :password ""
         :email "foo2@bar.com"
         :username "foo2"})
       (create-user
-       {:id :user/id6
+       {:id id6
+        :password ""
         :email "bar@bar.com"
         :username "bar"})
       (follow-author
-       {:author-id :user/id4
-        :user-id :user/id5})
+       {:author-id id4
+        :user-id id5})
       (xt/sync *node*)
       (is
        (to-equal
         ((user-repo/->get-by-username *node*)
          {:username "foo2"})
-        {:user-id :user/id5
+        {:user-id id5
          :username "foo2"
-         :following #{:user/id4}}))
+         :following #{id4}}))
       (follow-author
-       {:author-id :user/id6
-        :user-id :user/id5})
+       {:author-id id6
+        :user-id id5})
       (is
        (to-equal
         ((user-repo/->get-by-username *node*)
          {:username "foo2"})
-        {:user-id :user/id5
+        {:user-id id5
          :username "foo2"
-         :following #{:user/id4 :user/id6}}))
+         :following #{id4 id6}}))
 
       (testing "unfollowing an author"
         (let [unfollow (user-repo/->unfollow *node*)]
-          (unfollow {:author-id :user/id4
-                     :user-id :user/id5})
+          (unfollow {:author-id id4
+                     :user-id id5})
           (xt/sync *node*)
           (is
            (to-equal
             ((user-repo/->get-by-username *node*)
              {:username "foo2"})
-            {:user-id :user/id5
+            {:user-id id5
              :username "foo2"
-             :following #{:user/id6}})))))))
+             :following #{id6}})))))))
 
 (deftest user-repo-update
   (testing "updating a user"
     (let [create-user (user-repo/->create-user *node*)
           update-user (user-repo/->update *node*)]
       (create-user
-       {:id :user/id7
+       {:id id6
         :email "foo@bar.com"})
       (is
        (to-equal
         ((user-repo/->get-by-email *node*)
          {:email "foo@bar.com"})
-        {:user-id :user/id7
+        {:user-id id6
          :email "foo@bar.com"})
        "to update create user")
       (is
        (to-equal
         (update-user
-         {:id :user/id7
+         {:id id6
           :email "foo@bar.com"
           :image "foo/bar/baz.png"})
-        {:user-id :user/id7
+        {:user-id id6
          :email "foo@bar.com"
          :image "foo/bar/baz.png"})
        "to add image and update email")
       (is
        (to-equal
         (update-user
-         {:id :user/id7
+         {:id id6
           :email "foo2@bar2.com"
           :username "new"
           :image "foo/bar/baz2.png"
           :bio "foo bar baz"})
-        {:user-id :user/id7
+        {:user-id id6
          :email "foo2@bar2.com"
          :image "foo/bar/baz2.png"
          :bio "foo bar baz"

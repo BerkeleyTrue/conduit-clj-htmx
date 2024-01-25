@@ -6,12 +6,11 @@
    [conduit.core.models :refer [User]]
    [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.malli]
-   [conduit.utils.xtdb :refer [node?]])
-  (:import [java.util UUID]))
+   [conduit.utils.xtdb :refer [node?]]))
 
 (def UserEntity
   [:map
-   [:xt/id :uuid]
+   [:xt/id :string]
    [:user/email :email]
    [:user/username :string]
    [:user/bio {:optional true} [:maybe :string]]
@@ -28,7 +27,7 @@
   (let [user (if (nil? user) nil user)]
     (if (nil? user)
       nil
-      {:user-id (UUID/fromString (:xt/id user))
+      {:user-id (:xt/id user)
        :email (:user/email user)
        :username (:user/username user)
        :bio (:user/bio user)
