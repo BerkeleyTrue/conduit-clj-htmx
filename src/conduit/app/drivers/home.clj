@@ -25,25 +25,25 @@
         (when authed?
           [:li.nav-item ; only if signed in
            (hyper
-             "on click
+            {:hx-get "/articles/feed?limit=10"}
+            "on click
                 remove .active from .nav-link in #tabs
                 add .active to .nav-link in me
                 set {hidden: true} on #tag-tab
              "
-             {:hx-get "/articles/feed?limit=10"
               ; :hx-trigger "click load delay:150ms" ; TODO: implement backend
-              :hx-target "#articles"})
+            :hx-target "#articles")
            [:a {:class "nav-link active"} "Your Feed"]])
         [:li.nav-item
          (hyper
-           "on click
+          {:hx-get "/articles?limit=10"
+           :hx-trigger (if authed? nil "click load delay:150ms") ; only if not signed in
+           :hx-target "#articles"}
+          "on click
              remove .active from .nav-link in #tabs
              add .active to .nav-link in me
              set {hidden: true} on #tag-tab
-           "
-           {:hx-get "/articles?limit=10"
-            :hx-trigger (if authed? nil "click load delay:150ms") ; only if not signed in
-            :hx-target "#articles"})
+           ")
          [:a.nav-link
           {:class (if authed? "" "active")} ; only if not signed in
           "Global Feed"]]
@@ -67,15 +67,16 @@
        [:p "Popular Tags"]
        [:div.tag-list
         (hyper
-          "on click
+         {:id "tags"}
+         "
+           on click
              if event.target.tagName == 'A'
                -- log event.target
                remove @hidden from #tag-tab
                remove .active from .nav-link in #tabs
                put '#' + event.target.innerHTML into <a/> in #tag-tab
                add .active to <a/> in #tag-tab
-          "
-          {:id "tags"})
+          ")
         "Loading tags..."]]]]]])
 
 (defn get-home-page
@@ -83,6 +84,6 @@
   [request]
   (let [content (homeComponent {:authed? (:user request)})]
     (->
-      {:render {:content content
-                :title "Home"}}
-      (push-flash :success "Welcome!"))))
+     {:render {:content content
+               :title "Home"}}
+     (push-flash :success "Welcome!"))))

@@ -48,21 +48,29 @@
   [url & content]
   [:a {:href (util/to-uri url)} content])
 
-(defn hyper
-  "Returns an attr-map with a hyper attribute set to the given argument as a hiccup raw string.
-  (hyper string attr-map?)
+(defmacro hyper
+  "Macro that returns an attr-map with a hyper attribute set to the given argument as a hiccup raw string.
+  (hyper ...string attr-map?)
   (hyper \"foo\") => {:_ #object[hiccup.util.RawString \"foo\"]}
-  (hyper \"foo\" {:href \"/goofy/goober\"}) =>
+  (hyper {:href \"/goofy/goober\"} \"foo\") =>
     {:_ #object[hiccup.util.RawString 0x47051022 \"foo\"],
-     :href \"/goofy/goober\"}"
-  ([hyp] (hyper hyp {}))
-  ([hyp attr-map]
-   (let [hyp-raw (util/raw-string hyp)]
-     (merge {:_ hyp-raw} attr-map))))
+     :href \"/goofy/goober\"}
+  (hyper {:href \"/goofy/goober\"} \"foo\" \"bar\") =>
+    {:_ #object[hiccup.util.RawString 0x47051022 \"foobar\"],
+     :href \"/goofy/goober\"}
+  "
+  [& params]
+  (let [[attr-map & hyp] (if (map? (first params))
+                          params
+                          (concat (list {}) params))]
+
+    (merge attr-map {:_ `(,util/raw-string (str ~@hyp))})))
 
 (comment
-  (hyper "foo")
-  (hyper "foo" {:href "/goofy/goober"}))
+  (macroexpand '(hyper "foo"))
+  (macroexpand '(hyper "foo" bar))
+  (macroexpand '(hyper {:href "/goofy/goober"} "foo"))
+  (macroexpand '(hyper {:class "bar"} "foo" "bar" (if true "baz" "quux"))))
 
 (defn- input-field
   "Creates a new <input> element."
@@ -94,4 +102,3 @@
          "'
        })
        "))])
-(comment (htmx-csrf))

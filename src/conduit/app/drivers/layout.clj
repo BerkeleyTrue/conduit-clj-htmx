@@ -27,7 +27,7 @@
     (for [msg msgs]
       [:div.alert.alert-dismissable
        (hyper
-        (str
+         {:role "alert" :hidden "true" :class (str "alert-" (name lvl))}
          "
             on start
               log 'showing alert'
@@ -40,7 +40,6 @@
                 send removed to #alerts
               end
          ")
-        {:role "alert" :hidden "true" :class (str "alert-" (name lvl))})
        msg])))
 
 (defhtml flashes-component [flashm]

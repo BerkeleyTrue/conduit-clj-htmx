@@ -26,12 +26,12 @@
        [:ul.error-messages {:id "errors" :hidden ""}]
        [:form
         (hyper
-         "on submit set { hidden: true } on #errors"
          {:id "authen"
           :hx-post (if isRegister "/register" "/login")
           :hx-target "body"
           :hx-swap "outerHTML"
-          :hx-push-url "true"})
+          :hx-push-url "true"}
+         "on submit set { hidden: true } on #errors")
         (when isRegister
           [:fieldset.form-group
            [:input.form-control.form-control-lg
@@ -94,7 +94,7 @@
         _ (when error (timbre/info "registering error: " error))]
     (if error
       (utils/list-errors-response
-        {:register error})
+       {:register error})
       (->
        (response/redirect "/")
        (update :flash assoc :success "Welcome!")
