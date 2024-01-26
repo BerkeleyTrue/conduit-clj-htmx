@@ -2,7 +2,8 @@
   (:require
    [taoensso.timbre :as timbre]
    [ring.util.response :as response]
-   [conduit.infra.hiccup :refer [defhtml hyper]]
+   [conduit.utils.hyper :refer [hyper]]
+   [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
    [conduit.app.drivers.layout :refer [layout]]
    [conduit.utils.dep-macro :refer [defact]]))
@@ -25,13 +26,12 @@
           [:a {:href "/register"} "Need an account?"])]
        [:ul.error-messages {:id "errors" :hidden ""}]
        [:form
-        (hyper
          {:id "authen"
           :hx-post (if isRegister "/register" "/login")
           :hx-target "body"
           :hx-swap "outerHTML"
-          :hx-push-url "true"}
-         "on submit set { hidden: true } on #errors")
+          :hx-push-url "true"
+          :_ (hyper "on submit set { hidden: true } on #errors")}
         (when isRegister
           [:fieldset.form-group
            [:input.form-control.form-control-lg

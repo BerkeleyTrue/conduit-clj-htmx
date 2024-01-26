@@ -2,7 +2,8 @@
   (:require
    [hiccup.util :as util]
    [conduit.app.drivers.hot-reload :refer [hot-reload-script]]
-   [conduit.infra.hiccup :refer [defhtml hyper htmx-csrf]]
+   [conduit.utils.hyper :refer [hyper]]
+   [conduit.infra.hiccup :refer [defhtml htmx-csrf]]
    [conduit.infra.utils :as utils]
    [conduit.infra.flash :refer [merge-flash]]))
 
@@ -25,10 +26,10 @@
 (defhtml flash-component [[lvl msgs]]
   (when (seq msgs)
     (for [msg msgs]
-      [:div.alert.alert-dismissable
-       (hyper
-         {:role "alert" :hidden "true" :class (str "alert-" (name lvl))}
-         "
+      [:div.alert.alert-dismissible
+       {:role "alert" :hidden "true" :class (str "alert-" (name lvl))
+        :_ (hyper
+            "
             on start
               log 'showing alert'
               set { hidden: false } on me
@@ -39,29 +40,42 @@
                 remove me
                 send removed to #alerts
               end
-         ")
-       msg])))
+            ")}
+       msg
+       [:button.close
+        {:type "button"
+         :aria-label "Close"}
+        [:span
+         {:_ (hyper
+              "
+              on click
+                transition me opacity to 0
+                remove closest <div.alert />
+                send removed to #alerts
+              ")
+          :aria-hidden "true"}
+         (util/raw-string "&times;")]]])))
 
 (defhtml flashes-component [flashm]
   (when (seq flashm)
     [:div#alerts.fixed
-     (hyper
-      "
-        init
-          wait 0.5s
-          send start to first .alert in me
-        on removed
-          log &#39;alert removed&#39;
-          wait 0.5s
-          if my.children is empty then
-            log &#39;alerts empty&#39;
-            set { hidden: true } on me
-          else
-            wait 0.5s
-            log &#39;next alert&#39;
-            send start to first first .alert in me
-          end
-       ")
+     {:_ (hyper
+          "
+            init
+              wait 0.5s
+              send start to first .alert in me
+            on removed
+              log 'alert removed'
+              wait 0.5s
+              if my.children is empty then
+                log 'alerts empty'
+                set { hidden: true } on me
+              else
+                wait 0.5s
+                log 'next alert'
+                send start to first first .alert in me
+              end
+          ")}
      (map flash-component flashm)]))
 
 (defhtml header [{:keys [links user current-uri]}]
@@ -140,8 +154,8 @@
          }"]
        (hot-reload-script)]
       [:body
-       (hyper
-        "
+       {:_  (hyper
+             "
           on every htmx:afterRequest
             log 'htmx:afterRequest'
             if event.detail.successful
@@ -159,7 +173,7 @@
                 then set {hidden: false, innerText: 'Unexpected error, check your connection and refresh the page'} on #htmx-alert
               end
             end
-          ")
+             ")}
        [:div#htmx-alert.alert.alert-warning.fixed
         {:role "alert"
          :hidden "true"}]
