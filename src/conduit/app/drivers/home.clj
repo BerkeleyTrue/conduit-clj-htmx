@@ -1,8 +1,7 @@
 (ns conduit.app.drivers.home
   (:require
    [conduit.utils.hyper :refer [hyper]]
-   [conduit.infra.hiccup :refer [defhtml]]
-   [conduit.infra.flash :refer [push-flash]]))
+   [conduit.infra.hiccup :refer [defhtml]]))
 
 (defhtml homeComponent [{:keys [authed?]}]
   [:div
@@ -87,5 +86,4 @@
   (let [content (homeComponent {:authed? (:user request)})]
     (->
      {:render {:content content
-               :title "Home"}}
-     (push-flash :success "Welcome!"))))
+               :title "Home"}})))

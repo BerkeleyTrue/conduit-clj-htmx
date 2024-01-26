@@ -27,8 +27,9 @@
   {:pre [(fn? get-by-email)]}
   [{:keys [email password]}]
   (let [user (get-by-email {:email email})]
-    (when (and user (auth/verify-password password (:password user)))
-      user)))
+    (if (and user (auth/verify-password password (:password user)))
+      {:user user}
+      {:error "No user with that email and password was found"})))
 
 (defact ->get-by-id
   "get a user by user id"
