@@ -4,14 +4,14 @@
 
 (def FlashM
   [:map
-   [:danger [:sequential :string]]
-   [:warning [:sequential :string]]
-   [:success [:sequential :string]]
-   [:info [:sequential :string]]
-   [:primary [:sequential :string]]
-   [:secondary [:sequential :string]]
-   [:light [:sequential :string]]
-   [:dark [:sequential :string]]])
+   [:danger {:optional true} [:sequential :string]]
+   [:warning {:optional true} [:sequential :string]]
+   [:success {:optional true} [:sequential :string]]
+   [:info {:optional true} [:sequential :string]]
+   [:primary {:optional true} [:sequential :string]]
+   [:secondary {:optional true} [:sequential :string]]
+   [:light {:optional true} [:sequential :string]]
+   [:dark {:optional true} [:sequential :string]]])
 
 (m/=> push-flash [:=>
                   [:cat
