@@ -15,7 +15,7 @@
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
    [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware]]
    [conduit.infra.middleware.logger :refer [logger]]
-   [conduit.infra.flash :refer [flash-response-middleware]]
+   [conduit.infra.middleware.flash :refer [flash-response-middleware]]
    [conduit.env :as env]))
 
 (defmethod ig/init-key :infra.router/core

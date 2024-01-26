@@ -5,7 +5,7 @@
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml htmx-csrf]]
    [conduit.infra.utils :as utils]
-   [conduit.infra.flash :refer [merge-flash]]))
+   [conduit.infra.middleware.flash :refer [merge-flash]]))
 
 (def authed-links
   [{:uri "/"

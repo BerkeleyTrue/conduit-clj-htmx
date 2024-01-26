@@ -6,7 +6,7 @@
    [conduit.infra.utils :as utils]
    [conduit.utils.hyper :refer [hyper]]
    [conduit.utils.dep-macro :refer [defact]]
-   [conduit.infra.flash :refer [push-flash]]))
+   [conduit.infra.middleware.flash :refer [push-flash]]))
 
 (defhtml auth-component [{:keys [register?]}]
   [:div.auth-page

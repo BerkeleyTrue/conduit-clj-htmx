@@ -1,4 +1,4 @@
-(ns conduit.infra.flash
+(ns conduit.infra.middleware.flash
   (:require
    [malli.core :as m]))
 
