@@ -40,7 +40,8 @@
                 nrepl/nrepl {:mvn/version "1.0.0"}
                 ring/ring-devel {:mvn/version "1.10.0"}
                 ring/ring-mock  {:mvn/version "0.4.0"}
-                com.nextjournal/beholder {:mvn/version "1.0.2"}}
+                com.nextjournal/beholder {:mvn/version "1.0.2"}
+                io.github.nubank/morse {:git/tag "v2023.04.30.01" :git/sha "d99b09c"}}
    :jvm-opts [
               ; "--add-opens=java.base/java.nio=ALL-UNNAMED" ; needed for datalevin
               ; "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"

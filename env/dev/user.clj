@@ -2,6 +2,7 @@
   (:require
    [integrant.core :as ig]
    [integrant.repl :as ig-repl :refer [go halt reset]]
+   [dev.nu.morse :as morse]
    [conduit.config :refer [get-config]]
    [conduit.core]))
 
@@ -19,6 +20,7 @@
   (go) ; starts the system
   (halt) ; stops the system
   (reset) ; resets the system
+  (morse/launch-in-proc)
   (get-config)
   (ig/prep (get-config))
   ,)
