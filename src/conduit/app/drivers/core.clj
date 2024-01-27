@@ -11,12 +11,10 @@
   [_ {:keys [on-start-ch user-service]}]
   [["/__hotreload" {:name :hotreload
                     :get (hot-reload/->get-sse on-start-ch)}]
-   ["/"
-    {:middleware [render-middleware]}
-    ["" {:name :get-home
-         :get home/get-home-page}]
-    (auth/->login-routes user-service)
-    (auth/->register-routes user-service)
-    (settings/->settings-routes)]])
+   (into
+     ["/" {:middleware [render-middleware]}]
+     [(home/->home-routes)
+      (auth/->auth-routes user-service)
+      (settings/->settings-routes)])])
 
 (derive :app.routes/drivers :app/routes)

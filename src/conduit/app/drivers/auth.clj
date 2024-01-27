@@ -71,17 +71,6 @@
        (push-flash :success "Welcome!")
        (update :session assoc :identity (:user-id user))))))
 
-(defn ->login-routes [user-service]
-  ["login"
-   {:name ::login
-    :get get-login-page
-    :post
-    {:handler (->post-login-page user-service)
-     :parameters {:form
-                  [:map
-                   [:email :email]
-                   [:password :password]]}}}])
-
 (defn get-register-page [request]
   (if (:identity request)
     (response/redirect "/")
@@ -103,14 +92,24 @@
        (push-flash :success "Welcome!")
        (update :session assoc :identity (:user-id user))))))
 
-(defn ->register-routes [user-service]
-  ["register"
-   {:name :register
-    :get get-register-page
-    :post
-    {:handler (->post-signup user-service)
-     :parameters {:form
-                  [:map
-                   [:email :email]
-                   [:username [:string {:min 4 :max 32}]]
-                   [:password :password]]}}}])
+(defn ->auth-routes [user-service]
+  [""
+   ["register"
+    {:name :register
+     :get get-register-page
+     :post
+     {:handler (->post-signup user-service)
+      :parameters {:form
+                   [:map
+                    [:email :email]
+                    [:username [:string {:min 4 :max 32}]]
+                    [:password :password]]}}}]
+   ["login"
+    {:name ::login
+     :get get-login-page
+     :post
+     {:handler (->post-login-page user-service)
+      :parameters {:form
+                   [:map
+                    [:email :email]
+                    [:password :password]]}}}]])

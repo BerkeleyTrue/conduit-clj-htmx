@@ -87,3 +87,8 @@
     (->
      {:render {:content content
                :title "Home"}})))
+
+(defn ->home-routes []
+  [""
+   {:name :get-home
+    :get get-home-page}])
