@@ -112,4 +112,17 @@
       :parameters {:form
                    [:map
                     [:email :email]
-                    [:password :password]]}}}]])
+                    [:password :password]]}}}]
+   ["logout"
+    {:name :logout
+     :post
+     {:handler
+      (fn [request]
+        (let [session (->
+                        (:session request)
+                        (dissoc :identity)
+                        (dissoc :user)
+                        (dissoc :user-id))]
+          (->
+           (response/redirect "/")
+           (assoc :session session))))}}]])
