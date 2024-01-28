@@ -10,8 +10,8 @@
    [:username :string]
    [:email :email]
    [:password :string]
-   [:bio {:optional true} :string]
-   [:image {:optional true} :string]
+   [:bio {:optional true} [:maybe :string]]
+   [:image {:optional true} [:maybe :string]]
    [:following [:set :uuid]] ; user ids
 
    [:created-at :string]
