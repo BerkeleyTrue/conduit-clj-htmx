@@ -11,9 +11,10 @@
    [reitit.ring.middleware.muuntaja :as muu.mid]
    [reitit.ring.middleware.defaults :refer [ring-defaults-middleware]]
    [reitit.coercion.malli :as coercion.malli]
+   [reitit.middleware :as middleware]
    [buddy.auth.middleware :as auth]
    [conduit.infra.middleware.coercion :refer [coerce-exceptions-htmx-middleware]]
-   [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware]]
+   [conduit.infra.middleware.auth :refer [auth-backend ->authen-middleware authorize-middleware]]
    [conduit.infra.middleware.logger :refer [logger]]
    [conduit.infra.middleware.flash :refer [flash-response-middleware]]
    [conduit.env :as env]))
@@ -24,7 +25,8 @@
     (timbre/info "init router " routes)
     (ring/router
      ["" {} routes]
-     {:data
+     {::middleware/registry {:authorize authorize-middleware}
+      :data
       {:coercion (coercion.malli/create)
 
        :middleware (into

@@ -8,11 +8,12 @@
 (def auth-backend (backends/session))
 
 (defact ->authen-middleware
-  "create an authorization middleware"
+  "create an authentication middleware, which pulls user
+  data of the sesion and injects it into the request"
   [{:keys [get-by-id]}]
   {:pre [(fn? get-by-id)]}
   [handler]
-  (fn [request]
+  (fn authen-middleware [request]
     (if-let [user-id (:identity request)]
       (do
         (timbre/info "User session: " user-id)
@@ -26,3 +27,13 @@
            (response/redirect "/login" :see-other)
            (update :session dissoc :identity))))
       (handler request))))
+
+(defn authorize-middleware
+  "An authorization middleware, which checks if the
+  user is authorized to access the resource"
+  [handler]
+  (fn authorize-handler
+    [request]
+    (if-not (nil? (:user-id request))
+      (handler request)
+      (response/redirect "/login" :see-other))))
