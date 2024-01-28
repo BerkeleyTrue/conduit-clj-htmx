@@ -66,7 +66,7 @@
    [::xt/put
     {:xt/id :users/update
      :xt/fn
-     '(fn update-user [ctx eid {:keys [email username bio image] :as foo}]
+     '(fn update-user [ctx eid {:keys [email username bio image updated-at]}]
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
           [[::xt/put
@@ -76,7 +76,7 @@
              (update :user/username (fn [old] (or username old)))
              (update :user/bio (fn [old] (or bio old)))
              (update :user/image (fn [old] (or image old)))
-             (assoc :user/updated-at (str (java.util.Date.))))]]))}]])
+             (assoc :user/updated-at updated-at))]]))}]])
 
 (defact ->create-user
   [node]
@@ -135,19 +135,20 @@
   "Update user profile"
   [node]
   {:pre [(node? node)]}
-  [{:keys [id email username bio image]}]
+  [{:keys [user-id email username bio image updated-at]}]
   (let [tx-res (xt/submit-tx
                 node
                 [[::xt/fn
                   :users/update
-                  id
+                  user-id
                   {:email email
                    :username username
                    :bio bio
-                   :image image}]])]
+                   :image image
+                   :updated-at updated-at}]])]
     (xt/await-tx node tx-res)
     (->
-     (xt/entity (xt/db node) id)
+     (xt/entity (xt/db node) user-id)
      (format-to-domain))))
 
 (defact ->follow

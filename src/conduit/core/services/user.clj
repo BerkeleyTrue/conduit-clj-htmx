@@ -39,6 +39,18 @@
   ((:get-by-id repo) {:id user-id}))
 
 (defact ->get-id-from-username [_] [])
+(defact ->update
+  [{update-user :update}]
+  {:pre [(fn? update-user)]}
+  [params]
+  (if (nil? (:user-id params))
+    {:error "User id or username is required"}
+    (let [now (str (Date.))
+          user (update-user (assoc params :updated-at now))]
+      (if (nil? user)
+        {:error "Couldn't update user"}
+        {:user user}))))
+
 (defact ->get-profile [_] [])
 (defact ->get-following [_] [])
 (defact ->follow [_] [])
@@ -52,4 +64,5 @@
    :get-profile (->get-profile user-repo)
    :get-following (->get-following user-repo)
    :follow (->follow user-repo)
-   :unfollow (->unfollow user-repo)})
+   :unfollow (->unfollow user-repo)
+   :update (->update user-repo)})
