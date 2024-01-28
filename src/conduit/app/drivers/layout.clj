@@ -26,7 +26,7 @@
 (defhtml flash-component [[lvl msgs]]
   (when (seq msgs)
     (for [msg msgs]
-      [:div.alert.alert-dismissible
+      [:div.alert.alert-dismissible.container
        {:role "alert" :hidden "true" :class (str "alert-" (name lvl))
         :_ (hyper
             "
