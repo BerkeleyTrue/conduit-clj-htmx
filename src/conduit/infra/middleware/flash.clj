@@ -30,15 +30,15 @@
     (assoc response :flash flash)))
 
 (m/=> merge-flash [:=>
-                   [:cat FlashM FlashM]
+                   [:cat [:maybe FlashM] [:maybe FlashM]]
                    FlashM])
 (defn merge-flash
   "Merge two flash maps."
   [flash1 flash2]
   (reduce-kv (fn [acc lvl msgs]
                (assoc acc lvl (into (get acc lvl []) msgs)))
-             flash1
-             flash2))
+             (or flash1 {})
+             (or flash2 {})))
 
 (defn flash-response-middleware
   "Stores flash messages on the response and request in the session.

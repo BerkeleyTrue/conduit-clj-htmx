@@ -30,7 +30,8 @@
                                                                                                                 :primary :sequential,
                                                                                                                 :secondary :sequential,
                                                                                                                 :light :sequential,
-                                                                                                                :dark :sequential}}
+                                                                                                                :dark :sequential},
+                                                                                                          :nilable true}
                                                                                                          {:op :keys,
                                                                                                           :opt {:danger :sequential,
                                                                                                                 :warning :sequential,
@@ -39,7 +40,8 @@
                                                                                                                 :primary :sequential,
                                                                                                                 :secondary :sequential,
                                                                                                                 :light :sequential,
-                                                                                                                :dark :sequential}}],
+                                                                                                                :dark :sequential},
+                                                                                                          :nilable true}],
                                                                                                   :ret {:op :keys,
                                                                                                         :opt {:danger :sequential,
                                                                                                               :warning :sequential,
