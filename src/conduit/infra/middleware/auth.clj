@@ -10,14 +10,14 @@
 (defact ->authen-middleware
   "create an authentication middleware, which pulls user
   data of the sesion and injects it into the request"
-  [{:keys [get-by-id]}]
-  {:pre [(fn? get-by-id)]}
+  [{:keys [find-user]}]
+  {:pre [(fn? find-user)]}
   [handler]
   (fn authen-middleware [request]
     (if-let [user-id (:identity request)]
-      (do
+      (let [res (find-user {:user-id user-id})]
         (timbre/info "User session: " user-id)
-        (if-let [user (get-by-id user-id)]
+        (if-let [user (:user res)]
           (handler (->
                     request
                     (assoc :user user)

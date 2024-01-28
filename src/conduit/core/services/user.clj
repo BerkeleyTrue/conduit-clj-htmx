@@ -9,7 +9,7 @@
 (defact ->register [{:keys [create-user get-by-email]}]
   {:pre [(fn? create-user) (fn? get-by-email)]}
   [{:keys [username email password]}]
-  (let [user (get-by-email {:email email})]
+  (let [user (get-by-email email)]
     (if (not (nil? user))
       {:error "Email is alread in use"}
       (let [hashed-password (auth/hash-password password)
@@ -26,19 +26,24 @@
 (defact ->login [{:keys [get-by-email]}]
   {:pre [(fn? get-by-email)]}
   [{:keys [email password]}]
-  (let [user (get-by-email {:email email})]
+  (let [user (get-by-email email)]
     (if (and user (auth/verify-password password (:password user)))
       {:user user}
       {:error "No user with that email and password was found"})))
 
-(defact ->get-by-id
-  "get a user by user id"
-  [repo]
-  {:pre [(fn? (:get-by-id repo))]}
-  [user-id]
-  ((:get-by-id repo) {:id user-id}))
+(defact ->find-user
+  "Find user by id, email, or username."
+  [{:keys [get-by-id get-by-email get-by-username]}]
+  {:pre [(fn? get-by-id) (fn? get-by-email) (fn? get-by-username)]}
+  [{:keys [user-id username email]}]
+  (let [user (cond
+               user-id (get-by-id user-id)
+               username (get-by-username username)
+               email (get-by-email email))]
+    (if (nil? user)
+      {:error "No user found"}
+      {:user user})))
 
-(defact ->get-id-from-username [_] [])
 (defact ->update
   [{update-user :update}]
   {:pre [(fn? update-user)]}
@@ -62,8 +67,7 @@
 (defmethod ig/init-key :core.services/user [_ {:keys [user-repo]}]
   {:register (->register user-repo)
    :login (->login user-repo)
-   :get-by-id (->get-by-id user-repo)
-   :get-id-from-username (->get-id-from-username user-repo)
+   :find-user (->find-user user-repo)
    :get-profile (->get-profile user-repo)
    :get-following (->get-following user-repo)
    :follow (->follow user-repo)

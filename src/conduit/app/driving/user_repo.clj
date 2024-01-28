@@ -97,14 +97,14 @@
 (defact ->get-by-id
   [node]
   {:pre [(node? node)]}
-  [{:keys [id]}]
+  [user-id]
   (->
-   (xt/entity (xt/db node) id)
+   (xt/entity (xt/db node) user-id)
    (format-to-domain)))
 
 (defact ->get-by-email [node]
   {:pre [(node? node)]}
-  [{:keys [email]}]
+  [email]
   (->
    node
    (xt/db)
@@ -119,7 +119,7 @@
 
 (defact ->get-by-username [node]
   {:pre [(node? node)]}
-  [{:keys [username]}]
+  [username]
   (->
    (xt/db node)
    (xt/q
@@ -201,6 +201,7 @@
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)
+
    :get-by-id (->get-by-id node)
    :get-by-email (->get-by-email node)
    :get-by-username (->get-by-username node)
