@@ -16,19 +16,21 @@
        [:p (when bio bio)]]]]]])
 
 (defact ->get-profile-page
-  [{:keys [get-by-username]}]
+  [{:keys [find-user]}]
+  {:pre [(fn? find-user)]}
   [request]
-  (let [username (get-in request [:params :username])
+  (let [username (get-in request [:path-params :username])
         res (if (= (:username request) username)
               {:user (:user request)}
-              (get-by-username username))]
+              (find-user {:username username}))]
     (if (nil? (:user res))
       (->
         (response/redirect "/")
-        (push-flash :danger (str "No user found for " username)))
+        (push-flash :warning (str "No user found for " username)))
       {:render {:title (str "Profile: " username)
                 :content (profile-component res)}})))
 
 (defn ->profile-routes [user-service]
   ["profiles/:username"
-   {:get (->get-profile-page user-service)}])
+   {:get (->get-profile-page user-service)
+    :parameters {:path {:username :string}}}])
