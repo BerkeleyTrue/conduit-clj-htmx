@@ -46,6 +46,9 @@
   (if (nil? (:user-id params))
     {:error "User id or username is required"}
     (let [now (str (Date.))
+          params (if (empty? (:password params))
+                   (assoc params :password (auth/hash-password (:password params)))
+                   (dissoc params :password))
           user (update-user (assoc params :updated-at now))]
       (if (nil? user)
         {:error "Couldn't update user"}

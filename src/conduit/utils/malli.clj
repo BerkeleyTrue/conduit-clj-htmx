@@ -3,8 +3,7 @@
    [valip.predicates :as v]
    [malli.core :as m]
    [malli.registry :as mr]
-   [malli.error :as me]
-   [taoensso.timbre :as timbre]))
+   [malli.error :as me]))
 
 (def email
   [:and
@@ -28,9 +27,15 @@
     {:error/message "must contain at least one digit"}
     #"[0-9]"]])
 
+(def _empty
+  [:fn
+   {:error/message "must be empty"}
+   empty?])
+
 (def my-schema
   {:email email
-   :password password})
+   :password password
+   :empty _empty})
 
 (comment
   (letfn [(explain [schema value]
@@ -39,10 +44,12 @@
              (m/schema)
              (m/explain value)
              (me/humanize)))]
-    (timbre/info (explain password "12a4B678"))
-    (timbre/info (explain password "12345678"))
-    (timbre/info (explain password "aA0"))
-    (timbre/info (explain email "foobar"))))
+    (println (explain password "12a4B678"))
+    (println (explain password "12345678"))
+    (println (explain password "aA0"))
+    (println (explain email "foobar"))
+    (println (explain _empty ""))
+    (println (explain [:or _empty :password] ""))))
 
 (mr/set-default-registry!
  (mr/composite-registry

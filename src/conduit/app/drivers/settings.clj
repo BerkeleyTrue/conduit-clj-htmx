@@ -1,8 +1,11 @@
 (ns conduit.app.drivers.settings
   (:require
    [conduit.infra.hiccup :refer [defhtml]]
+   [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.hyper :refer [hyper]]
-   [ring.util.response :as response]))
+   [ring.util.response :as response]
+   [conduit.infra.utils :as utils]
+   [conduit.infra.middleware.flash :refer [push-flash]]))
 
 (defhtml settings-component [{:keys [username image email bio]}]
   [:div.settings-page
@@ -69,5 +72,32 @@
               :content (settings-component user)}}
     (response/redirect "/login")))
 
-(defn ->settings-routes []
-  ["settings" {:get get-settings-page}])
+(defact ->post-settings-page
+  [{update-user :update}]
+  {:pre [(fn? update-user)]}
+  [request]
+  (let [params (:params request)
+        user-id (:user-id request)
+        {:keys [user error]} (update-user (assoc params :user-id user-id))]
+    (if (nil? user)
+      (utils/list-errors-response {:settings error})
+      (->
+       {:render {:title "Settings"
+                 :content (settings-component user)}}
+       (push-flash :success "Settings updated!")
+       (update :session assoc :identity (:user-id user))))))
+
+(defn ->settings-routes [user-service]
+  ["settings"
+   {:get get-settings-page
+    :post
+    {:handler (->post-settings-page user-service)
+     :parameters
+     {:form
+      [:map
+       {:closed true}
+       [:email :email]
+       [:username :string]
+       [:image :string]
+       [:bio :string]
+       [:password [:or :empty :password]]]}}}])

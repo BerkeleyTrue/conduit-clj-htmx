@@ -101,6 +101,7 @@
      {:handler (->post-signup user-service)
       :parameters {:form
                    [:map
+                    {:closed true}
                     [:email :email]
                     [:username [:string {:min 4 :max 32}]]
                     [:password :password]]}}}]
@@ -111,6 +112,7 @@
      {:handler (->post-login-page user-service)
       :parameters {:form
                    [:map
+                    {:closed true}
                     [:email :email]
                     [:password :password]]}}}]
    ["logout"

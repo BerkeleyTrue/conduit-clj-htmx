@@ -15,6 +15,6 @@
      ["/" {:middleware [render-middleware]}]
      [(home/->home-routes)
       (auth/->auth-routes user-service)
-      (settings/->settings-routes)])])
+      (settings/->settings-routes user-service)])])
 
 (derive :app.routes/drivers :app/routes)
