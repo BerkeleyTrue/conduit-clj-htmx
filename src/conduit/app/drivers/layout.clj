@@ -92,7 +92,7 @@
                :class (when (= uri current-uri) "active")}
               title]])
           links)
-     (when (:id user)
+     (when (:user-id user)
        [:li.nav-item
         [:a.nav-link
          {:href (str "/profiles/" (:username user))}
