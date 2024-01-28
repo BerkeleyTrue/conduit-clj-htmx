@@ -192,11 +192,9 @@
     (let [response (handler request)]
       (if (not (:render response))
         response
-        (let [prev-flash (:flash request)
+        (let [prev-flash (get-in request [:session :flash])
               next-flash (:flash response)
-              flashm (if (and prev-flash next-flash)
-                       (merge-flash prev-flash next-flash)
-                       (or prev-flash next-flash))
+              flashm (merge-flash prev-flash next-flash)
               {:keys [content title]} (:render response)
               page (:page request)
               uri (:uri request)

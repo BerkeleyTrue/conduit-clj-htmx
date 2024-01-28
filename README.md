@@ -53,17 +53,6 @@ In Progress...
 - Home
   - [x] Render Page
   - [ ] Load tags
-- Settings page
-  - [ ] Get settings page
-  - [ ] make errors dynamic
-  - [ ] add post for form
-  - [ ] add logout handler
-  - [ ] Update settings
-    - [ ] image
-    - [ ] username
-    - [ ] bio
-    - [ ] email
-    - [ ] password
 - Profile page
   - [ ] Get profile page
   - [ ] Make content live
@@ -120,6 +109,23 @@ In Progress...
 
 #### Doing
 
+- Settings page
+  - [x] Get settings page
+  - [ ] make errors dynamic
+  - [ ] add post for form
+  - [x] add logout handler
+  - [ ] Update settings
+    - [ ] image
+    - [ ] username
+    - [ ] bio
+    - [ ] email
+    - [ ] password
+
+#### Done
+
+- [x] refactor to xtdb
+  - [x] swap out datalevin for xtdb
+  - [x] swap session to xtdb or some kv store other then datalevin
 - Auth
   - [x] Add is authed middleware
   - [x] Return and list errors from form
@@ -127,16 +133,10 @@ In Progress...
     - [x] Post to Login
     - [x] Add user to session
     - [x] Add user data to layout
-    - [ ] Flash message on success
-  - [ ] Sign Up
+    - [x] Flash message on success
+  - [x] Sign Up
     - [x] Post
     - [x] Create user
-    - [ ] Flash message on success
-    - [ ] Sign out
-    - [ ] Can re-login
-
-#### Done
-
-- [x] refactor to xtdb
-  - [x] swap out datalevin for xtdb
-  - [x] swap session to xtdb or some kv store other then datalevin
+    - [x] Flash message on success
+    - [x] Sign out
+    - [x] Can re-login
