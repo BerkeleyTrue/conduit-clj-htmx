@@ -77,6 +77,7 @@
   {:pre [(fn? update-user)]}
   [request]
   (let [params (:params request)
+        password? (seq (:password params))
         user-id (:user-id request)
         {:keys [user error]} (update-user (assoc params :user-id user-id))]
     (if (nil? user)
@@ -84,7 +85,7 @@
       (->
        {:render {:title "Settings"
                  :content (settings-component user)}}
-       (push-flash :success "Settings updated!")
+       (push-flash :success (if password? "Settings updated!" "Password updated!"))
        (update :session assoc :identity (:user-id user))))))
 
 (defn ->settings-routes [user-service]
