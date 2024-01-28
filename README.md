@@ -53,12 +53,6 @@ In Progress...
 - Home
   - [x] Render Page
   - [ ] Load tags
-- Profile page
-  - [ ] Get profile page
-  - [ ] Make content live
-  - [ ] link to settings
-  - [ ] hide follow if own profile
-  - [ ] show favorited articles
 - Articles Api
   - [ ] Filter articles
     - [ ] by author
@@ -68,8 +62,9 @@ In Progress...
   - [ ] Insert tags
   - [ ] Get popular tags
 - Views
-  - [ ] add banners
-  - [ ] add error message on htmx 500
+  - [x] add banners
+  - [x] add error message on htmx 500
+  - [ ] add flash on oob request
 - Comments
   - API
     - [ ] create comment on article
@@ -87,8 +82,6 @@ In Progress...
     - [ ] read
     - [ ] delete
     - [ ] mark if owner
-- Profile page
-  - [ ] follow author
 - Get Article page
   - [ ] delete if owner
   - [ ] Follow/Unfollow author
@@ -109,17 +102,13 @@ In Progress...
 
 #### Doing
 
-- Settings page
-  - [x] Get settings page
-  - [x] make errors dynamic
-  - [x] add post for form
-  - [x] add logout handler
-  - [x] Update settings
-    - [x] image
-    - [x] username
-    - [x] bio
-    - [x] email
-    - [x] password
+- Profile page
+  - [ ] Get profile page
+  - [ ] Make content live
+  - [ ] follow author
+  - [ ] link to settings
+  - [ ] hide follow if own profile
+  - [ ] show favorited articles
 
 #### Done
 
@@ -140,3 +129,14 @@ In Progress...
     - [x] Flash message on success
     - [x] Sign out
     - [x] Can re-login
+- Settings page
+  - [x] Get settings page
+  - [x] make errors dynamic
+  - [x] add post for form
+  - [x] add logout handler
+  - [x] Update settings
+    - [x] image
+    - [x] username
+    - [x] bio
+    - [x] email
+    - [x] password
