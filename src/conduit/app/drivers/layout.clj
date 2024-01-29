@@ -7,6 +7,8 @@
    [conduit.infra.utils :as utils]
    [conduit.infra.middleware.flash :refer [merge-flash]]))
 
+(def place-holder "https://static.productionready.io/images/smiley-cyrus.jpg")
+
 (def authed-links
   [{:uri "/"
     :title "Home"}
@@ -96,7 +98,7 @@
        [:li.nav-item
         [:a.nav-link
          {:href (str "/profiles/" (:username user))}
-         [:img.user-pic {:src (:image user)}]
+         [:img.user-pic {:src (if (seq (:image user)) (:image user) place-holder)}]
          (:username user)]])]]])
 
 (defhtml footer []

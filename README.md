@@ -103,11 +103,11 @@ In Progress...
 #### Doing
 
 - Profile page
-  - [ ] Get profile page
+  - [x] Get profile page
+  - [x] link to settings
+  - [x] hide follow if own profile
   - [ ] Make content live
   - [ ] follow author
-  - [ ] link to settings
-  - [ ] hide follow if own profile
   - [ ] show favorited articles
 
 #### Done
