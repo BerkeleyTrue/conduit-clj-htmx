@@ -2,9 +2,20 @@
   (:require
    [conduit.utils.auth :as auth]
    [integrant.core :as ig]
+   [malli.core :as m]
+   [conduit.core.models :refer [User]]
    [conduit.utils.dep-macro :refer [defact]])
   (:import
    [java.util UUID Date]))
+
+(def default-image "https://static.productionready.io/images/smiley-cyrus.jpg")
+
+(def User-Profile
+  [:map
+   [:username :string]
+   [:bio {:optional true} [:maybe :string]]
+   [:image {:optional true} [:maybe :string]]
+   [:following? :boolean]])
 
 (defact ->register [{:keys [create-user get-by-email]}]
   {:pre [(fn? create-user) (fn? get-by-email)]}
@@ -59,7 +70,24 @@
         {:error "Couldn't update user"}
         {:user user}))))
 
-(defact ->get-profile [_] [])
+(m/=> format-to-public-profile [:=> [:cat User :boolean] [User-Profile]])
+(defn format-to-public-profile [user following?]
+  (let [image (or (:image user) default-image)]
+    {:username (:username user)
+     :bio (:bio user)
+     :image image
+     :following? following?}))
+
+(defact ->get-profile 
+  [{:keys [get-by-id get-by-username]}] 
+  {:pre [(fn? get-by-id)]}
+  [{:keys [author-id authorname user-id]}]
+  (let [author (if author-id
+                 (get-by-id author-id)
+                 (get-by-username author-id))]
+    (if (nil? author)
+      {:error "No user found"}
+      (format-to-public-profile author false))))
 (defact ->get-following [_] [])
 (defact ->follow [_] [])
 (defact ->unfollow [_] [])

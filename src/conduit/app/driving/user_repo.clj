@@ -8,7 +8,7 @@
    [conduit.utils.malli]
    [conduit.utils.xtdb :refer [node?]]))
 
-(def UserEntity
+(def User-Entity
   [:map
    [:xt/id :string]
    [:user/email :email]
@@ -20,23 +20,22 @@
    [:user/created-at :string]
    [:user/updated-at {:optional true} [:maybe :string]]])
 
-(m/=> format-to-domain [:=> [:cat [:maybe UserEntity]] [:maybe User]])
-(defn format-to-domain
+(m/=> format-to-user [:=> [:cat [:maybe User-Entity]] [:maybe User]])
+(defn format-to-user
   "formats a user entity to a domain user"
   [user]
-  (let [user (if (nil? user) nil user)]
-    (if (nil? user)
-      nil
-      {:user-id (:xt/id user)
-       :email (:user/email user)
-       :username (:user/username user)
-       :bio (:user/bio user)
-       :image (:user/image user)
-       :following (:user/following user)
-       :password (:user/password user)
+  (if (nil? user)
+    nil
+    {:user-id (:xt/id user)
+     :email (:user/email user)
+     :username (:user/username user)
+     :bio (:user/bio user)
+     :image (:user/image user)
+     :following (:user/following user)
+     :password (:user/password user)
 
-       :created-at (:user/created-at user)
-       :updated-at (:user/updated-at user)})))
+     :created-at (:user/created-at user)
+     :updated-at (:user/updated-at user)}))
 
 (def transaction-functions
   [[::xt/put
@@ -92,7 +91,7 @@
     (xt/await-tx node tx-res)
     (->
      (xt/entity (xt/db node) id)
-     (format-to-domain))))
+     (format-to-user))))
 
 (defact ->get-by-id
   [node]
@@ -100,7 +99,7 @@
   [user-id]
   (->
    (xt/entity (xt/db node) user-id)
-   (format-to-domain)))
+   (format-to-user)))
 
 (defact ->get-by-email [node]
   {:pre [(node? node)]}
@@ -115,7 +114,7 @@
     email)
    (first)
    (first)
-   (format-to-domain)))
+   (format-to-user)))
 
 (defact ->get-by-username [node]
   {:pre [(node? node)]}
@@ -129,7 +128,7 @@
     username)
    (first)
    (first)
-   (format-to-domain)))
+   (format-to-user)))
 
 (defact ->update
   "Update user profile"
@@ -149,7 +148,7 @@
     (xt/await-tx node tx-res)
     (->
      (xt/entity (xt/db node) user-id)
-     (format-to-domain))))
+     (format-to-user))))
 
 (defact ->follow
   "A user follows an author"
@@ -165,7 +164,7 @@
     (xt/await-tx node tx-res)
     (->
      (xt/entity (xt/db node) user-id)
-     (format-to-domain))))
+     (format-to-user))))
 
 (defact ->unfollow
   "A user unfollows an author"
@@ -181,7 +180,7 @@
     (xt/await-tx node tx-res)
     (->
      (xt/entity (xt/db node) author-id)
-     (format-to-domain))))
+     (format-to-user))))
 
 (defact ->get-following
   "get a list of user ids that follow this author"
@@ -197,11 +196,10 @@
       :in [id]}
     author-id)
    (first)
-   (format-to-domain)))
+   (format-to-user)))
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)
-
    :get-by-id (->get-by-id node)
    :get-by-email (->get-by-email node)
    :get-by-username (->get-by-username node)
