@@ -1,6 +1,7 @@
 {:paths ["src" "resources" "target/resources" "env"]
  :deps
  {org.clojure/clojure                 {:mvn/version "1.11.1"}
+  clojure.java-time/clojure.java-time {:mvn/version "1.4.2"}
   aero/aero                           {:mvn/version "1.1.6"}
   integrant/integrant                 {:mvn/version "0.8.1"}
   camel-snake-kebab/camel-snake-kebab {:mvn/version "0.4.3"}
@@ -14,7 +15,7 @@
   com.taoensso/timbre                 {:mvn/version "6.3.1"}
   com.xtdb/xtdb-core                  {:mvn/version "1.24.3"}
   com.xtdb/xtdb-lmdb                  {:mvn/version "1.24.3"}
-  helpshift/faker                     {:mvn/version "0.3.0"}
+  com.lambdaisland/faker              {:mvn/version "0.2.8"}
   metosin/malli                       {:mvn/version "0.13.0"}
   org.slf4j/slf4j-nop                 {:mvn/version "2.0.0"}
   org.clojure/core.async              {:mvn/version "1.6.681"}
