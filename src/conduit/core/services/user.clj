@@ -84,13 +84,38 @@
   [{:keys [author-id authorname user-id]}]
   (let [author (if author-id
                  (get-by-id author-id)
-                 (get-by-username author-id))]
+                 (get-by-username authorname))]
     (if (nil? author)
       {:error "No user found"}
-      (format-to-public-profile author false))))
-(defact ->get-following [_] [])
-(defact ->follow [_] [])
-(defact ->unfollow [_] [])
+      (let [following? (if user-id
+                         (contains? (:following author) user-id)
+                         false)]
+        (format-to-public-profile author following?)))))
+
+(defact ->get-following [{:keys [get-following]}]
+  {:pre [(fn? get-following)]}
+  [{:keys [user-id]}]
+  (get-following user-id))
+
+(defact ->follow [{:keys [follow get-id-from-username]}] 
+  {:pre [(fn? follow) (fn? get-id-from-username)]}
+  [{:keys [user-id author-id authorname]}]
+  (let [author-id (if author-id 
+                    author-id
+                    (get-id-from-username authorname))
+        user (follow {:user-id user-id 
+                      :author-id author-id})]
+    (format-to-public-profile user true)))
+
+(defact ->unfollow [{:keys [unfollow get-id-from-username]}] 
+  {:pre [(fn? unfollow) (fn? get-id-from-username)]}
+  [{:keys [user-id author-id authorname]}]
+  (let [author-id (if author-id 
+                    author-id
+                    (get-id-from-username authorname))
+        user (unfollow {:user-id user-id 
+                        :author-id author-id})]
+    (format-to-public-profile user false)))
 
 (defmethod ig/init-key :core.services/user [_ {:keys [user-repo]}]
   {:register (->register user-repo)

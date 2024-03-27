@@ -45,10 +45,9 @@
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
           [[::xt/put
-            (->
-              user
-              (update :user/following conj author-id)
-              (assoc :user/updated-at (str (java.util.Date.))))]]))}]
+            (-> user
+                (update :user/following conj author-id)
+                (assoc :user/updated-at (str (java.util.Date.))))]]))}]
 
    [::xt/put
     {:xt/id :users/unfollow-author
@@ -57,10 +56,9 @@
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
           [[::xt/put
-            (->
-              user
-              (update :user/following disj author-id)
-              (assoc :user/updated-at (str (java.util.Date.))))]]))}]
+            (-> user
+                (update :user/following disj author-id)
+                (assoc :user/updated-at (str (java.util.Date.))))]]))}]
 
    [::xt/put
     {:xt/id :users/update
@@ -69,13 +67,12 @@
         (let [db (xtdb.api/db ctx)
               user (xtdb.api/entity db eid)]
           [[::xt/put
-            (->
-             user
-             (update :user/email (fn [old] (or email old)))
-             (update :user/username (fn [old] (or username old)))
-             (update :user/bio (fn [old] (or bio old)))
-             (update :user/image (fn [old] (or image old)))
-             (assoc :user/updated-at updated-at))]]))}]])
+            (-> user
+                (update :user/email (fn [old] (or email old)))
+                (update :user/username (fn [old] (or username old)))
+                (update :user/bio (fn [old] (or bio old)))
+                (update :user/image (fn [old] (or image old)))
+                (assoc :user/updated-at updated-at))]]))}]])
 
 (defact ->create-user
   [node]
@@ -89,32 +86,29 @@
                                      :user/password password
                                      :user/created-at created-at}]])]
     (xt/await-tx node tx-res)
-    (->
-     (xt/entity (xt/db node) id)
-     (format-to-user))))
+    (-> (xt/entity (xt/db node) id)
+        (format-to-user))))
 
 (defact ->get-by-id
   [node]
   {:pre [(node? node)]}
   [user-id]
-  (->
-   (xt/entity (xt/db node) user-id)
-   (format-to-user)))
+  (-> (xt/entity (xt/db node) user-id)
+      (format-to-user)))
 
 (defact ->get-by-email [node]
   {:pre [(node? node)]}
   [email]
-  (->
-   node
-   (xt/db)
-   (xt/q
-    '{:find [(pull ?user [*])]
-      :where [[?user :user/email email]]
-      :in [email]}
-    email)
-   (first)
-   (first)
-   (format-to-user)))
+  (-> node
+      (xt/db)
+      (xt/q
+       '{:find [(pull ?user [*])]
+         :where [[?user :user/email email]]
+         :in [email]}
+       email)
+      (first)
+      (first)
+      (format-to-user)))
 
 (defact ->get-by-username [node]
   {:pre [(node? node)]}
@@ -135,20 +129,17 @@
   [node]
   {:pre [(node? node)]}
   [{:keys [user-id email username bio image updated-at]}]
-  (let [tx-res (xt/submit-tx
-                node
-                [[::xt/fn
-                  :users/update
-                  user-id
-                  {:email email
-                   :username username
-                   :bio bio
-                   :image image
-                   :updated-at updated-at}]])]
+  (let [tx-res (xt/submit-tx node [[::xt/fn
+                                    :users/update
+                                    user-id
+                                    {:email email
+                                     :username username
+                                     :bio bio
+                                     :image image
+                                     :updated-at updated-at}]])]
     (xt/await-tx node tx-res)
-    (->
-     (xt/entity (xt/db node) user-id)
-     (format-to-user))))
+    (-> (xt/entity (xt/db node) user-id)
+        (format-to-user))))
 
 (defact ->follow
   "A user follows an author"
@@ -162,41 +153,36 @@
                   user-id
                   author-id]])]
     (xt/await-tx node tx-res)
-    (->
-     (xt/entity (xt/db node) user-id)
-     (format-to-user))))
+    (-> (xt/entity (xt/db node) user-id)
+        (format-to-user))))
 
 (defact ->unfollow
   "A user unfollows an author"
   [node]
   {:pre [(node? node)]}
   [{:keys [user-id author-id]}]
-  (let [tx-res (xt/submit-tx
-                node
-                [[::xt/fn
-                  :users/unfollow-author
-                  user-id
-                  author-id]])]
+  (let [tx-res (xt/submit-tx node
+                             [[::xt/fn
+                               :users/unfollow-author
+                               user-id
+                               author-id]])]
     (xt/await-tx node tx-res)
-    (->
-     (xt/entity (xt/db node) author-id)
-     (format-to-user))))
+    (-> (xt/entity (xt/db node) author-id)
+        (format-to-user))))
 
 (defact ->get-following
   "get a list of user ids that follow this author"
   [node]
   {:pre [(node? node)]}
   [{:keys [author-id]}]
-  (->
-   (xt/q
-    (xt/db node)
-    '{:find [(pull ?user [*])]
-      :where [[?e :xt/id]
-              [?e :following/author ?author-id]]
-      :in [id]}
-    author-id)
-   (first)
-   (format-to-user)))
+  (-> (xt/q (xt/db node)
+            '{:find [(pull ?user [*])]
+              :where [[?e :xt/id]
+                      [?e :following/author ?author-id]]
+              :in [id]}
+            author-id)
+      (first)
+      (format-to-user)))
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)
