@@ -22,7 +22,8 @@
   aleph/aleph                         {:mvn/version "0.6.3"}
   valip/valip                         {:mvn/version "0.2.0"}
   buddy/buddy-auth                    {:mvn/version "3.0.1"}
-  buddy/buddy-hashers                 {:mvn/version "2.0.167"}}
+  buddy/buddy-hashers                 {:mvn/version "2.0.167"}
+  babashka/fs                         {:mvn/version "0.5.20"}}
 
  :aliases
  {:repl/conjure

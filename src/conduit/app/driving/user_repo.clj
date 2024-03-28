@@ -74,20 +74,33 @@
                 (update :user/image (fn [old] (or image old)))
                 (assoc :user/updated-at updated-at))]]))}]])
 
+(defn user->put
+  "Convert a user entity to a query"
+  [{:keys [id email password username created-at]}]
+  [::xt/put
+   {:xt/id id
+    :user/username username
+    :user/email email
+    :user/following #{}
+    :user/password password
+    :user/created-at created-at}])
+
 (defact ->create-user
   [node]
   {:pre [(node? node)]}
-  [{:keys [id email password username created-at]}]
-  (let [tx-res (xt/submit-tx node [[::xt/put
-                                    {:xt/id id
-                                     :user/username username
-                                     :user/email email
-                                     :user/following #{}
-                                     :user/password password
-                                     :user/created-at created-at}]])]
+  [user]
+  (let [tx-res (xt/submit-tx node [(user->put user)])]
     (xt/await-tx node tx-res)
-    (-> (xt/entity (xt/db node) id)
+    (-> (xt/entity (xt/db node) (:id user))
         (format-to-user))))
+
+(defact ->create-many-users
+  [node]
+  {:pre [(node? node)]}
+  [users]
+  (let [tx-res (xt/submit-tx node (map user->put users))]
+    (xt/await-tx node tx-res)
+    (map (comp format-to-user (partial xt/entity (xt/db node)) :id) users)))
 
 (defact ->get-by-id
   [node]
@@ -186,6 +199,7 @@
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   {:create-user (->create-user node)
+   :create-many-users (->create-many-users node)
    :get-by-id (->get-by-id node)
    :get-by-email (->get-by-email node)
    :get-by-username (->get-by-username node)
