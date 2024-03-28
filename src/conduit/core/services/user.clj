@@ -70,7 +70,7 @@
         {:error "Couldn't update user"}
         {:user user}))))
 
-(m/=> format-to-public-profile [:=> [:cat User :boolean] [User-Profile]])
+(m/=> format-to-public-profile [:=> [:cat User :boolean] User-Profile])
 (defn format-to-public-profile [user following?]
   (let [image (or (:image user) default-image)]
     {:username (:username user)
