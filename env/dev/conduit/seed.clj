@@ -70,7 +70,8 @@
   (fs/delete-tree "data")
   true)
 
-(defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users]} :user
+; TODO: add favorites, comments
+(defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users follow]} :user
                                           {create-many-articles :create-many} :article
                                           {:keys [register]} :user-service
                                           node :node}]
@@ -90,6 +91,11 @@
                        :password "aB1234567*"}
                       (register)
                       :user)
+        _ (->> (repeatedly #(rand-nth users))
+               (take 10)
+               (map :id)
+               (#(follow {:user-id (:id dev-user)
+                          :author-id %})))
 
         _         (->> (repeatedly #(generate-article dev-user))
                        (take 10)
