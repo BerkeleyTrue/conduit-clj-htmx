@@ -97,22 +97,22 @@
   [{:keys [user-id]}]
   (get-following user-id))
 
-(defact ->follow [{:keys [follow get-id-from-username]}] 
-  {:pre [(fn? follow) (fn? get-id-from-username)]}
+(defact ->follow [{:keys [follow get-by-username]}] 
+  {:pre [(fn? follow) (fn? get-by-username)]}
   [{:keys [user-id author-id authorname]}]
   (let [author-id (if author-id 
                     author-id
-                    (get-id-from-username authorname))
+                    (:user-id (get-by-username authorname)))
         user (follow {:user-id user-id 
                       :author-id author-id})]
     (format-to-public-profile user true)))
 
-(defact ->unfollow [{:keys [unfollow get-id-from-username]}] 
-  {:pre [(fn? unfollow) (fn? get-id-from-username)]}
+(defact ->unfollow [{:keys [unfollow get-by-username]}] 
+  {:pre [(fn? unfollow) (fn? get-by-username)]}
   [{:keys [user-id author-id authorname]}]
   (let [author-id (if author-id 
                     author-id
-                    (get-id-from-username authorname))
+                    (:user-id (get-by-username authorname)))
         user (unfollow {:user-id user-id 
                         :author-id author-id})]
     (format-to-public-profile user false)))

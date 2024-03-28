@@ -72,6 +72,7 @@
 
 (defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users]} :user
                                           {create-many-articles :create-many} :article
+                                          {:keys [register]} :user-service
                                           node :node}]
   (println "Generating seed data...")
   (let [users (->> (repeatedly generate-user)
@@ -79,13 +80,24 @@
                    (vec)
                    (create-many-users))
 
-        [user-count]   (first (xt/q (xt/db node) '{:find [(count ?users)]
-                                                   :where [[?users :user/email]]}))
-
         articles (->> (repeatedly #(generate-article (rand-nth users)))
                       (take num-of-articles)
                       (vec)
                       (create-many-articles))
+
+        dev-user  (-> {:email "foo@bar.com"
+                       :username "foobarkly"
+                       :password "aB1234567*"}
+                      (register)
+                      :user)
+
+        _         (->> (repeatedly #(generate-article dev-user))
+                       (take 10)
+                       (vec)
+                       (create-many-articles))
+
+        [user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
+                                                 :where [[?users :user/email]]}))
 
         [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
                                                      :where [[?articles :article/title]]}))]
@@ -95,16 +107,20 @@
 (defn start-seed []
   (println "Starting seed...")
   (->
-   {:infra.db/xtdb (assoc (:infra.db/xtdb config) :clear (ig/ref :seed/clear))
+   {:seed/clear {}
+    :infra.db/xtdb (assoc (:infra.db/xtdb config)
+                          :clear (ig/ref :seed/clear))
 
     :app.repos/user {:node (ig/ref :infra.db/xtdb)}
     :app.repos/article {:node (ig/ref :infra.db/xtdb)}
-    :seed/clear {}
+    :core.services/user {:user-repo (ig/ref :app.repos/user)}
     :seed/generate {:node (ig/ref :infra.db/xtdb)
                     :user (ig/ref :app.repos/user)
-                    :article (ig/ref :app.repos/article)}}
+                    :article (ig/ref :app.repos/article)
+                    :user-service (ig/ref :core.services/user)}}
    (ig/prep)
-   (ig/init)))
+   (ig/init)
+   (ig/halt!)))
 
 (comment
   (start-seed))
