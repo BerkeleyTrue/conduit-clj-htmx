@@ -41,26 +41,16 @@ In Progress...
 
 ### Todo
 
-- Add seed data import
-  - [ ] Add xtdb
-  - [ ] Add init script
-  - [ ] Add comments
-  - [ ] Add users
-  - [ ] Add articles
-  - [ ] Add get route
-  - [ ] Add author details
-  - [ ] Add default user on cli flag
+- Profile page
+  - [x] Get profile page
+  - [x] link to settings
+  - [x] hide follow if own profile
+  - [ ] Make content live
+  - [ ] follow author
+  - [ ] show favorited articles
 - Home
   - [x] Render Page
   - [ ] Load tags
-- Articles Api
-  - [ ] Filter articles
-    - [ ] by author
-    - [ ] Add tag
-    - [ ] add favorites
-  - [ ] Unfavorite
-  - [ ] Insert tags
-  - [ ] Get popular tags
 - Views
   - [x] add banners
   - [x] add error message on htmx 500
@@ -102,13 +92,34 @@ In Progress...
 
 #### Doing
 
-- Profile page
-  - [x] Get profile page
-  - [x] link to settings
-  - [x] hide follow if own profile
-  - [ ] Make content live
-  - [ ] follow author
-  - [ ] show favorited articles
+- [ ] Articles 
+  - [ ] Repo
+    - [x] create
+    - [ ] update
+    - [ ] favorite
+    - [ ] unfavorite
+  - [ ] Service
+    - [ ] create
+    - [ ] update
+    - [ ] favorite
+    - [ ] unfavorite
+  - [ ] Api
+    - [ ] Filter articles
+      - [ ] by author
+      - [ ] Add tag
+      - [ ] add favorites
+    - [ ] Unfavorite
+    - [ ] Insert tags
+    - [ ] Get popular tags
+- Add seed data import
+  - [ ] Add xtdb
+  - [ ] Add init script
+  - [ ] Add comments
+  - [ ] Add users
+  - [ ] Add articles
+  - [ ] Add get route
+  - [ ] Add author details
+  - [ ] Add default user on cli flag
 
 #### Done
 

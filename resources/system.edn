@@ -13,9 +13,8 @@
   :session-store #ig/ref :infra.middleware.session/xtdb
   :user-service #ig/ref :core.services/user}
 
- :infra.router/routes
- {:infra-routes #ig/refset :infra/routes
-  :routes #ig/refset :app/routes}
+ :infra.router/routes {:infra-routes #ig/refset :infra/routes
+                       :routes #ig/refset :app/routes}
 
  :infra.routes/health {}
 
@@ -33,5 +32,6 @@
                       :user-service #ig/ref :core.services/user}
 
  :app.repos/user {:node #ig/ref :infra.db/xtdb}
+ :app.repos/article {:node #ig/ref :infra.db/xtdb}
 
  :core.services/user {:user-repo #ig/ref :app.repos/user}}
