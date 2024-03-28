@@ -71,17 +71,26 @@
   true)
 
 (defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users]} :user
-                                          {:keys [create-many-articles]} :article
+                                          {create-many-articles :create-many} :article
                                           node :node}]
   (println "Generating seed data...")
   (let [users (->> (repeatedly generate-user)
                    (take num-of-users)
                    (vec)
                    (create-many-users))
-        [user-count]   (first (xt/q (xt/db node) '{:find [(count ?users)]
-                                                   :where [[?users :user/email]]}))]
 
-    (println "Generated" user-count "users")))
+        [user-count]   (first (xt/q (xt/db node) '{:find [(count ?users)]
+                                                   :where [[?users :user/email]]}))
+
+        articles (->> (repeatedly #(generate-article (rand-nth users)))
+                      (take num-of-articles)
+                      (vec)
+                      (create-many-articles))
+
+        [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
+                                                     :where [[?articles :article/title]]}))]
+    (println "Generated" user-count "users")
+    (println "Generated" articles-count "articles")))
 
 (defn start-seed []
   (println "Starting seed...")

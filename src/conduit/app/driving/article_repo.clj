@@ -36,23 +36,35 @@
      :created-at (:article/created-at article)
      :updated-at (:article/updated-at article)}))
 
+(defn article->put [{:keys [id title slug description body tags author-id created-at]}]
+  [::xt/put
+   {:xt/id id
+    :article/title title
+    :article/slug slug
+    :article/description description
+    :article/body body
+    :article/tags tags
+    :article/author-id author-id
+    :article/created-at created-at}])
 
 (defact ->create-article
   [node]
   {:pre [(node? node)]}
-  [{:keys [id title slug description body tags author-id created-at]}]
-  (let [tx-res (xt/submit-tx node [[::xt/put
-                                    {:xt/id id
-                                     :article/title title
-                                     :article/slug slug
-                                     :article/description description
-                                     :article/body body
-                                     :article/tags tags
-                                     :article/author-id author-id
-                                     :article/created-at created-at}]])]
+  [article]
+  (let [tx-res (xt/submit-tx node [(article->put article)])]
     (xt/await-tx node tx-res)
-    (-> (xt/entity (xt/db node) id)
+    (-> (xt/entity (xt/db node) (:id article))
         (format-to-article))))
 
+(defact ->create-many-articles
+  [node]
+  {:pre [(node? node)]}
+  [articles]
+  (let [tx-res (xt/submit-tx node (map article->put articles))]
+    (xt/await-tx node tx-res)
+    (map (comp (partial xt/entity (xt/db node)) :id) 
+         articles)))
+
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
-  {:create (->create-article node)})
+  {:create (->create-article node)
+   :create-many (->create-many-articles node)})
