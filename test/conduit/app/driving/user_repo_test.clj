@@ -22,7 +22,7 @@
           uuid1 (UUID/randomUUID)]
       (is
        (to-equal
-        (user-repo/format-to-domain
+        (user-repo/format-to-user
          {:xt/id user-id
           :user/email "foo@bar.com"
           :user/username "foo"
@@ -42,7 +42,7 @@
          :updated-at nil}))
       (is
        (to-equal
-        (user-repo/format-to-domain
+        (user-repo/format-to-user
          {:xt/id user-id
           :user/email "foo@bar.com"
           :user/username "foo"
@@ -58,7 +58,7 @@
          :updated-at nil}))
       (is
        (=
-        (user-repo/format-to-domain nil)
+        (user-repo/format-to-user nil)
         nil)))))
 
 (deftest user-repo-create

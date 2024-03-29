@@ -34,4 +34,6 @@
  :app.repos/user {:node #ig/ref :infra.db/xtdb}
  :app.repos/article {:node #ig/ref :infra.db/xtdb}
 
- :core.services/user {:user-repo #ig/ref :app.repos/user}}
+ :core.services/user {:user-repo #ig/ref :app.repos/user}
+ :core.services/article {:repo #ig/ref :app.repos/article
+                         :user-service #ig/ref :core.services/user}}

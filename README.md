@@ -48,9 +48,6 @@ In Progress...
   - [ ] Make content live
   - [ ] follow author
   - [ ] show favorited articles
-- Home
-  - [x] Render Page
-  - [ ] Load tags
 - Views
   - [x] add banners
   - [x] add error message on htmx 500
@@ -92,6 +89,11 @@ In Progress...
 
 #### Doing
 
+- Home
+  - [x] Render Page
+  - [ ] load global articles
+  - [ ] Load tags
+  - [ ] load user articles
 - [ ] Articles 
   - [ ] Repo
     - [x] create
@@ -112,14 +114,14 @@ In Progress...
     - [ ] Insert tags
     - [ ] Get popular tags
 - Add seed data import
-  - [ ] Add xtdb
-  - [ ] Add init script
+  - [x] Add xtdb
+  - [x] Add init script
+  - [x] Add users
+  - [x] Add articles
+  - [x] Add default user on cli flag
   - [ ] Add comments
-  - [ ] Add users
-  - [ ] Add articles
   - [ ] Add get route
   - [ ] Add author details
-  - [ ] Add default user on cli flag
 
 #### Done
 
