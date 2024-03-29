@@ -16,5 +16,5 @@
   [_params]
   (list {}))
 
-(defmethod ig/init-key :core.services/user [_ {:keys [repo user-service]}]
+(defmethod ig/init-key :core.services/article [_ {:keys [repo user-service]}]
   {:create (->create repo user-service)})
