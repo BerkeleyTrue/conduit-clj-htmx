@@ -1,4 +1,5 @@
 (ns conduit.core.domain
   (:require
+   [conduit.core.models]
    [conduit.core.services.user]
-   [conduit.core.models]))
+   [conduit.core.services.article]))

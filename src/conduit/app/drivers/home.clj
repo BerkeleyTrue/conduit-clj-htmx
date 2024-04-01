@@ -20,8 +20,7 @@
       {:class "col-md-9"}
       [:div
        {:class "feed-toggle"}
-       [:ul.nav.nav-pills.outline-active
-        {:id "tabs"}
+       [:ul#tabs.nav.nav-pills.outline-active
         (when authed?
           [:li.nav-item ; only if signed in
            {:_ (hyper
@@ -49,9 +48,8 @@
           {:class (if authed? "" "active")} ; only if not signed in
           "Global Feed"]]
 
-        [:li.nav-item
-         {:id "tag-tab"
-          :hidden true}
+        [:li#tag-tab.nav-item
+         {:hidden true}
          [:a.nav-link.active ; always active if visible
           "#tag"]]]]
       [:div

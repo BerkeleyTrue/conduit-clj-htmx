@@ -4,9 +4,9 @@
    [xtdb.api :as xt]
    [malli.core :as m]
    [conduit.core.models :refer [Article]]
-   [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.malli]
-   [conduit.utils.xtdb :refer [node?]]))
+   [conduit.utils.xtdb :refer [node?]]
+   [conduit.core.ports.article-repo :as article-repo]))
 
 (def Article-Entity
   [:map
@@ -47,41 +47,30 @@
     :article/author-id author-id
     :article/created-at created-at}])
 
-(defact ->create-article
-  [node]
-  {:pre [(node? node)]}
-  [article]
-  (let [tx-res (xt/submit-tx node [(article->put article)])]
-    (xt/await-tx node tx-res)
-    (-> (xt/entity (xt/db node) (:id article))
-        (format-to-article))))
-
-(defact ->create-many-articles
-  [node]
-  {:pre [(node? node)]}
-  [articles]
-  (let [tx-res (xt/submit-tx node (map article->put articles))]
-    (xt/await-tx node tx-res)
-    (map (comp (partial xt/entity (xt/db node)) :id)
-         articles)))
-
-(defact ->list
-  [node]
-  {:pre [(node? node)]}
-  [{:keys [limit offset followed-by]}]
-  (let [res (xt/q (xt/db node)
-                  '{:find [(pull ?article [*])]
-                    :where [[?article :article/id ?id]
-                            [?article :article/followed-by ?followed-by]
-                            [(or (nil? ?followed-by)
-                                 (contains? ?followed-by ?id))]]
-                    :in [[?limit ?offset ?followed-by]]
-                    :limit ?limit
-                    :offset ?offset}
-                  [limit offset followed-by])]
-    res))
+(defrecord ArticleRepo [node]
+  article-repo/ArticleRepository
+  (create [_ params]
+    (let [tx-res (xt/submit-tx node [(article->put params)])]
+      (xt/await-tx node tx-res)
+      (-> (xt/entity (xt/db node) (:id params))
+          (format-to-article))))
+  (create-many [_ articles]
+    (let [tx-res (xt/submit-tx node (map article->put articles))]
+      (xt/await-tx node tx-res)
+      (map (comp (partial xt/entity (xt/db node)) :id)
+           articles)))
+  (list [_ {:keys [limit offset followed-by]}]
+    (xt/q (xt/db node)
+          '{:find [(pull ?article [*])]
+            :where [[?article :article/id ?id]
+                    [?article :article/followed-by ?followed-by]
+                    [(or (nil? ?followed-by)
+                         (contains? ?followed-by ?id))]]
+            :in [[?limit ?offset ?followed-by]]
+            :limit ?limit
+            :offset ?offset}
+          [limit offset followed-by])))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
-  {:create (->create-article node)
-   :create-many (->create-many-articles node)
-   :list (->list node)})
+  (node? node)
+  (->ArticleRepo node))

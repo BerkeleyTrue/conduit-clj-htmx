@@ -156,7 +156,7 @@
          }"]
        (hot-reload-script)]
       [:body
-       {:_  (hyper
+       {:_ (hyper
              "
           on every htmx:afterRequest
             log 'htmx:afterRequest'
