@@ -1,12 +1,12 @@
 (ns conduit.core.services.article
   (:require
    [integrant.core :as ig]
-   [conduit.core.ports.article-repo :as article-repo]
+   [conduit.core.ports.article-repo :as repo]
    [java-time.api :as jt]))
 
 (defprotocol ArticleService
   (create [_ user-id params] "Create an article")
-  (list-articles [_ params] "List articles")
+  (list [_ params] "List articles")
   (get-popular-tags [_] "Get popular tags")
   (get-by-slug [_ slug] "Get an article by slug")
   (get-id-from-slug [_ slug] "Get an article id by slug")
@@ -24,22 +24,20 @@
    :author profile
    :favorited favorited-by-user
    :favoritesCount num-of-favorites
-   
+
    :createdAt (:created-at article)
    :updatedAt (:updated-at article)})
 
-(defmethod ig/init-key :core.services/article [_ {repo :repo 
+(defmethod ig/init-key :core.services/article [_ {repo :repo
                                                   {:keys [get-profile]} :user-service}]
-  (article-repo/repo? repo)
+  (repo/repo? repo)
   (reify ArticleService
     (create [_ user-id params]
-      (let [article (article-repo/create repo 
-                                         (assoc params 
-                                                :created-at (str (jt/instant))
-                                                :author-id user-id))] 
+      (let [article (repo/create repo
+                                 (assoc params
+                                        :created-at (str (jt/instant))
+                                        :author-id user-id))]
         (if (nil? article)
           {:error "Couldn't create article"}
           (let [user (get-profile {:user-id user-id})]
-            {:user (format-article article user 0 false)}))))
-    (list [_ user-id params]
-      (let [params (or )]))))
+            {:user (format-article article user 0 false)}))))))

@@ -45,8 +45,7 @@
         res (list-articles {:articles articles
                             :no-following? no-following?})]
     (if (nil? (:articles res))
-      (-> (response/not-found)
-          ())
+      (response/not-found {})
       res)))
 
 (defn ->articles-routes []
