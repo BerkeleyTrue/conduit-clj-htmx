@@ -6,7 +6,7 @@
 
 (defprotocol ArticleService
   (create [_ user-id params] "Create an article")
-  (list [_ params] "List articles")
+  (list [_ user-id params] "List articles")
   (get-popular-tags [_] "Get popular tags")
   (get-by-slug [_ slug] "Get an article by slug")
   (get-id-from-slug [_ slug] "Get an article id by slug")
@@ -40,4 +40,18 @@
         (if (nil? article)
           {:error "Couldn't create article"}
           (let [user (get-profile {:user-id user-id})]
-            {:user (format-article article user 0 false)}))))))
+            {:user (format-article article user 0 false)}))))
+
+    (list [_ user-id {:keys [feed? limit offset tag favorited authorname]}]
+      ; TODO: add fetch authorid for authorname
+      ; TODO: add fetch userid for favorited
+      (let [args (if feed?
+                   {:followed-by user-id}
+                   {:tag tag})]
+        (->>
+          (repo/list repo args)
+          (map (fn [article]
+                 ; TODO: num-of-favorites 
+                 ; TODO: is favorited
+                 (let [profile (get-profile (:author-id article))]
+                   (format-article article profile (rand-int 10) (rand-nth [true false]))))))))))
