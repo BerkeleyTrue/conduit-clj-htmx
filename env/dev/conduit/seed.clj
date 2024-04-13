@@ -7,7 +7,8 @@
    [integrant.core :as ig]
    [babashka.fs :as fs]
    [xtdb.api :as xt]
-   [conduit.config :refer [get-config]])
+   [conduit.config :refer [get-config]]
+   [conduit.core.ports.article-repo :as article-repo])
   (:import
    [java.util UUID]))
 
@@ -72,7 +73,7 @@
 
 ; TODO: add favorites, comments
 (defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users follow]} :user
-                                          {create-many-articles :create-many} :article
+                                          article-repo :article
                                           {:keys [register]} :user-service
                                           node :node}]
   (println "Generating seed data...")
@@ -84,7 +85,7 @@
         articles (->> (repeatedly #(generate-article (rand-nth users)))
                       (take num-of-articles)
                       (vec)
-                      (create-many-articles))
+                      (article-repo/create-many article-repo))
 
         dev-user  (-> {:email "foo@bar.com"
                        :username "foobarkly"
@@ -100,7 +101,7 @@
         _         (->> (repeatedly #(generate-article dev-user))
                        (take 10)
                        (vec)
-                       (create-many-articles))
+                       (article-repo/create-many article-repo))
 
         [user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
                                                  :where [[?users :user/email]]}))
