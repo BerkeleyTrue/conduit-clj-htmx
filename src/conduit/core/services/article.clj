@@ -1,4 +1,5 @@
 (ns conduit.core.services.article
+  (:refer-clojure :exclude [list update])
   (:require
    [integrant.core :as ig]
    [conduit.core.ports.article-repo :as repo]

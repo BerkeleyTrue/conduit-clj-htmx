@@ -39,16 +39,16 @@
         (article-preview article))]]))
 
 
-(defn get-articles [request]
+(defn get-articles [_request]
   (let [articles []
         no-following? false
         res (list-articles {:articles articles
                             :no-following? no-following?})]
     (if (nil? (:articles res))
       (response/not-found {})
-      res)))
+      (response/response articles))))
 
 (defn ->articles-routes []
   ["articles"
-   {:name :list-articles
-    :get list-articles}])
+   {:name :get-articles
+    :get get-articles}])
