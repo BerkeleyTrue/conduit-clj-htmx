@@ -36,7 +36,7 @@
            [:a {:class "nav-link active"} "Your Feed"]])
         [:li.nav-item
          {:hx-get "/articles?limit=10"
-          :hx-trigger (if authed? nil "click load delay:150ms") ; only if not signed in
+          :hx-trigger (if authed? nil "click, load delay:150ms") ; only if not signed in
           :hx-target "#articles"
           :_ "
             on click

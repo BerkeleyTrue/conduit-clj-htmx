@@ -10,7 +10,7 @@
     [conduit.app.drivers.articles :as articles]))
 
 (defmethod ig/init-key :app.routes/drivers
-  [_ {:keys [on-start-ch user-service]}]
+  [_ {:keys [on-start-ch user-service article-service]}]
   [["/__hotreload" {:name :hotreload
                     :get (hot-reload/->get-sse on-start-ch)}]
    (into
@@ -19,6 +19,6 @@
       (auth/->auth-routes user-service)
       (settings/->settings-routes user-service)
       (profile/->profile-routes user-service)
-      (articles/->articles-routes)])])
+      (articles/->articles-routes article-service)])])
 
 (derive :app.routes/drivers :app/routes)

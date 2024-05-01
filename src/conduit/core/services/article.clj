@@ -17,7 +17,7 @@
   (delete [_ slug] "Delete an article"))
 
 (defn format-article [article profile num-of-favorites favorited-by-user]
-  {:slug (:slug article)
+  {:slug (:article/slug article)
    :title (:title article)
    :description (:description article)
    :body (:body article)
@@ -50,9 +50,11 @@
                    {:followed-by user-id}
                    {:tag tag})]
         (->>
-          (repo/list repo args)
+          (assoc args :limit (or limit 10) :offset (or offset 0))
+          (repo/list repo)
           (map (fn [article]
                  ; TODO: num-of-favorites 
                  ; TODO: is favorited
-                 (let [profile (get-profile (:author-id article))]
+                 ; (println :article article "\n")
+                 (let [profile (get-profile (:article/author-id article))]
                    (format-article article profile (rand-int 10) (rand-nth [true false]))))))))))

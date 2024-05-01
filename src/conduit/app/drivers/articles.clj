@@ -1,7 +1,8 @@
 (ns conduit.app.drivers.articles
   (:require
-   [ring.util.response :as response]
-   [conduit.infra.hiccup :refer [defhtml]]))
+   [conduit.infra.hiccup :refer [defhtml]]
+   [conduit.core.services.article :as article-service]
+   [conduit.infra.utils :as utils]))
 
 (defhtml article-preview [_]
   [:div.article-preview
@@ -28,6 +29,7 @@
 
 ; TODO: show pagination
 (defhtml list-articles [{:keys [articles no-following?]}]
+  ; (println :articles articles)
   (if (empty? articles)
     [:div.article-preview 
      (if no-following?
@@ -39,16 +41,18 @@
         (article-preview article))]]))
 
 
-(defn get-articles [_request]
-  (let [articles []
-        no-following? false
-        res (list-articles {:articles articles
-                            :no-following? no-following?})]
-    (if (nil? (:articles res))
-      (response/not-found {})
-      (response/response articles))))
+(defn ->get-articles [article-service]
+  (fn [_request]
+    (let [articles (article-service/list article-service 0 {:limit 10 :offset 0})
+          ; TODO: add following
+          no-following? false
+          res (list-articles {:articles articles
+                              :no-following? no-following?})]
+       (->
+         res
+         (utils/response)))))
 
-(defn ->articles-routes []
+(defn ->articles-routes [article-service]
   ["articles"
    {:name :get-articles
-    :get get-articles}])
+    :get (->get-articles article-service)}])

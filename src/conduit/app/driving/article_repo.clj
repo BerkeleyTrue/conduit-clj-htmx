@@ -54,22 +54,25 @@
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) (:id params))
           (format-to-article))))
+
   (create-many [_ articles]
     (let [tx-res (xt/submit-tx node (map article->put articles))]
       (xt/await-tx node tx-res)
       (map (comp (partial xt/entity (xt/db node)) :id)
            articles)))
+
   (list [_ {:keys [limit offset followed-by]}]
-    (xt/q (xt/db node)
-          '{:find [(pull ?article [*])]
-            :where [[?article :article/id ?id]
-                    [?article :article/followed-by ?followed-by]
-                    [(or (nil? ?followed-by)
-                         (contains? ?followed-by ?id))]]
-            :in [[?limit ?offset ?followed-by]]
-            :limit ?limit
-            :offset ?offset}
-          [limit offset followed-by])))
+    (let [res (xt/q (xt/db node) 
+                    '{:find [(pull ?article [*])]
+                      :where [[?article :article/title ?id]]
+                      :limit 10
+                      :offset 0})
+          res (->>
+                res
+                (flatten)
+                (map format-to-article))]
+      res)))
+
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)

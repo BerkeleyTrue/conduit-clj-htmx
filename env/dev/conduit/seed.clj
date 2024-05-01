@@ -82,10 +82,10 @@
                    (vec)
                    (create-many-users))
 
-        articles (->> (repeatedly #(generate-article (rand-nth users)))
-                      (take num-of-articles)
-                      (vec)
-                      (article-repo/create-many article-repo))
+        _articles (->> (repeatedly #(generate-article (rand-nth users)))
+                       (take num-of-articles)
+                       (vec)
+                       (article-repo/create-many article-repo))
 
         dev-user  (-> {:email "foo@bar.com"
                        :username "foobarkly"
