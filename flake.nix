@@ -21,7 +21,7 @@
       }: let
         dev = pkgs.writeShellScriptBin "dev" ''
           echo "Starting dev repl"
-          ${pkgs.babashka}/bin/bb dev
+          ./bin/launchpad dev --go
         '';
         koacha = pkgs.writeShellScriptBin "koacha" ''
           ${pkgs.clojure}/bin/clj -M:test "$@"

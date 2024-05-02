@@ -31,7 +31,7 @@
                   set {hidden: true} on #tag-tab
                 ")
             :hx-get "/articles/feed?limit=10"
-              ; :hx-trigger "click load delay:150ms" ; TODO: implement backend
+              ; :hx-trigger "click, load delay:150ms" ; TODO: implement backend
             :hx-target "#articles"}
            [:a {:class "nav-link active"} "Your Feed"]])
         [:li.nav-item

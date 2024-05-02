@@ -1,0 +1,9 @@
+#!/bin/env bb
+
+
+(require '[lambdaisland.launchpad :as launchpad])
+
+(launchpad/main 
+  {:options {:portal true
+             :cider-nrepl true
+             :refactor-nrepl true}})

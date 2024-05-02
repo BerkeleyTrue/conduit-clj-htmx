@@ -1,12 +1,12 @@
 /.cpcache
 /.nrepl-port
-/bin
 /config.sh
 /secrets.env
 /storage/
 /tailwindcss
 /target
 .calva/
+.rebl
 .clj-kondo/.cache
 .clj-kondo/.lock
 bb/.clj-kondo/.cache

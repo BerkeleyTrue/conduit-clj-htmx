@@ -1,12 +1,9 @@
-{:deps {conduit/tasks {:local/root "bb"}}
+{:deps {com.lambdaisland/launchpad {:mvn/version "0.28.129-alpha"}}
 
  :pods {clj-kondo/clj-kondo {:version "2023.12.15"}}
 
  :tasks
  {:requires [[pod.borkdude.clj-kondo :as clj-kondo]]
-
-  dev conduit.tasks/dev
-
   lint {:doc "Run linter on project"
         :task (clj-kondo/print!
                 (clj-kondo/run! {:lint ["./src"]}))}}}

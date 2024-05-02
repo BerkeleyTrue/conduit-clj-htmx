@@ -26,34 +26,14 @@
   babashka/fs                         {:mvn/version "0.5.20"}}
 
  :aliases
- {:repl/conjure
-  {:extra-deps {nrepl/nrepl {:mvn/version "1.0.0"}
-                cider/cider-nrepl {:mvn/version "0.42.1"}
-                integrant/repl {:mvn/version "0.3.3"}}
-   ; :jvm-opts ["--add-opens=java.base/java.nio=ALL-UNNAMED"
-   ;            "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"]
-   :main-opts ["--main" "nrepl.cmdline"
-               "--middleware" "[cider.nrepl/cider-middleware]"
-               "--interactive"]
-   :extra-paths ["env/dev"]}
-  :dev
+ {:dev
   {:extra-deps {integrant/repl  {:mvn/version "0.3.3"}
-                cider/cider-nrepl {:mvn/version "0.42.1"}
-                nrepl/nrepl {:mvn/version "1.0.0"}
                 ring/ring-devel {:mvn/version "1.10.0"}
-                ring/ring-mock  {:mvn/version "0.4.0"}
-                com.nextjournal/beholder {:mvn/version "1.0.2"}
-                io.github.nubank/morse {:git/tag "v2023.04.30.01" :git/sha "d99b09c"}}
-   :jvm-opts [
-              ; "--add-opens=java.base/java.nio=ALL-UNNAMED" ; needed for datalevin
-              ; "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
-              "-XX:+CrashOnOutOfMemoryError" ; crash on OOM instead of hanging
+                ring/ring-mock  {:mvn/version "0.4.0"}}
+   :jvm-opts ["-XX:+CrashOnOutOfMemoryError" ; crash on OOM instead of hanging
               "-Duser.timezone=UTC" ; use UTC everywhere
               "-XX:-OmitStackTraceInFastThrow" ; don't omit stack traces
               ,]
-   :main-opts ["--main" "nrepl.cmdline"
-               "--middleware" "[cider.nrepl/cider-middleware]"
-               "--interactive"]
    :extra-paths ["env/dev"]}
   :test
   {:extra-deps {lambdaisland/kaocha {:mvn/version "1.87.1366"}}
