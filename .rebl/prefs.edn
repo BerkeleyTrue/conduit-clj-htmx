@@ -1,1 +1,0 @@
-{:browser-prefs {}, :viewer-prefs {#{:rebl/text :rebl/data-as-edn} :rebl/text, #{:rebl/coll :rebl/xy-chart :rebl/data-as-edn} :rebl/coll, #{:rebl/tuples :rebl/coll :rebl/data-as-edn} :rebl/data-as-edn}}
