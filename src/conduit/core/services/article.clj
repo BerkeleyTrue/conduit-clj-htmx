@@ -42,7 +42,7 @@
    :title (:title article)
    :description (:description article)
    :body (:body article)
-   :tag (:tags article)
+   :tags (:tags article)
    :author profile
    :favorited favorited-by-user
    :favoritesCount num-of-favorites

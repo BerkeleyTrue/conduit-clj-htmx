@@ -1,10 +1,12 @@
 (ns conduit.app.drivers.articles
   (:require
+   [java-time.api :as jt]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.core.services.article :as article-service]
    [conduit.infra.utils :as utils]))
+   
 
-(defhtml article-preview [_]
+(defhtml article-preview [{:keys [title description tags created-at]}]
   [:div.article-preview
    [:div.article-meta
     [:a
@@ -16,16 +18,15 @@
       {:href "#"}
       "Eric Simons"]
      [:span.date
-      "January 20th"]]]
+      (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]]
    [:a.preview-link
     {:href "#"}
-    [:h1 "How to build webapps that scale"]
-    [:p "This is the description for the post."]]
+    [:h1 title]
+    [:p description]]
    [:ul.tag-list
-    [:li.tag-default.tag-pill.tag-outline
-     "Web Development"]
-    [:li.tag-default.tag-pill.tag-outline
-     "JavaScript"]]])
+    (for [tag tags]
+      [:li.tag-default.tag-pill.tag-outline
+       tag])]])
 
 ; TODO: show pagination
 (defhtml list-articles [{:keys [articles no-following?]}]
