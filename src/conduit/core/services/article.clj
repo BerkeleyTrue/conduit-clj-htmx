@@ -1,9 +1,29 @@
 (ns conduit.core.services.article
   (:refer-clojure :exclude [list update])
   (:require
+   [java-time.api :as jt]
    [integrant.core :as ig]
+   [malli.core :as m]
    [conduit.core.ports.article-repo :as repo]
-   [java-time.api :as jt]))
+   [conduit.core.services.user :refer [User-Profile]]
+   [conduit.core.models :refer [Article]]))
+
+(def Article-Output
+  [:map
+   {:title "Article Output"
+    :description "An public article"}
+   [:title :string]
+   [:slug :string]
+   [:description :string]
+   [:body :string]
+   [:tags [:set :string]]
+
+   [:is-favorited :boolean]
+   [:favorites-count :int]
+   [:author User-Profile]
+
+   [:created-at :string]
+   [:updated-at :string]])
 
 (defprotocol ArticleService
   (create [_ user-id params] "Create an article")
@@ -16,6 +36,7 @@
   (unfavorite [_ slug user-id] "Unfavorite an article")
   (delete [_ slug] "Delete an article"))
 
+(m/=> format-article [:=> [:cat Article User-Profile :int :boolean] Article-Output])
 (defn format-article [article profile num-of-favorites favorited-by-user]
   {:slug (:article/slug article)
    :title (:title article)
@@ -26,8 +47,8 @@
    :favorited favorited-by-user
    :favoritesCount num-of-favorites
 
-   :createdAt (:created-at article)
-   :updatedAt (:updated-at article)})
+   :created-at (:created-at article)
+   :updated-at (:updated-at article)})
 
 (defmethod ig/init-key :core.services/article [_ {repo :repo
                                                   {:keys [get-profile]} :user-service}]

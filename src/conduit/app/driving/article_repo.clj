@@ -6,7 +6,9 @@
    [conduit.core.models :refer [Article]]
    [conduit.utils.malli]
    [conduit.utils.xtdb :refer [node?]]
-   [conduit.core.ports.article-repo :as article-repo]))
+   [conduit.core.ports.article-repo :as article-repo])
+  (:import
+   [java.util UUID]))
 
 (def Article-Entity
   [:map
@@ -26,12 +28,13 @@
   [article]
   (if (nil? article)
     nil
-    {:article-id (:xt/id article)
+    {:article-id (UUID/fromString (:xt/id article))
      :title (:article/title article)
      :slug (:article/slug article)
      :description (:article/description article)
      :body (:article/body article)
-     :author-id (:article/author-id article)
+     :author-id (when-let [author-id (:article/author-id article)] 
+                  (UUID/fromString author-id))
      :tags (:article/tags article)
      :created-at (:article/created-at article)
      :updated-at (:article/updated-at article)}))
