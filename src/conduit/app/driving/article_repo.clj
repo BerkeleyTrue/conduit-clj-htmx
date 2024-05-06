@@ -62,13 +62,13 @@
       (map (comp (partial xt/entity (xt/db node)) :id)
            articles)))
 
-  ; TODO: figure out dynamic limit/offset and followed-by
-  (list [_ {:keys [_limit _offset _followed-by]}]
+  ; TODO: figure out followed-by
+  (list [_ {:keys [limit offset _followed-by]}]
     (let [res (xt/q (xt/db node) 
-                    '{:find [(pull ?article [*])]
-                      :where [[?article :article/title ?id]]
-                      :limit 1
-                      :offset 0})
+                    {:find '[(pull ?article [*])]
+                     :where '[[?article :article/title ?id]]
+                     :limit limit
+                     :offset offset})
           res (->>
                 res
                 (flatten)
