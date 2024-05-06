@@ -64,8 +64,8 @@
           (let [user (get-profile {:user-id user-id})]
             {:user (format-article article user 0 false)}))))
 
-    (list [_ user-id {:keys [feed? limit offset tag favorited authorname]}]
-      ; TODO: add fetch authorid for authorname
+    (list [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
+      ; TODO: add fetch author-id for authorname
       ; TODO: add fetch userid for favorited
       (let [args (if feed?
                    {:followed-by user-id}
@@ -76,6 +76,5 @@
           (map (fn [article]
                  ; TODO: num-of-favorites 
                  ; TODO: is favorited
-                 ; (println :article article "\n")
-                 (let [profile (get-profile (:article/author-id article))]
+                 (let [profile (get-profile (:author-id article))]
                    (format-article article profile (rand-int 10) (rand-nth [true false]))))))))))

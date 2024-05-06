@@ -24,8 +24,7 @@
     (if (not (nil? user))
       {:error "Email is alread in use"}
       (let [hashed-password (auth/hash-password password)
-            id (str (UUID/randomUUID))
-            user (create-user {:id id
+            user (create-user {:user-id (UUID/randomUUID)
                                :username username
                                :email email
                                :password hashed-password

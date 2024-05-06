@@ -13,8 +13,8 @@
    [java.util UUID]))
 
 (def config (get-config))
-(def num-of-users 30)
-(def num-of-articles 20)
+(def num-of-users 20)
+(def num-of-articles 30)
 
 (defn random-int [min max]
   (+ (rand-int (- max min)) min))
@@ -38,7 +38,7 @@
 
 (defn generate-user []
   (fake
-   {:id (str (UUID/randomUUID))
+   {:user-id (UUID/randomUUID)
     :email [:internet :email]
     :username [:internet :username]
     :created-at (random-date)
@@ -49,19 +49,19 @@
         slug (csk/->kebab-case title)
         body (str/join "\n\n" (vec (take (random-int 1 5) (repeatedly #(paragraph)))))
         tags (vec (take (random-int 1 3) (words)))
-        article (fake {:id (str (UUID/randomUUID))
-
-                       :title title
+        article (fake {:title title
                        :slug slug
                        :description (str/join "\n\n" (vec (take (random-int 1 4) (repeatedly #(sentence)))))
                        :body body
 
                        :image (generate-image)
-                       :author-id (:id user)
 
                        :created-at (random-date)
                        :updated-at (random-date)})]
-    (assoc article :tags tags)))
+    (assoc article 
+           :tags tags 
+           :author-id (:user-id user)
+           :id (UUID/randomUUID))))
 
 (comment
   (generate-article (generate-user)))
@@ -81,7 +81,6 @@
                    (take num-of-users)
                    (vec)
                    (create-many-users))
-
         _articles (->> (repeatedly #(generate-article (rand-nth users)))
                        (take num-of-articles)
                        (vec)
@@ -94,8 +93,8 @@
                       :user)
         _ (->> (repeatedly #(rand-nth users))
                (take 10)
-               (map :id)
-               (#(follow {:user-id (:id dev-user)
+               (map :user-id)
+               (#(follow {:user-id (:user-id dev-user)
                           :author-id %})))
 
         _         (->> (repeatedly #(generate-article dev-user))

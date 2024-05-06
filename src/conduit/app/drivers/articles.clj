@@ -30,7 +30,6 @@
 
 ; TODO: show pagination
 (defhtml list-articles [{:keys [articles no-following?]}]
-  ; (println :articles articles)
   (if (empty? articles)
     [:div.article-preview 
      (if no-following?

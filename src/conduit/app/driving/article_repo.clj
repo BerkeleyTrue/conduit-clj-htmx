@@ -39,6 +39,7 @@
      :created-at (:article/created-at article)
      :updated-at (:article/updated-at article)}))
 
+(m/=> article->put [:=> [:cat Article] :any])
 (defn article->put [{:keys [id title slug description body tags author-id created-at]}]
   [::xt/put
    {:xt/id id
@@ -64,11 +65,12 @@
       (map (comp (partial xt/entity (xt/db node)) :id)
            articles)))
 
-  (list [_ {:keys [limit offset followed-by]}]
+  ; TODO: figure out dynamic limit/offset and followed-by
+  (list [_ {:keys [_limit _offset _followed-by]}]
     (let [res (xt/q (xt/db node) 
                     '{:find [(pull ?article [*])]
                       :where [[?article :article/title ?id]]
-                      :limit 10
+                      :limit 1
                       :offset 0})
           res (->>
                 res

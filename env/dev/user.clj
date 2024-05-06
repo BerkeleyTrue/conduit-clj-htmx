@@ -2,6 +2,7 @@
   (:require
    [integrant.core :as ig]
    [integrant.repl :as ig-repl :refer [halt reset]]
+   [portal.api :as p]
    [conduit.config :refer [get-config]]
    [conduit.core]))
 
@@ -23,4 +24,7 @@
   (reset) ; resets the system
   (get-config)
   (ig/prep (get-config))
+  (do 
+    (p/open)
+    (add-tap #'p/submit))
   ,)

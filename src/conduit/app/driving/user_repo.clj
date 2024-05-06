@@ -74,11 +74,13 @@
                 (update :user/image (fn [old] (or image old)))
                 (assoc :user/updated-at updated-at))]]))}]])
 
+(m/=> user->put [:=> [:cat User] :any])
 (defn user->put
   "Convert a user entity to a query"
-  [{:keys [id email password username created-at]}]
+  [{:keys [user-id email password username created-at]}]
   [::xt/put
-   {:xt/id id
+   {:xt/id user-id
+    :user/id user-id
     :user/username username
     :user/email email
     :user/following #{}
@@ -91,7 +93,7 @@
   [user]
   (let [tx-res (xt/submit-tx node [(user->put user)])]
     (xt/await-tx node tx-res)
-    (-> (xt/entity (xt/db node) (:id user))
+    (-> (xt/entity (xt/db node) (:user-id user))
         (format-to-user))))
 
 (defact ->create-many-users
@@ -100,7 +102,7 @@
   [users]
   (let [tx-res (xt/submit-tx node (map user->put users))]
     (xt/await-tx node tx-res)
-    (map (comp format-to-user (partial xt/entity (xt/db node)) :id) users)))
+    (map (comp format-to-user (partial xt/entity (xt/db node)) :user-id) users)))
 
 (defact ->get-by-id
   [node]
