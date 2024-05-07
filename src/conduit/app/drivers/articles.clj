@@ -5,7 +5,7 @@
    [conduit.core.services.article :as article-service]
    [conduit.infra.utils :as utils]))
 
-(defhtml article-preview [{:keys [title slug description tags created-at author] :as article}]
+(defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
     [:div.article-preview
      [:div.article-meta
@@ -25,7 +25,9 @@
       [:p description]]
      [:ul.tag-list
       (for [tag tags]
-        [:li.tag-default.tag-pill.tag-outline
+        [:a.tag-default.tag-pill.tag-outline
+         ; TODO: load articles by tag
+         {:href "#"}
          tag])]]))
 
 ; TODO: show pagination

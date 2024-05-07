@@ -38,7 +38,7 @@
 
 (m/=> format-article [:=> [:cat Article User-Profile :int :boolean] Article-Output])
 (defn format-article [article profile num-of-favorites favorited-by-user]
-  {:slug (:article/slug article)
+  {:slug (:slug article)
    :title (:title article)
    :description (:description article)
    :body (:body article)
