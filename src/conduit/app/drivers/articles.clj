@@ -49,9 +49,8 @@
           no-following? false
           res (list-articles {:articles articles
                               :no-following? no-following?})]
-      (->
-       res
-       (utils/response)))))
+      (-> res
+          (utils/response)))))
 
 (defn ->articles-routes [article-service]
   ["articles"

@@ -1,5 +1,6 @@
 (ns conduit.app.drivers.settings
   (:require
+   [clojure.core.match :refer [match]]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.hyper :refer [hyper]]
@@ -78,15 +79,14 @@
   [request]
   (let [params (:params request)
         password? (seq (:password params))
-        user-id (:user-id request)
-        {:keys [user error]} (update-user (assoc params :user-id user-id))]
-    (if (nil? user)
-      (utils/list-errors-response {:settings error})
-      (->
-       {:render {:title "Settings"
-                 :content (settings-component user)}}
-       (push-flash :success (if password? "Settings updated!" "Password updated!"))
-       (update :session assoc :identity (:user-id user))))))
+        user-id (:user-id request)]
+
+    (match (update-user (assoc params :user-id user-id))
+      [:error error] (utils/list-errors-response {:settings error})
+      [:ok user] (-> {:render {:title "Settings"
+                               :content (settings-component user)}}
+                     (push-flash :success (if password? "Settings updated!" "Password updated!"))
+                     (update :session assoc :identity (:user-id user))))))
 
 (defn ->settings-routes [user-service]
   ["settings"

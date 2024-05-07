@@ -1,6 +1,7 @@
 (ns conduit.core.services.article
   (:refer-clojure :exclude [list update])
   (:require
+   [clojure.core.match :refer [match]]
    [java-time.api :as jt]
    [integrant.core :as ig]
    [malli.core :as m]
@@ -60,9 +61,9 @@
                                         :created-at (str (jt/instant))
                                         :author-id user-id))]
         (if (nil? article)
-          {:error "Couldn't create article"}
+          [:error "Couldn't create article"]
           (let [user (get-profile {:user-id user-id})]
-            {:article (format-article article user 0 false)}))))
+            [:ok (format-article article user 0 false)]))))
 
     (list [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
       ; TODO: add fetch author-id for authorname
@@ -70,11 +71,14 @@
       (let [args (if feed?
                    {:followed-by user-id}
                    {:tag tag})]
-        (->>
-         (assoc args :limit (or limit 10) :offset (or offset 0))
-         (repo/list repo)
-         (map (fn [article]
-                 ; TODO: num-of-favorites 
-                 ; TODO: is favorited
-                (let [res (get-profile {:author-id (:author-id article)})]
-                  (format-article article (:profile res) (rand-int 10) (rand-nth [true false]))))))))))
+        (->> (assoc args
+                    :limit (or limit 10)
+                    :offset (or offset 0))
+             (repo/list repo)
+             (map (fn [article]
+                    ; TODO: num-of-favorites 
+                    ; TODO: is favorited
+                    (match (get-profile {:author-id (:author-id article)})
+                      [:ok profile] (format-article article profile (rand-int 10) (rand-nth [true false]))
+                      ; TODO: handle no user?
+                      article))))))))

@@ -1,5 +1,6 @@
 (ns conduit.app.drivers.profile
   (:require
+   [clojure.core.match :refer [match]]
    [ring.util.response :as response]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.utils.dep-macro :refer [defact]]
@@ -10,13 +11,11 @@
 
 (defhtml follow-button-component [{:keys [username following?]}]
   [:button#profile-follow-button.btn.btn-sm.btn-outline-secondary.follow-btn
-   (->
-     {:hx-swap "outerHtml"}
-     (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
+   (-> {:hx-swap "outerHtml"}
+       (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
    [:i.ion-plus-round
     (str " " (if following? "Unfollow" "Follow") " " username)
     [:span.counter "(?)"]]])
-
 
 (defhtml profile-component [{:keys [username image bio self? authed?]}]
   [:div.profile-page
@@ -46,7 +45,7 @@
         {:role "tablist"}
         [:li.nav-item
          {:_ (hyper
-               "
+              "
                 on click
                   set innerHTML of #articles to 'Loading articles...'
                   remove .active from .nav-link
@@ -60,7 +59,7 @@
           "My Articles"]]
         [:li.nav-item
          {:_ (hyper
-               "
+              "
                 on click
                   set innerHTML of #articles to 'Loading articles...'
                   remove .active from .nav-link
@@ -84,14 +83,15 @@
   (let [username (get-in request [:path-params :username])
         self? (= (:username request) username)
         res (if self?
-              {:user (:user request)}
+              [:ok (:user request)]
               (find-user {:username username}))]
-    (if (nil? (:user res))
-      (->
-        (response/redirect "/")
-        (push-flash :warning (str "No user found for " username)))
-      {:render {:title (str "Profile: " username)
-                :content (profile-component (assoc (:user res) :self? self?, :authed? (not (nil? (:user-id request)))))}})))
+    (match res
+      [:error _error] (-> (response/redirect "/")
+                          (push-flash :warning (str "No user found for " username)))
+      [:ok user] {:render {:title (str "Profile: " username)
+                           :content (profile-component (assoc user
+                                                              :self? self?
+                                                              :authed? (not (nil? (:user-id request)))))}})))
 
 (defn ->profile-routes [user-service]
   ["profiles/:username"

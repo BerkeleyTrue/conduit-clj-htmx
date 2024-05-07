@@ -1,5 +1,6 @@
 (ns conduit.app.drivers.auth
   (:require
+   [clojure.core.match :refer [match]]
    [taoensso.timbre :as timbre]
    [ring.util.response :as response]
    [conduit.infra.hiccup :refer [defhtml]]
@@ -24,12 +25,12 @@
          [:a {:href "/register"} "Need an account?"])]
       [:ul.error-messages {:id "errors" :hidden ""}]
       [:form
-        {:id "authen"
-         :hx-post (if register? "/register" "/login")
-         :hx-target "body"
-         :hx-swap "outerHTML"
-         :hx-push-url "true"
-         :_ (hyper "on submit set { hidden: true } on #errors")}
+       {:id "authen"
+        :hx-post (if register? "/register" "/login")
+        :hx-target "body"
+        :hx-swap "outerHTML"
+        :hx-push-url "true"
+        :_ (hyper "on submit set { hidden: true } on #errors")}
        (when register?
          [:fieldset.form-group
           [:input.form-control.form-control-lg
@@ -61,15 +62,12 @@
 
 (defact ->post-login-page [{:keys [login]}]
   {:pre [(fn? login)]}
-  [request]
-  (let [params (:params request)
-        {:keys [user error]} (login params)]
-    (if (nil? user)
-      (utils/list-errors-response {:login error})
-      (->
-       (response/redirect "/")
-       (push-flash :success "Welcome!")
-       (update :session assoc :identity (:user-id user))))))
+  [{:keys [params]}]
+  (match (login params)
+    [:error error] (utils/list-errors-response {:login error})
+    [:ok {:keys [user-id]}] (-> (response/redirect "/")
+                                (push-flash :success "Welcome!")
+                                (update :session assoc :identity user-id))))
 
 (defn get-register-page [request]
   (if (:identity request)
@@ -81,16 +79,16 @@
   {:pre [(fn? register)]}
   [request]
   (let [params (:params request)
-        _ (timbre/info "params" params)
-        {:keys [user error]} (register params)]
-    (when user (timbre/info "user: " user))
-    (when error (timbre/info "registering error: " error))
-    (if error
-      (utils/list-errors-response {:register error})
-      (->
-       (response/redirect "/")
-       (push-flash :success "Welcome!")
-       (update :session assoc :identity (:user-id user))))))
+        _ (timbre/info "params" params)]
+    (match (register params)
+      [:error error] (do
+                       (timbre/info "registering error: " error)
+                       (utils/list-errors-response {:register error}))
+      [:ok user] (do
+                   (timbre/info "user: " user)
+                   (-> (response/redirect "/")
+                       (push-flash :success "Welcome!")
+                       (update :session assoc :identity (:user-id user)))))))
 
 (defn ->auth-routes [user-service]
   [""
@@ -121,10 +119,10 @@
      {:handler
       (fn [request]
         (let [session (->
-                        (:session request)
-                        (dissoc :identity)
-                        (dissoc :user)
-                        (dissoc :user-id))]
+                       (:session request)
+                       (dissoc :identity)
+                       (dissoc :user)
+                       (dissoc :user-id))]
           (->
            (response/redirect "/")
            (assoc :session session))))}}]])

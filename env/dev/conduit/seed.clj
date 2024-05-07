@@ -1,6 +1,7 @@
 (ns conduit.seed
   (:require
    [clojure.string :as str]
+   [clojure.core.match :refer [match]]
    [java-time.api :as jt]
    [camel-snake-kebab.core :as csk]
    [lambdaisland.faker :refer [fake]]
@@ -84,32 +85,35 @@
         _articles (->> (repeatedly #(generate-article (rand-nth users)))
                        (take num-of-articles)
                        (vec)
-                       (article-repo/create-many article-repo))
+                       (article-repo/create-many article-repo))]
 
-        dev-user  (-> {:email "foo@bar.com"
-                       :username "foobarkly"
-                       :password "aB1234567*"}
-                      (register)
-                      :user)
-        _ (->> (repeatedly #(rand-nth users))
-               (take 10)
-               (map :user-id)
-               (map (fn [author-id]
-                      (follow {:user-id (:user-id dev-user)
-                               :author-id author-id}))))
+    (match (register {:email "foo@bar.com"
+                      :username "foobarkly"
+                      :password "aB1234567*"})
+      [:error error] (println "Error creating dev user" error)
+      [:ok dev-user] (do 
+                       (println "dev user following authors")
+                       (->> (repeatedly #(rand-nth users))
+                            (take 10)
+                            (map :user-id)
+                            (map (fn [author-id]
+                                   (follow {:user-id (:user-id dev-user)
+                                            :author-id author-id}))))
 
-        _ (->> (repeatedly #(generate-article dev-user))
-               (take 10)
-               (vec)
-               (article-repo/create-many article-repo))
+                       (println "creating dev user articles")
+                       (->> (repeatedly #(generate-article dev-user))
+                            (take 10)
+                            (vec)
+                            (article-repo/create-many article-repo)))
+      _ (println "Error matching registration"))
 
-        [user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
-                                                 :where [[?users :user/email]]}))
+    (let [[user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
+                                                   :where [[?users :user/email]]}))
 
-        [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
-                                                     :where [[?articles :article/title]]}))]
-    (println "Generated" user-count "users")
-    (println "Generated" articles-count "articles")))
+          [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
+                                                       :where [[?articles :article/title]]}))]
+      (println "Generated" user-count "users")
+      (println "Generated" articles-count "articles"))))
 
 (defn start-seed []
   (println "Starting seed...")
