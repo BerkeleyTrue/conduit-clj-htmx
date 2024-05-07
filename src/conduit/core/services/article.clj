@@ -71,10 +71,10 @@
                    {:followed-by user-id}
                    {:tag tag})]
         (->>
-          (assoc args :limit (or limit 10) :offset (or offset 0))
-          (repo/list repo)
-          (map (fn [article]
+         (assoc args :limit (or limit 10) :offset (or offset 0))
+         (repo/list repo)
+         (map (fn [article]
                  ; TODO: num-of-favorites 
                  ; TODO: is favorited
-                 (let [res (get-profile {:author-id (:author-id article)})]
-                   (format-article article (:user res) (rand-int 10) (rand-nth [true false]))))))))))
+                (let [res (get-profile {:author-id (:author-id article)})]
+                  (format-article article (:profile res) (rand-int 10) (rand-nth [true false]))))))))))

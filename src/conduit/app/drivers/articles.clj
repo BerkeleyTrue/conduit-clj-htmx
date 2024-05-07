@@ -4,7 +4,6 @@
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.core.services.article :as article-service]
    [conduit.infra.utils :as utils]))
-   
 
 (defhtml article-preview [{:keys [title description tags created-at]}]
   [:div.article-preview
@@ -31,7 +30,7 @@
 ; TODO: show pagination
 (defhtml list-articles [{:keys [articles no-following?]}]
   (if (empty? articles)
-    [:div.article-preview 
+    [:div.article-preview
      (if no-following?
        "Follow some authors to see their articles here."
        "No articles are here... yet.")]
@@ -40,7 +39,6 @@
       (for [article articles]
         (article-preview article))]]))
 
-
 (defn ->get-articles [article-service]
   (fn [_request]
     (let [articles (article-service/list article-service 0 {:limit 10 :offset 0})
@@ -48,9 +46,9 @@
           no-following? false
           res (list-articles {:articles articles
                               :no-following? no-following?})]
-       (->
-         res
-         (utils/response)))))
+      (->
+       res
+       (utils/response)))))
 
 (defn ->articles-routes [article-service]
   ["articles"

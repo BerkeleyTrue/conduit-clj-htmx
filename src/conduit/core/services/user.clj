@@ -89,7 +89,7 @@
       (let [following? (if user-id
                          (contains? (:following author) user-id)
                          false)]
-        (format-to-public-profile author following?)))))
+        {:profile (format-to-public-profile author following?)}))))
 
 (defact ->get-following [{:keys [get-following]}]
   {:pre [(fn? get-following)]}
