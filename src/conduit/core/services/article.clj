@@ -62,7 +62,7 @@
         (if (nil? article)
           {:error "Couldn't create article"}
           (let [user (get-profile {:user-id user-id})]
-            {:user (format-article article user 0 false)}))))
+            {:article (format-article article user 0 false)}))))
 
     (list [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
       ; TODO: add fetch author-id for authorname
@@ -76,5 +76,5 @@
           (map (fn [article]
                  ; TODO: num-of-favorites 
                  ; TODO: is favorited
-                 (let [profile (get-profile (:author-id article))]
-                   (format-article article profile (rand-int 10) (rand-nth [true false]))))))))))
+                 (let [res (get-profile {:author-id (:author-id article)})]
+                   (format-article article (:user res) (rand-int 10) (rand-nth [true false]))))))))))
