@@ -37,9 +37,10 @@
      :updated-at (:article/updated-at article)}))
 
 (m/=> article->put [:=> [:cat Article] :any])
-(defn article->put [{:keys [id title slug description body tags author-id created-at]}]
+(defn article->put [{:keys [article-id title slug description body tags author-id created-at]}]
   [::xt/put
-   {:xt/id id
+   {:xt/id article-id
+    :article/id article-id
     :article/title title
     :article/slug slug
     :article/description description
@@ -50,16 +51,16 @@
 
 (defrecord ArticleRepo [node]
   article-repo/ArticleRepository
-  (create [_ params]
-    (let [tx-res (xt/submit-tx node [(article->put params)])]
+  (create [_ article]
+    (let [tx-res (xt/submit-tx node [(article->put article)])]
       (xt/await-tx node tx-res)
-      (-> (xt/entity (xt/db node) (:id params))
+      (-> (xt/entity (xt/db node) (:article-id article))
           (format-to-article))))
 
   (create-many [_ articles]
     (let [tx-res (xt/submit-tx node (map article->put articles))]
       (xt/await-tx node tx-res)
-      (map (comp (partial xt/entity (xt/db node)) :id)
+      (map (comp (partial xt/entity (xt/db node)) :article-id)
            articles)))
 
   ; TODO: figure out followed-by

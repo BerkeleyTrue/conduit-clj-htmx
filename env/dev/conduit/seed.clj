@@ -48,7 +48,7 @@
   (let [title (str/join " " (vec (take (random-int 3 7) (words))))
         slug (csk/->kebab-case title)
         body (str/join "\n\n" (vec (take (random-int 1 5) (repeatedly #(paragraph)))))
-        tags (vec (take (random-int 1 3) (words)))
+        tags (set (take (random-int 1 3) (words)))
         article (fake {:title title
                        :slug slug
                        :description (str/join "\n\n" (vec (take (random-int 1 4) (repeatedly #(sentence)))))
@@ -61,7 +61,7 @@
     (assoc article 
            :tags tags 
            :author-id (:user-id user)
-           :id (UUID/randomUUID))))
+           :article-id (UUID/randomUUID))))
 
 (comment
   (generate-article (generate-user)))
@@ -94,13 +94,14 @@
         _ (->> (repeatedly #(rand-nth users))
                (take 10)
                (map :user-id)
-               (#(follow {:user-id (:user-id dev-user)
-                          :author-id %})))
+               (map (fn [author-id]
+                      (follow {:user-id (:user-id dev-user)
+                               :author-id author-id}))))
 
-        _         (->> (repeatedly #(generate-article dev-user))
-                       (take 10)
-                       (vec)
-                       (article-repo/create-many article-repo))
+        _ (->> (repeatedly #(generate-article dev-user))
+               (take 10)
+               (vec)
+               (article-repo/create-many article-repo))
 
         [user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
                                                  :where [[?users :user/email]]}))
