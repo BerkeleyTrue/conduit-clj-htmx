@@ -5,27 +5,28 @@
    [conduit.core.services.article :as article-service]
    [conduit.infra.utils :as utils]))
 
-(defhtml article-preview [{:keys [title description tags created-at]}]
-  [:div.article-preview
-   [:div.article-meta
-    [:a
-     {:href "#"}
-     [:img
-      {:src "http://i.imgur.com/Qr71crq.jpg"}]]
-    [:div.info
-     [:a.author
-      {:href "#"}
-      "Eric Simons"]
-     [:span.date
-      (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]]
-   [:a.preview-link
-    {:href "#"}
-    [:h1 title]
-    [:p description]]
-   [:ul.tag-list
-    (for [tag tags]
-      [:li.tag-default.tag-pill.tag-outline
-       tag])]])
+(defhtml article-preview [{:keys [title slug description tags created-at author] :as article}]
+  (let [{:keys [image username]} author]
+    [:div.article-preview
+     [:div.article-meta
+      [:a
+       {:href (str "/profiles/" username)}
+       [:img
+        {:src image}]]
+      [:div.info
+       [:a.author
+        {:href (str "/profiles/" username)}
+        username]
+       [:span.date
+        (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]]
+     [:a.preview-link
+      {:href (str "/articles/" slug)}
+      [:h1 title]
+      [:p description]]
+     [:ul.tag-list
+      (for [tag tags]
+        [:li.tag-default.tag-pill.tag-outline
+         tag])]]))
 
 ; TODO: show pagination
 (defhtml list-articles [{:keys [articles no-following?]}]
