@@ -1,21 +1,22 @@
 (ns conduit.infra.middleware.auth
   (:require
    [buddy.auth.backends :as backends]
-   [conduit.utils.dep-macro :refer [defact]]
    [ring.util.response :as response]
-   [taoensso.timbre :as timbre]))
+   [taoensso.timbre :as timbre]
+   [conduit.utils.dep-macro :refer [defact]]
+   [conduit.core.services.user :refer [service? find-user]]))
 
 (def auth-backend (backends/session))
 
 (defact ->authen-middleware
   "create an authentication middleware, which pulls user
   data of the sesion and injects it into the request"
-  [{:keys [find-user]}]
-  {:pre [(fn? find-user)]}
+  [user-service]
+  {:pre [(service? user-service)]}
   [handler]
   (fn authen-middleware [request]
     (if-let [user-id (:identity request)]
-      (let [res (find-user {:user-id user-id})]
+      (let [res (find-user user-service {:user-id user-id})]
         (timbre/info "User session: " user-id)
         (if-let [user (:user res)]
           (handler (->

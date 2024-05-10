@@ -3,11 +3,12 @@
    [clojure.core.match :refer [match]]
    [taoensso.timbre :as timbre]
    [ring.util.response :as response]
-   [conduit.infra.hiccup :refer [defhtml]]
-   [conduit.infra.utils :as utils]
    [conduit.utils.hyper :refer [hyper]]
    [conduit.utils.dep-macro :refer [defact]]
-   [conduit.infra.middleware.flash :refer [push-flash]]))
+   [conduit.infra.hiccup :refer [defhtml]]
+   [conduit.infra.utils :as utils]
+   [conduit.infra.middleware.flash :refer [push-flash]]
+   [conduit.core.services.user :refer [service? register login]]))
 
 (defhtml auth-component [{:keys [register?]}]
   [:div.auth-page
@@ -60,10 +61,10 @@
     {:render {:title "Sign in"
               :content (auth-component {:register? false})}}))
 
-(defact ->post-login-page [{:keys [login]}]
-  {:pre [(fn? login)]}
+(defact ->post-login-page [user-service]
+  {:pre [(service? user-service)]}
   [{:keys [params]}]
-  (match (login params)
+  (match (login user-service params)
     [:error error] (utils/list-errors-response {:login error})
     [:ok {:keys [user-id]}] (-> (response/redirect "/")
                                 (push-flash :success "Welcome!")
@@ -75,12 +76,12 @@
     {:render {:title "Sign up"
               :content (auth-component {:register? true})}}))
 
-(defact ->post-signup [{:keys [register]}]
-  {:pre [(fn? register)]}
+(defact ->post-signup [user-service]
+  {:pre [(service? user-service)]}
   [request]
   (let [params (:params request)
         _ (timbre/info "params" params)]
-    (match (register params)
+    (match (register user-service params)
       [:error error] (do
                        (timbre/info "registering error: " error)
                        (utils/list-errors-response {:register error}))

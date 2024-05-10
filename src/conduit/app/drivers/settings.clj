@@ -1,12 +1,13 @@
 (ns conduit.app.drivers.settings
   (:require
    [clojure.core.match :refer [match]]
-   [conduit.infra.hiccup :refer [defhtml]]
+   [ring.util.response :as response]
    [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.hyper :refer [hyper]]
-   [ring.util.response :as response]
+   [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
-   [conduit.infra.middleware.flash :refer [push-flash]]))
+   [conduit.infra.middleware.flash :refer [push-flash]]
+   [conduit.core.services.user :refer [service? update-user]]))
 
 (defhtml settings-component [{:keys [username image email bio]}]
   [:div.settings-page
@@ -74,14 +75,14 @@
     (response/redirect "/login")))
 
 (defact ->post-settings-page
-  [{update-user :update}]
-  {:pre [(fn? update-user)]}
+  [user-service]
+  {:pre [(service? user-service)]}
   [request]
   (let [params (:params request)
         password? (seq (:password params))
         user-id (:user-id request)]
 
-    (match (update-user (assoc params :user-id user-id))
+    (match (update-user user-service (assoc params :user-id user-id))
       [:error error] (utils/list-errors-response {:settings error})
       [:ok user] (-> {:render {:title "Settings"
                                :content (settings-component user)}}

@@ -2,10 +2,11 @@
   (:require
    [clojure.core.match :refer [match]]
    [ring.util.response :as response]
-   [conduit.infra.hiccup :refer [defhtml]]
    [conduit.utils.dep-macro :refer [defact]]
+   [conduit.utils.hyper :refer [hyper]]
+   [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.middleware.flash :refer [push-flash]]
-   [conduit.utils.hyper :refer [hyper]]))
+   [conduit.core.services.user :refer [service? find-user]]))
 
 (def place-holder "https://static.productionready.io/images/smiley-cyrus.jpg")
 
@@ -77,14 +78,14 @@
        {:hidden true}]]]]])
 
 (defact ->get-profile-page
-  [{:keys [find-user]}]
-  {:pre [(fn? find-user)]}
+  [user-service]
+  {:pre [(service? user-service)]}
   [request]
   (let [username (get-in request [:path-params :username])
         self? (= (:username request) username)
         res (if self?
               [:ok (:user request)]
-              (find-user {:username username}))]
+              (find-user user-service {:username username}))]
     (match res
       [:error _error] (-> (response/redirect "/")
                           (push-flash :warning (str "No user found for " username)))
