@@ -1,5 +1,4 @@
 (ns conduit.core.services.article
-  (:refer-clojure :exclude [list update])
   (:require
    [clojure.core.match :refer [match]]
    [java-time.api :as jt]
@@ -28,7 +27,7 @@
 
 (defprotocol ArticleService
   (create [_ user-id params] "Create an article")
-  (list [_ user-id params] "List articles")
+  (list-articles [_ user-id params] "List articles")
   (get-popular-tags [_] "Get popular tags")
   (get-by-slug [_ slug] "Get an article by slug")
   (get-id-from-slug [_ slug] "Get an article id by slug")

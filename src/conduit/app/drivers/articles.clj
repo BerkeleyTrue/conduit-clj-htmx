@@ -44,7 +44,7 @@
 
 (defn ->get-articles [article-service]
   (fn [_request]
-    (let [articles (article-service/list article-service 0 {:limit 10 :offset 0})
+    (let [articles (article-service/list-articles article-service 0 {:limit 10 :offset 0})
           ; TODO: add following
           no-following? false
           res (list-articles {:articles articles
