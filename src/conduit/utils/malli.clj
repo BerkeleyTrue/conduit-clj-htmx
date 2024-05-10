@@ -35,7 +35,8 @@
 (def my-schema
   {:email email
    :password password
-   :empty _empty})
+   :empty _empty
+   :instant inst?})
 
 (comment
   (letfn [(explain [schema value]

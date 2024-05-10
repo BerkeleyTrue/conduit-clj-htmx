@@ -23,8 +23,8 @@
    [:favorites-count :int]
    [:author User-Profile]
 
-   [:created-at :string]
-   [:updated-at :string]])
+   [:created-at :instant]
+   [:updated-at [:maybe :instant]]])
 
 (defprotocol ArticleService
   (create [_ user-id params] "Create an article")
@@ -53,7 +53,7 @@
 
 (defmethod ig/init-key :core.services/article [_ {repo :repo
                                                   {:keys [get-profile]} :user-service}]
-  (repo/repo? repo)
+  (assert (repo/repo? repo) (str "Article services expects a article repository but found " repo))
   (reify ArticleService
     (create [_ user-id params]
       (let [article (repo/create repo

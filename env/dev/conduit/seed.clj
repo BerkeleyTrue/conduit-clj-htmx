@@ -9,6 +9,7 @@
    [babashka.fs :as fs]
    [xtdb.api :as xt]
    [conduit.config :refer [get-config]]
+   [conduit.core.ports.user-repo :as user-repo]
    [conduit.core.ports.article-repo :as article-repo])
   (:import
    [java.util UUID]))
@@ -59,8 +60,8 @@
 
                        :created-at (random-date)
                        :updated-at (random-date)})]
-    (assoc article 
-           :tags tags 
+    (assoc article
+           :tags tags
            :author-id (:user-id user)
            :article-id (UUID/randomUUID))))
 
@@ -73,7 +74,7 @@
   true)
 
 ; TODO: add favorites, comments
-(defmethod ig/init-key :seed/generate [_ {{:keys [create-many-users follow]} :user
+(defmethod ig/init-key :seed/generate [_ {user-repo :user
                                           article-repo :article
                                           {:keys [register]} :user-service
                                           node :node}]
@@ -81,7 +82,8 @@
   (let [users (->> (repeatedly generate-user)
                    (take num-of-users)
                    (vec)
-                   (create-many-users))
+                   (user-repo/create-many user-repo))
+
         _articles (->> (repeatedly #(generate-article (rand-nth users)))
                        (take num-of-articles)
                        (vec)
@@ -90,21 +92,25 @@
     (match (register {:email "foo@bar.com"
                       :username "foobarkly"
                       :password "aB1234567*"})
-      [:error error] (println "Error creating dev user" error)
-      [:ok dev-user] (do 
-                       (println "dev user following authors")
-                       (->> (repeatedly #(rand-nth users))
-                            (take 10)
-                            (map :user-id)
-                            (map (fn [author-id]
-                                   (follow {:user-id (:user-id dev-user)
-                                            :author-id author-id}))))
+      [:error error] 
+      (println "Error creating dev user" error)
 
-                       (println "creating dev user articles")
-                       (->> (repeatedly #(generate-article dev-user))
-                            (take 10)
-                            (vec)
-                            (article-repo/create-many article-repo)))
+      [:ok {:keys [user-id] :as dev-user}] 
+      (do
+        (println "dev user following authors")
+        (->> (repeatedly #(rand-nth users))
+             (take 10)
+             (map :user-id)
+             (map (fn [author-id]
+                    (user-repo/follow-author user-repo
+                                             user-id
+                                             author-id))))
+
+        (println "creating dev user articles")
+        (->> (repeatedly #(generate-article dev-user))
+             (take 10)
+             (vec)
+             (article-repo/create-many article-repo)))
       _ (println "Error matching registration"))
 
     (let [[user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]

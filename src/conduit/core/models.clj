@@ -14,8 +14,8 @@
    [:image {:optional true} [:maybe :string]]
    [:following [:set :uuid]] ; user ids
 
-   [:created-at :string]
-   [:updated-at [:maybe :string]]])
+   [:created-at :instant]
+   [:updated-at [:maybe :instant]]])
 
 (def Article
   [:map
@@ -23,14 +23,14 @@
     :description "An article"}
    [:article-id :uuid]
    [:author-id :uuid]
-   [:title string?]
-   [:slug string?]
-   [:description string?]
-   [:body string?]
-   [:tags [:set string?]]
+   [:title :string]
+   [:slug :string]
+   [:description :string]
+   [:body :string]
+   [:tags [:set :string]]
 
-   [:created-at string?]
-   [:updated-at string?]])
+   [:created-at :instant]
+   [:updated-at [:maybe :instant]]])
 
 (def Comment
   [:map
@@ -39,9 +39,9 @@
    [:comment-id :uuid]
    [:article-id :uuid]
    [:author-id  :uuid]
-   [:body string?]
+   [:body :string]
 
-   [:created-at string?]])
+   [:created-at :instant]])
 
 (comment
   (m/schema User)

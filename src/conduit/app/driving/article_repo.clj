@@ -17,8 +17,8 @@
    [:article/body :string]
    [:article/author-id :string]
    [:article/tags [:set :string]]
-   [:article/created-at :string]
-   [:article/updated-at {:optional true} [:maybe :string]]])
+   [:article/created-at :instant]
+   [:article/updated-at {:optional true} [:maybe :instant]]])
 
 (m/=> format-to-article [:=> [:cat [:maybe Article-Entity]] [:maybe Article]])
 (defn format-to-article
