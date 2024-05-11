@@ -1,16 +1,18 @@
-(ns conduit.utils.malli
+(ns conduit.infra.malli
   (:require
    [valip.predicates :as v]
    [malli.core :as m]
    [malli.registry :as mr]
-   [malli.error :as me]))
+   [malli.error :as me]
+   [integrant.core :as ig]))
 
+(println :malli)
 (def email
   [:and
    [:string]
    [:fn
     {:error/message "must be a valid email address"}
-    v/email-address?]]) []
+    v/email-address?]]) 
 
 (def password
   [:and

@@ -4,7 +4,6 @@
    [xtdb.api :as xt]
    [malli.core :as m]
    [conduit.core.models :refer [User]]
-   [conduit.utils.malli]
    [conduit.utils.xtdb :refer [node?]]
    [conduit.core.ports.user-repo :as user-repo]))
 
