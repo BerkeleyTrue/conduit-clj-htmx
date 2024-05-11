@@ -10,14 +10,14 @@
 
 (def default-image "https://static.productionready.io/images/smiley-cyrus.jpg")
 
-(def User-Profile
+(def UserProfile
   [:map
    [:username :string]
    [:bio {:optional true} [:maybe :string]]
    [:image {:optional true} [:maybe :string]]
    [:following? :boolean]])
 
-(m/=> format-to-public-profile [:=> [:cat User :boolean] User-Profile])
+(m/=> format-to-public-profile [:=> [:cat User :boolean] UserProfile])
 (defn format-to-public-profile [user following?]
   (let [image (or (:image user) default-image)]
     {:username (:username user)

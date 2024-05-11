@@ -3,8 +3,7 @@
    [valip.predicates :as v]
    [malli.core :as m]
    [malli.registry :as mr]
-   [malli.error :as me]
-   [integrant.core :as ig]))
+   [malli.error :as me]))
 
 (println :malli)
 (def email

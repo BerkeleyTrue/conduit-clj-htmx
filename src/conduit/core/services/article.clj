@@ -6,9 +6,9 @@
    [malli.core :as m]
    [conduit.core.models :refer [Article]]
    [conduit.core.ports.article-repo :as repo]
-   [conduit.core.services.user :refer [User-Profile get-profile] :as user-service]))
+   [conduit.core.services.user :refer [UserProfile get-profile] :as user-service]))
 
-(def Article-Output
+(def ArticleOutput
   [:map
    {:title "Article Output"
     :description "An public article"}
@@ -18,9 +18,9 @@
    [:body :string]
    [:tags [:set :string]]
 
-   [:is-favorited :boolean]
-   [:favorites-count :int]
-   [:author User-Profile]
+   [:favorited? :boolean]
+   [:num-of-favs :int]
+   [:author UserProfile]
 
    [:created-at :instant]
    [:updated-at [:maybe :instant]]])
@@ -39,7 +39,7 @@
 (defn service? [service?]
   (satisfies? ArticleService service?))
 
-(m/=> format-article [:=> [:cat Article User-Profile :int :boolean] Article-Output])
+(m/=> format-article [:=> [:cat Article UserProfile :int :boolean] ArticleOutput])
 (defn format-article [article profile num-of-favorites favorited-by-user]
   {:slug (:slug article)
    :title (:title article)
@@ -47,8 +47,8 @@
    :body (:body article)
    :tags (:tags article)
    :author profile
-   :favorited favorited-by-user
-   :favoritesCount num-of-favorites
+   :favorited? favorited-by-user
+   :num-of-favs num-of-favorites
 
    :created-at (:created-at article)
    :updated-at (:updated-at article)})

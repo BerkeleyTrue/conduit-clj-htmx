@@ -7,7 +7,7 @@
    [conduit.utils.xtdb :refer [node?]]
    [conduit.core.ports.article-repo :as article-repo]))
 
-(def Article-Entity
+(def ArticleEntity
   [:map
    [:xt/id :string]
    [:article/title :string]
@@ -19,7 +19,7 @@
    [:article/created-at :instant]
    [:article/updated-at {:optional true} [:maybe :instant]]])
 
-(m/=> format-to-article [:=> [:cat [:maybe Article-Entity]] [:maybe Article]])
+(m/=> format-to-article [:=> [:cat [:maybe ArticleEntity]] [:maybe Article]])
 (defn format-to-article
   "formats an article entity to a domain article"
   [article]
