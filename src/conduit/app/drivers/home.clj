@@ -61,8 +61,8 @@
      [:div.col-md-3
       [:div.sidebar
        {:hx-get "/tags"
-        :hx-target "#tags"}
-        ;:hx-trigger "load delay:150ms" ; TODO: implement backend
+        :hx-target "#tags"
+        :hx-trigger "load delay:150ms"} 
        [:p "Popular Tags"]
        [:div.tag-list
         {:id "tags"
