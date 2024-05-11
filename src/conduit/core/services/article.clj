@@ -83,4 +83,6 @@
                     (match (get-profile user-service {:author-id (:author-id article)})
                       [:ok profile] (format-article article profile (rand-int 10) (rand-nth [true false]))
                       ; TODO: handle no user?
-                      article))))))))
+                      article))))))
+    (get-popular-tags [_] 
+      [:ok (repo/get-popular-tags repo)])))

@@ -11,7 +11,8 @@
      "No tags are here... yet,"]
     (for [tag tags]
       [:a.tag-default.tag-pill
-       {:hx-get (str "/articles?tag=" tag)
+       {:href "#"
+        :hx-get (str "/articles?tag=" tag)
         :hx-target "#articles"
         :hx-swap "innerHTML"}
        tag])))

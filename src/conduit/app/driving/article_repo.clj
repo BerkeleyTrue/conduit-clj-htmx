@@ -73,6 +73,15 @@
                 res
                 (flatten)
                 (map format-to-article))]
+      res))
+  (get-popular-tags [_]
+    (let [res (xt/q (xt/db node)
+                    '{:find [(count ?article) ?tags]
+                      :where [[?article :article/tags ?tags]]
+                      :order-by [[(count ?article) :desc] [?tags :asc]]
+                      :limit 10})
+          res (->> res
+                  (map (fn [[_ tag]] tag)))]
       res)))
 
 
