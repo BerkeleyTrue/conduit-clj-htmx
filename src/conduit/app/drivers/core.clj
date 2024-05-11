@@ -7,7 +7,8 @@
     [conduit.app.drivers.layout :refer [render-middleware]]
     [conduit.app.drivers.settings :as settings]
     [conduit.app.drivers.profile :as profile]
-    [conduit.app.drivers.articles :as articles]))
+    [conduit.app.drivers.articles :as articles]
+    [conduit.app.drivers.tag :as tag]))
 
 (defmethod ig/init-key :app.routes/drivers
   [_ {:keys [on-start-ch user-service article-service]}]
@@ -19,6 +20,7 @@
       (auth/->auth-routes user-service)
       (settings/->settings-routes user-service)
       (profile/->profile-routes user-service)
-      (articles/->articles-routes article-service)])])
+      (articles/->articles-routes article-service)
+      (tag/->tag-routes article-service)])])
 
 (derive :app.routes/drivers :app/routes)

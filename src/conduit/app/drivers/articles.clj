@@ -2,8 +2,8 @@
   (:require
    [java-time.api :as jt]
    [conduit.infra.hiccup :refer [defhtml]]
-   [conduit.core.services.article :as article-service]
-   [conduit.infra.utils :as utils]))
+   [conduit.infra.utils :as utils]
+   [conduit.core.services.article :as article-service]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]

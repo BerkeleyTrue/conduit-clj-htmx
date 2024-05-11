@@ -6,7 +6,7 @@
    [malli.core :as m]
    [conduit.core.models :refer [Article]]
    [conduit.core.ports.article-repo :as repo]
-   [conduit.core.services.user :refer [User-Profile service? get-profile]]))
+   [conduit.core.services.user :refer [User-Profile get-profile] :as user-service]))
 
 (def Article-Output
   [:map
@@ -36,6 +36,9 @@
   (unfavorite [_ slug user-id] "Unfavorite an article")
   (delete [_ slug] "Delete an article"))
 
+(defn service? [service?]
+  (satisfies? ArticleService service?))
+
 (m/=> format-article [:=> [:cat Article User-Profile :int :boolean] Article-Output])
 (defn format-article [article profile num-of-favorites favorited-by-user]
   {:slug (:slug article)
@@ -52,7 +55,7 @@
 
 (defmethod ig/init-key :core.services/article [_ {:keys [repo user-service]}]
   (assert (repo/repo? repo) (str "Article services expects a article repository but found " repo))
-  (assert (service? user-service) (str "Article services expects a user service but found " user-service))
+  (assert (user-service/service? user-service) (str "Article services expects a user service but found " user-service))
   (reify ArticleService
     (create [_ user-id params]
       (let [article (repo/create repo
@@ -64,7 +67,7 @@
           (let [user (get-profile user-service {:user-id user-id})]
             [:ok (format-article article user 0 false)]))))
 
-    (list [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
+    (list-articles [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
       ; TODO: add fetch author-id for authorname
       ; TODO: add fetch userid for favorited
       (let [args (if feed?
