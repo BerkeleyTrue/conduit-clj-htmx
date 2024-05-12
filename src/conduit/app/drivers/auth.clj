@@ -66,9 +66,10 @@
   [{:keys [params]}]
   (match (login user-service params)
     [:error error] (utils/list-errors-response {:login error})
-    [:ok {:keys [user-id]}] (-> (response/redirect "/")
-                                (push-flash :success "Welcome!")
-                                (update :session assoc :identity user-id))))
+    [:ok user] (let [{:keys [user-id]} user]
+                 (-> (response/redirect "/" 303)
+                     (push-flash :success "Welcome!")
+                     (update :session assoc :identity user-id)))))
 
 (defn get-register-page [request]
   (if (:identity request)
@@ -87,7 +88,7 @@
                        (utils/list-errors-response {:register error}))
       [:ok user] (do
                    (timbre/info "user: " user)
-                   (-> (response/redirect "/")
+                   (-> (response/redirect "/" 303)
                        (push-flash :success "Welcome!")
                        (update :session assoc :identity (:user-id user)))))))
 

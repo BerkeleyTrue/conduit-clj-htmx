@@ -105,8 +105,7 @@
         (format-to-user)))
 
   (get-by-email [_ email]
-    (-> node
-        (xt/db)
+    (-> (xt/db node)
         (xt/q
          '{:find [(pull ?user [*])]
            :where [[?user :user/email email]]
@@ -117,16 +116,15 @@
         (format-to-user)))
 
   (get-by-username [_ username]
-    (->
-     (xt/db node)
-     (xt/q
-      '{:find [(pull ?user [*])]
-        :where [[?user :user/username username]]
-        :in [username]}
-      username)
-     (first)
-     (first)
-     (format-to-user)))
+    (-> (xt/db node)
+        (xt/q
+         '{:find [(pull ?user [*])]
+           :where [[?user :user/username username]]
+           :in [username]}
+         username)
+        (first)
+        (first)
+        (format-to-user)))
 
   (get-following [_ user-id]
     (-> (xt/db node)
@@ -169,7 +167,6 @@
       (-> (xt/db node)
           (xt/entity author-id)
           (format-to-user)))))
-
 
 (defmethod ig/init-key :app.repos/user [_ {:keys [node]}]
   (node? node)
