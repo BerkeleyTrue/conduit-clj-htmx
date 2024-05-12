@@ -1,5 +1,6 @@
 (ns conduit.infra.middleware.auth
   (:require
+   [clojure.core.match :refer [match]]
    [buddy.auth.backends :as backends]
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]
@@ -16,17 +17,17 @@
   [handler]
   (fn authen-middleware [request]
     (if-let [user-id (:identity request)]
-      (let [res (find-user user-service {:user-id user-id})]
-        (timbre/info "User session: " user-id)
-        (if-let [user (:user res)]
-          (handler (->
-                    request
-                    (assoc :user user)
-                    (assoc :user-id user-id)
-                    (assoc :username (:username user))))
-          (->
-           (response/redirect "/login" :see-other)
-           (update :session dissoc :identity))))
+      (match (find-user user-service {:user-id user-id})
+        [:ok user] (do
+                     (timbre/info "User session: " user-id)
+                     (handler (-> request
+                                  (assoc :user user)
+                                  (assoc :user-id user-id)
+                                  (assoc :username (:username user)))))
+        [:error error] (do 
+                         (timbre/info "User session: " error) 
+                         (-> (response/redirect "/login" :see-other)
+                             (update :session dissoc :identity))))
       (handler request))))
 
 (defn authorize-middleware
