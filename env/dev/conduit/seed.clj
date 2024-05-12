@@ -10,6 +10,7 @@
    [xtdb.api :as xt]
    [conduit.config :refer [get-config]]
    [conduit.core.ports.user-repo :as user-repo]
+   [conduit.core.services.user :refer [register]]
    [conduit.core.ports.article-repo :as article-repo])
   (:import
    [java.util UUID]))
@@ -76,7 +77,7 @@
 ; TODO: add favorites, comments
 (defmethod ig/init-key :seed/generate [_ {user-repo :user
                                           article-repo :article
-                                          {:keys [register]} :user-service
+                                          user-service :user-service
                                           node :node}]
   (println "Generating seed data...")
   (let [users (->> (repeatedly generate-user)
@@ -89,14 +90,16 @@
                        (vec)
                        (article-repo/create-many article-repo))]
 
-    (match (register {:email "foo@bar.com"
-                      :username "foobarkly"
-                      :password "aB1234567*"})
+    (match (register  
+             user-service
+             {:email "foo@bar.com"
+              :username "foobarkly"
+              :password "aB1234567*"})
       [:error error] 
       (println "Error creating dev user" error)
 
-      [:ok {:keys [user-id] :as dev-user}] 
-      (do
+      [:ok dev-user] 
+      (let [{:keys [user-id]} dev-user]
         (println "dev user following authors")
         (->> (repeatedly #(rand-nth users))
              (take 10)
@@ -111,7 +114,7 @@
              (take 10)
              (vec)
              (article-repo/create-many article-repo)))
-      _ (println "Error matching registration"))
+      x (println "Error matching registration " x))
 
     (let [[user-count] (first (xt/q (xt/db node) '{:find [(count ?users)]
                                                    :where [[?users :user/email]]}))
@@ -130,7 +133,7 @@
 
     :app.repos/user {:node (ig/ref :infra.db/xtdb)}
     :app.repos/article {:node (ig/ref :infra.db/xtdb)}
-    :core.services/user {:user-repo (ig/ref :app.repos/user)}
+    :core.services/user {:repo (ig/ref :app.repos/user)}
     :seed/generate {:node (ig/ref :infra.db/xtdb)
                     :user (ig/ref :app.repos/user)
                     :article (ig/ref :app.repos/article)
