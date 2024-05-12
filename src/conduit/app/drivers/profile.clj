@@ -96,5 +96,6 @@
 
 (defn ->profile-routes [user-service]
   ["profiles/:username"
-   {:get (->get-profile-page user-service)
-    :parameters {:path {:username :string}}}])
+   {:parameters {:path {:username :string}}
+    :get {:name :profile/get
+          :handler (->get-profile-page user-service)}}])

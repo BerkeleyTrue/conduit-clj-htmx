@@ -94,7 +94,7 @@
 (defn ->auth-routes [user-service]
   [""
    ["register"
-    {:name :register
+    {:name :auth/register
      :get get-register-page
      :post
      {:handler (->post-signup user-service)
@@ -105,7 +105,7 @@
                     [:username [:string {:min 4 :max 32}]]
                     [:password :password]]}}}]
    ["login"
-    {:name ::login
+    {:name :auth/login
      :get get-login-page
      :post
      {:handler (->post-login-page user-service)
@@ -115,7 +115,7 @@
                     [:email :email]
                     [:password :password]]}}}]
    ["logout"
-    {:name :logout
+    {:name :auth/logout
      :post
      {:handler
       (fn [request]

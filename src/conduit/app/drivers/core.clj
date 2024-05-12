@@ -12,7 +12,7 @@
 
 (defmethod ig/init-key :app.routes/drivers
   [_ {:keys [on-start-ch user-service article-service]}]
-  [["/__hotreload" {:name :hotreload
+  [["/__hotreload" {:name :dev/hotreload
                     :get (hot-reload/->get-sse on-start-ch)}]
    (into
      ["/" {:middleware [render-middleware]}]

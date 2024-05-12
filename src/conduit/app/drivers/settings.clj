@@ -92,9 +92,11 @@
 (defn ->settings-routes [user-service]
   ["settings"
    {:middleware [:authorize]
-    :get get-settings-page
+    :get {:name :settings/get
+          :handler get-settings-page}
     :post
-    {:handler (->post-settings-page user-service)
+    {:name :settins/update
+     :handler (->post-settings-page user-service)
      :parameters
      {:form
       [:map

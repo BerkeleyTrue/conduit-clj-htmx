@@ -30,5 +30,5 @@
   (assert (service? articles-service) 
           (str "tag routes expects an article service but found " articles-service))
   ["tags"
-   {:name ::tags
+   {:name :tags/get
     :get (->get-popular-tags articles-service)}])
