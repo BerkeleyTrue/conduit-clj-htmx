@@ -30,7 +30,7 @@
      :slug (:article/slug article)
      :description (:article/description article)
      :body (:article/body article)
-     :author-id (:article/author-id article) 
+     :author-id (:article/author-id article)
      :tags (:article/tags article)
      :created-at (:article/created-at article)
      :updated-at (:article/updated-at article)}))
@@ -63,16 +63,18 @@
            articles)))
 
   ; TODO: figure out followed-by
-  (list [_ {:keys [limit offset _followed-by]}]
-    (let [res (xt/q (xt/db node) 
-                    {:find '[(pull ?article [*])]
-                     :where '[[?article :article/title ?id]]
-                     :limit limit
-                     :offset offset})
-          res (->>
-                res
-                (flatten)
-                (map format-to-article))]
+  (list [_ {:keys [limit offset tag _followed-by]}]
+    (let [query {:find '[(pull ?article [*])]
+                 :where '[[?article :article/title]
+                          [?article :article/tags ?tags]
+                          (or [(not tag)] 
+                              [(= tag ?tags)])]
+                 :limit limit
+                 :in '[tag]
+                 :offset offset}
+          res (->> (xt/q (xt/db node) query tag)
+                   (flatten)
+                   (map format-to-article))]
       res))
   (get-popular-tags [_]
     (let [res (xt/q (xt/db node)
@@ -81,9 +83,8 @@
                       :order-by [[(count ?article) :desc] [?tags :asc]]
                       :limit 10})
           res (->> res
-                  (map (fn [[_ tag]] tag)))]
+                   (map (fn [[_ tag]] tag)))]
       res)))
-
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)

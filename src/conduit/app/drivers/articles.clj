@@ -43,10 +43,15 @@
         (article-preview article))]]))
 
 (defn ->get-articles [article-service]
-  (fn [_request]
-    (let [articles (article-service/list-articles article-service 0 {:limit 10 :offset 0})
-          ; TODO: add following
-          no-following? false
+  (fn [{:keys [parameters user-id] :as _request}]
+    (let [{:keys [limit offset tag]} (or (:query parameters) {})
+          articles (article-service/list-articles 
+                     article-service 
+                     user-id
+                     {:limit limit 
+                      :offset offset 
+                      :tag tag})
+          no-following? (not (or (not user-id) (seq articles)))
           res (list-articles {:articles articles
                               :no-following? no-following?})]
       (-> res
@@ -55,4 +60,7 @@
 (defn ->articles-routes [article-service]
   ["articles"
    {:name :get-articles
-    :get (->get-articles article-service)}])
+    :get {:parameters {:query [:map [:limit {:optional true} :int] 
+                                    [:offset {:optional true} :int]
+                                    [:tag {:optional true} :string]]}
+          :handler (->get-articles article-service)}}])
