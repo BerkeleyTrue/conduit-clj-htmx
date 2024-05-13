@@ -23,6 +23,7 @@
   (+ (rand-int (- max min)) min))
 
 (comment
+  (jt/instant)
   (random-int 4 20))
 
 (defn random-date []
@@ -43,6 +44,8 @@
   (fake
    {:user-id (UUID/randomUUID)
     :email [:internet :email]
+    :image (generate-image)
+    :bio (paragraph)
     :username [:internet :username]
     :created-at (random-date)
     :password #"[a-zA-z0-9]{8,16}"}))
@@ -56,8 +59,6 @@
                        :slug slug
                        :description (str/join "\n\n" (vec (take (random-int 1 4) (repeatedly #(sentence)))))
                        :body body
-
-                       :image (generate-image)
 
                        :created-at (random-date)
                        :updated-at (random-date)})]
@@ -90,16 +91,21 @@
                        (vec)
                        (article-repo/create-many article-repo))]
 
-    (match (register  
-             user-service
-             {:email "foo@bar.com"
-              :username "foobarkly"
-              :password "aB1234567*"})
-      [:error error] 
+    (match (register
+            user-service
+            {:email "foo@bar.com"
+             :username "foobarkly"
+             :password "aB1234567*"})
+      [:error error]
       (println "Error creating dev user" error)
 
-      [:ok dev-user] 
+      [:ok dev-user]
       (let [{:keys [user-id]} dev-user]
+        (println "dev user update")
+        (user-repo/update user-repo
+                          user-id
+                          {:bio (paragraph)
+                           :image (generate-image)})
         (println "dev user following authors")
         (->> (repeatedly #(rand-nth users))
              (take 10)
@@ -122,7 +128,7 @@
 
           [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
                                                        :where [[?articles :article/title]]}))
-          dev-follows (xt/q (xt/db node) 
+          dev-follows (xt/q (xt/db node)
                             '{:find [?following]
                               :in [email]
                               :where [[?user :user/email email]

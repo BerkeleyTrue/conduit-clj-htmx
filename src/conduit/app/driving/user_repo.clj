@@ -53,7 +53,9 @@
    [:username :string]
    [:email :email]
    [:password :string]
-   [:created-at :instant]])
+   [:created-at :instant]
+   [:image {:optional true} :string]
+   [:bio {:opitonal true} :string]])
 
 (def UserEntity
   [:map
@@ -74,7 +76,7 @@
 (m/=> user->put [:=> [:cat UserInput] [:cat :xt-trans UserEntity]])
 (defn user->put
   "Convert a user entity to a query"
-  [{:keys [user-id email password username created-at]}]
+  [{:keys [user-id email password username created-at image bio]}]
   [::xt/put
    {:xt/id user-id
     :user/id user-id
@@ -82,7 +84,9 @@
     :user/email email
     :user/following #{}
     :user/password password
-    :user/created-at created-at}])
+    :user/created-at created-at
+    :user/image image
+    :user/bio bio}])
 
 (m/=> format-to-user [:=> [:cat [:maybe UserEntity]] [:maybe User]])
 (defn format-to-user
@@ -104,7 +108,7 @@
 (defrecord UserRepo [node]
   user-repo/UserRepository
   (create [_ {:keys [user-id] :as params}]
-    (let [tx-res (xt/submit-tx node [(user->put params)])] 
+    (let [tx-res (xt/submit-tx node [(user->put params)])]
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) user-id)
           (format-to-user))))
