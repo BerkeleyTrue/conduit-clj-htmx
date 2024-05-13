@@ -53,8 +53,8 @@
                   add .active to .nav-link in me
                 ")
           :role "tab"
-          :hx-get (str "/profiles/" username "/articles")
-          ; :hx-trigger "click, load delay:150ms" ; TODO: implement backend
+          :hx-get (str "/articles?author=" username)
+          :hx-trigger "click, load delay:150ms" ; TODO: implement backend
           :hx-target "#articles"}
          [:a.nav-link.active
           "My Articles"]]
@@ -66,7 +66,7 @@
                   remove .active from .nav-link
                   add .active to .nav-link in me
                 ")
-          :hx-get (str "/articles?author=" username)
+          :hx-get (str "/articles?favorited=" username)
           :hx-target "#articles"}
          [:a.nav-link
           "Favorited Articles"]]]]

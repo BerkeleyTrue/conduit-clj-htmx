@@ -67,12 +67,12 @@
           (let [user (get-profile user-service {:user-id user-id})]
             [:ok (format-article article user 0 false)]))))
 
-    (list-articles [_ user-id {:keys [feed? limit offset tag _favorited _authorname]}]
-      ; TODO: add fetch author-id for authorname
-      ; TODO: add fetch userid for favorited
+    (list-articles [_ user-id {:keys [feed? limit offset tag authorname favorited-by]}]
       (let [args (if feed?
                    {:followed-by user-id}
-                   {:tag tag})]
+                   {:tag tag
+                    :authorname authorname
+                    :favorited-by favorited-by})]
         (->> (assoc args
                     :limit (or limit 10)
                     :offset (or offset 0))

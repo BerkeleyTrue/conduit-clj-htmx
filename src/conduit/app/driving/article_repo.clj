@@ -11,8 +11,8 @@
   [:map
    [:xt/id :uuid]
    [:article/title :string]
-   [:aritcle/slug :string]
-   [:aritcle/description :string]
+   [:article/slug :string]
+   [:article/description :string]
    [:article/body :string]
    [:article/author-id :uuid]
    [:article/tags [:set :string]]
@@ -63,7 +63,7 @@
            articles)))
 
   ; TODO: figure out followed-by
-  (list [_ {:keys [limit offset tag followed-by]}]
+  (list [_ {:keys [limit offset tag authorname followed-by _favorited-by]}]
     (let [db (xt/db node)
           res (if followed-by
                 (xt/q db
@@ -81,16 +81,24 @@
                       {:find '[(pull ?article [*])]
                        :where '[[?article :article/title]
                                 [?article :article/tags ?tags]
+                                [?article :article/author-id ?author-id]
+                                [?user :user/id ?author-id]
+                                [?user :user/username ?username]
                                 (or [(not tag)] 
-                                    [(= tag ?tags)])]
+                                    [(= tag ?tags)])
+                                (or [(not authorname)] 
+                                    [(= authorname ?username)])]
                                 
-                       :in '[tag]
+                       :in '[tag authorname]
                        :limit limit
                        :offset offset}
-                      tag))
+                      tag
+                      authorname))
+                      
           res (->> res
                    (#(do (tap> 
                            {:user-id followed-by 
+                            :authorname authorname
                             :tag tag 
                             :res %})
                       %))

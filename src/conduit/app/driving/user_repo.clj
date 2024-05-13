@@ -17,7 +17,7 @@
           [[::xt/put
             (-> user
                 (update :user/following conj author-id)
-                (assoc :user/updated-at (str (java.util.Date.))))]]))}]
+                (assoc :user/updated-at (java.time.Instant/now)))]]))}]
 
    [::xt/put
     {:xt/id :users/unfollow-author
@@ -28,7 +28,7 @@
           [[::xt/put
             (-> user
                 (update :user/following disj author-id)
-                (assoc :user/updated-at (str (java.util.Date.))))]]))}]
+                (assoc :user/updated-at (java.time.Instant/now)))]]))}]
 
    [::xt/put
     {:xt/id :users/update
@@ -42,7 +42,7 @@
                 (update :user/username (fn [old] (or username old)))
                 (update :user/bio (fn [old] (or bio old)))
                 (update :user/image (fn [old] (or image old)))
-                (assoc :user/updated-at updated-at))]]))}]])
+                (assoc :user/updated-at (java.time.Instant/now)))]]))}]])
 
 (def UserInput
   [:map

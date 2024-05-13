@@ -44,13 +44,15 @@
 
 (defn ->get-articles [article-service]
   (fn [{:keys [parameters user-id] :as _request}]
-    (let [{:keys [limit offset tag]} (or (:query parameters) {})
+    (let [{:keys [limit offset tag favorited author]} (or (:query parameters) {})
           articles (article-service/list-articles 
                      article-service 
                      user-id
                      {:limit limit 
                       :offset offset 
-                      :tag tag})
+                      :tag tag
+                      :favorited-by favorited
+                      :authorname author})
           no-following? (not (or (not user-id) (seq articles)))
           res (list-articles {:articles articles
                               :no-following? no-following?})]
@@ -75,7 +77,9 @@
    ["" {:name :articles/list
         :get {:parameters {:query [:map [:limit {:optional true} :int] 
                                         [:offset {:optional true} :int]
-                                        [:tag {:optional true} :string]]}
+                                        [:tag {:optional true} :string]
+                                        [:author {:optional true} :string]
+                                        [:favorited {:optional true} :string]]}
               :handler (->get-articles article-service)}}]
    ["/feed"
     {:name :articles/feed
