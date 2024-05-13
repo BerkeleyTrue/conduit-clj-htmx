@@ -31,7 +31,7 @@
                   set {hidden: true} on #tag-tab
                 ")
             :hx-get "/articles/feed?limit=10"
-              ; :hx-trigger "click, load delay:150ms" ; TODO: implement backend
+            :hx-trigger "click, load delay:150ms"
             :hx-target "#articles"}
            [:a {:class "nav-link active"} "Your Feed"]])
         [:li.nav-item
@@ -62,7 +62,7 @@
       [:div.sidebar
        {:hx-get "/tags"
         :hx-target "#tags"
-        :hx-trigger "load delay:150ms"} 
+        :hx-trigger "load delay:150ms"}
        [:p "Popular Tags"]
        [:div.tag-list
         {:id "tags"

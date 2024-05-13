@@ -9,12 +9,12 @@
 
 (def ArticleEntity
   [:map
-   [:xt/id :string]
+   [:xt/id :uuid]
    [:article/title :string]
    [:aritcle/slug :string]
-   [:article/description :string]
+   [:aritcle/description :string]
    [:article/body :string]
-   [:article/author-id :string]
+   [:article/author-id :uuid]
    [:article/tags [:set :string]]
    [:article/created-at :instant]
    [:article/updated-at {:optional true} [:maybe :instant]]])
@@ -63,16 +63,37 @@
            articles)))
 
   ; TODO: figure out followed-by
-  (list [_ {:keys [limit offset tag _followed-by]}]
-    (let [query {:find '[(pull ?article [*])]
-                 :where '[[?article :article/title]
-                          [?article :article/tags ?tags]
-                          (or [(not tag)] 
-                              [(= tag ?tags)])]
-                 :limit limit
-                 :in '[tag]
-                 :offset offset}
-          res (->> (xt/q (xt/db node) query tag)
+  (list [_ {:keys [limit offset tag followed-by]}]
+    (let [db (xt/db node)
+          res (if followed-by
+                (xt/q db
+                      {:find '[(pull ?article [*])]
+                       :where '[[?article :article/id]
+                                [?user :user/id user-id]
+                                [?article :article/author-id ?author-id]
+                                [?user :user/following ?author-id]]
+                       :in '[user-id]
+                       :limit limit
+                       :offset offset}
+                      followed-by)
+
+                (xt/q db
+                      {:find '[(pull ?article [*])]
+                       :where '[[?article :article/title]
+                                [?article :article/tags ?tags]
+                                (or [(not tag)] 
+                                    [(= tag ?tags)])]
+                                
+                       :in '[tag]
+                       :limit limit
+                       :offset offset}
+                      tag))
+          res (->> res
+                   (#(do (tap> 
+                           {:user-id followed-by 
+                            :tag tag 
+                            :res %})
+                      %))
                    (flatten)
                    (map format-to-article))]
       res))
