@@ -1,8 +1,9 @@
 (ns conduit.core.services.user
   (:require
-   [conduit.utils.auth :as auth]
+   [java-time.api :as jt]
    [integrant.core :as ig]
    [malli.core :as m]
+   [conduit.utils.auth :as auth]
    [conduit.core.models :refer [User]]
    [conduit.core.ports.user-repo :as repo])
   (:import
@@ -36,7 +37,6 @@
   (follow [_ params] "A user follows an author")
   (unfollow [_ params] "A user unfollows an author"))
 
-
 (defn service? [user-service?]
   (satisfies? UserService user-service?))
 
@@ -51,10 +51,10 @@
                 user (repo/create
                       repo
                       {:user-id (UUID/randomUUID)
-                        :username username
-                        :email email
-                        :password hashed-password
-                        :created-at (str (Date.))})]
+                       :username username
+                       :email email
+                       :password hashed-password
+                       :created-at (jt/instant)})]
             (if (nil? user)
               [:error "Could not create user with that email and password"]
               [:ok user])))))
@@ -67,22 +67,22 @@
 
     (find-user [_ {:keys [user-id username email]}]
       (let [user (cond
-                  user-id (repo/get-by-id repo user-id)
-                  username (repo/get-by-username repo username)
-                  email (repo/get-by-email repo email))]
+                   user-id (repo/get-by-id repo user-id)
+                   username (repo/get-by-username repo username)
+                   email (repo/get-by-email repo email))]
         (if (nil? user)
           [:error "No user found"]
           [:ok user])))
 
     (get-profile [_ {:keys [author-id authorname user-id]}]
       (let [author (if author-id
-                    (repo/get-by-id repo author-id)
-                    (repo/get-by-username repo authorname))]
+                     (repo/get-by-id repo author-id)
+                     (repo/get-by-username repo authorname))]
         (if (nil? author)
           [:error "No user found"]
           (let [following? (if user-id
-                            (contains? (:following author) user-id)
-                            false)]
+                             (contains? (:following author) user-id)
+                             false)]
             [:ok (format-to-public-profile author following?)]))))
 
     (get-following [_ {:keys [user-id]}]
@@ -95,8 +95,8 @@
         [:error "User id or username is required"]
         (let [now (str (Date.))
               params (if (empty? (:password params))
-                      (assoc params :password (auth/hash-password (:password params)))
-                      (dissoc params :password))
+                       (assoc params :password (auth/hash-password (:password params)))
+                       (dissoc params :password))
               user (repo/update repo user-id (assoc params :updated-at now))]
           (if (nil? user)
             [:error "Couldn't update user"]
@@ -105,9 +105,9 @@
     (follow [_ {:keys [user-id author-id authorname]}]
       (if-not (or author-id authorname)
         [:error "follow requires author name or id"]
-        (if-let [author-id (if author-id 
-                            author-id
-                            (:user-id (repo/get-by-username repo authorname)))]
+        (if-let [author-id (if author-id
+                             author-id
+                             (:user-id (repo/get-by-username repo authorname)))]
           (if-let [user (repo/follow-author repo user-id author-id)]
             [:ok (format-to-public-profile user true)]
             [:error (str "Could not find a user for user-id " user-id)])
@@ -116,9 +116,9 @@
     (unfollow [_ {:keys [user-id author-id authorname]}]
       (if-not (or author-id authorname)
         [:error "follow requires author name or id"]
-        (if-let [author-id (if author-id 
-                            author-id
-                            (:user-id (repo/get-by-username repo authorname)))]
+        (if-let [author-id (if author-id
+                             author-id
+                             (:user-id (repo/get-by-username repo authorname)))]
           (if-let [user (repo/unfollow-author repo user-id author-id)]
             [:ok (format-to-public-profile user true)]
             [:error (str "Could not find a user for user-id " user-id)])

@@ -44,8 +44,22 @@
                 (update :user/image (fn [old] (or image old)))
                 (assoc :user/updated-at updated-at))]]))}]])
 
-(def User-Entity
+(def UserInput
   [:map
+   {:title "User Input"
+    :description "Input to create user"
+    :closed true}
+   [:user-id :uuid]
+   [:username :string]
+   [:email :email]
+   [:password :string]
+   [:created-at :instant]])
+
+(def UserEntity
+  [:map
+   {:title "User Entity"
+    :description "Stored User Entity"
+    :closed true}
    [:xt/id :uuid]
    [:user/id :uuid]
    [:user/email :email]
@@ -57,7 +71,20 @@
    [:user/created-at :instant]
    [:user/updated-at {:optional true} [:maybe :instant]]])
 
-(m/=> format-to-user [:=> [:cat [:maybe User-Entity]] [:maybe User]])
+(m/=> user->put [:=> [:cat UserInput] [:cat :xt-trans UserEntity]])
+(defn user->put
+  "Convert a user entity to a query"
+  [{:keys [user-id email password username created-at]}]
+  [::xt/put
+   {:xt/id user-id
+    :user/id user-id
+    :user/username username
+    :user/email email
+    :user/following #{}
+    :user/password password
+    :user/created-at created-at}])
+
+(m/=> format-to-user [:=> [:cat [:maybe UserEntity]] [:maybe User]])
 (defn format-to-user
   "formats a user entity to a domain user"
   [user]
@@ -74,23 +101,10 @@
      :created-at (:user/created-at user)
      :updated-at (:user/updated-at user)}))
 
-(m/=> user->put [:=> [:cat User] :any])
-(defn user->put
-  "Convert a user entity to a query"
-  [{:keys [user-id email password username created-at]}]
-  [::xt/put
-   {:xt/id user-id
-    :user/id user-id
-    :user/username username
-    :user/email email
-    :user/following #{}
-    :user/password password
-    :user/created-at created-at}])
-
 (defrecord UserRepo [node]
   user-repo/UserRepository
   (create [_ {:keys [user-id] :as params}]
-    (let [tx-res (xt/submit-tx node [(user->put params)])]
+    (let [tx-res (xt/submit-tx node [(user->put params)])] 
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) user-id)
           (format-to-user))))

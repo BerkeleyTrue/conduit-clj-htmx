@@ -33,11 +33,16 @@
    {:error/message "must be empty"}
    empty?])
 
+(def xt-trans
+  [:qualified-keyword {:namespace :xtdb.api
+                       :error/message "Must be a xtdb.api transaction method"}])
+
 (def my-schema
   {:email email
    :password password
    :empty _empty
-   :instant inst?})
+   :instant inst?
+   :xt-trans xt-trans})
 
 (comment
   (letfn [(explain [schema value]
@@ -46,6 +51,7 @@
              (m/schema)
              (m/explain value)
              (me/humanize)))]
+    (println (explain xt-trans :api/delete))
     (println (explain password "12a4B678"))
     (println (explain password "12345678"))
     (println (explain password "aA0"))

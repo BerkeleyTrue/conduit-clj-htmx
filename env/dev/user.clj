@@ -25,6 +25,7 @@
   (get-config)
   (ig/prep (get-config))
   (do 
+    (add-tap #'p/submit)
     (p/open)
-    (add-tap #'p/submit))
+    (tap> :set))
   ,)

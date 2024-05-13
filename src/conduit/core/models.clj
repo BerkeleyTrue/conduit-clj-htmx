@@ -15,7 +15,7 @@
    [:following [:set :uuid]] ; user ids
 
    [:created-at :instant]
-   [:updated-at [:maybe :instant]]])
+   [:updated-at {:optional true } [:maybe :instant]]])
 
 (def Article
   [:map
@@ -30,7 +30,7 @@
    [:tags [:set :string]]
 
    [:created-at :instant]
-   [:updated-at [:maybe :instant]]])
+   [:updated-at {:optional true} [:maybe :instant]]])
 
 (def Comment
   [:map

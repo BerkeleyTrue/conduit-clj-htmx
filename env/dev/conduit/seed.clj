@@ -107,7 +107,8 @@
              (map (fn [author-id]
                     (user-repo/follow-author user-repo
                                              user-id
-                                             author-id))))
+                                             author-id)))
+             (dorun))
 
         (println "creating dev user articles")
         (->> (repeatedly #(generate-article dev-user))
@@ -120,9 +121,17 @@
                                                    :where [[?users :user/email]]}))
 
           [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
-                                                       :where [[?articles :article/title]]}))]
+                                                       :where [[?articles :article/title]]}))
+          dev-follows (xt/q (xt/db node) 
+                            '{:find [?following]
+                              :in [email]
+                              :where [[?user :user/email email]
+                                      [?user :user/following ?following]]}
+                            "foo@bar.com")]
+
       (println "Generated" user-count "users")
-      (println "Generated" articles-count "articles"))))
+      (println "Generated" articles-count "articles")
+      (println "Dev user follows " (count dev-follows)))))
 
 (defn start-seed []
   (println "Starting seed...")
