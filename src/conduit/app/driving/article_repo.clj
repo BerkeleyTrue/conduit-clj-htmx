@@ -62,7 +62,6 @@
       (map (comp (partial xt/entity (xt/db node)) :article-id)
            articles)))
 
-  ; TODO: figure out followed-by
   (list [_ {:keys [limit offset tag authorname followed-by _favorited-by]}]
     (let [db (xt/db node)
           res (if followed-by
@@ -78,10 +77,11 @@
                       followed-by)
 
                 (xt/q db
-                      {:find '[(pull ?article [*])]
-                       :where '[[?article :article/title]
+                      {:find '[(pull ?article [*]) ?created-at (distinct ?title)]
+                       :where '[[?article :article/title ?title]
                                 [?article :article/tags ?tags]
                                 [?article :article/author-id ?author-id]
+                                [?article :article/created-at ?created-at]
                                 [?user :user/id ?author-id]
                                 [?user :user/username ?username]
                                 (or [(not tag)] 
@@ -91,11 +91,13 @@
                                 
                        :in '[tag authorname]
                        :limit limit
-                       :offset offset}
+                       :offset offset
+                       :order-by '[[?created-at :desc]]}
                       tag
                       authorname))
                       
           res (->> res
+                   (map first)
                    (#(do (tap> 
                            {:user-id followed-by 
                             :authorname authorname
