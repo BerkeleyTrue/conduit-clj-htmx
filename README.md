@@ -52,6 +52,21 @@ In Progress...
   - [x] add banners
   - [x] add error message on htmx 500
   - [ ] add flash on oob request
+- Home
+  - [x] Render Page
+  - [x] load global articles
+  - [x] Load tags
+  - [x] load user feed articles
+  - [ ] load tags from article preview (FE only)
+- Add seed data import
+  - [x] Add xtdb
+  - [x] Add init script
+  - [x] Add users
+  - [x] Add articles
+  - [x] Add default user on cli flag
+  - [x] Add author details
+  - [ ] Add comments
+  - [ ] Add get route
 - Comments
   - API
     - [ ] create comment on article
@@ -69,15 +84,6 @@ In Progress...
     - [ ] read
     - [ ] delete
     - [ ] mark if owner
-- Get Article page
-  - [ ] delete if owner
-  - [ ] Follow/Unfollow author
-  - [ ] Favorite/Unfavorite article
-  - [ ] comments
-    - [ ] Get on load
-    - [ ] mark if owner
-  - [ ] delete comment if owner
-  - [ ] /article/:slug
 - [ ] Docker Build
   > a build to let non-nix users run server
 - Get new/edit articles page
@@ -88,12 +94,15 @@ In Progress...
   - [ ] /editor - new
 
 #### Doing
-
-- Home
-  - [x] Render Page
-  - [ ] load global articles
-  - [ ] Load tags
-  - [ ] load user articles
+- Get Article page
+  - [ ] delete if owner
+  - [ ] Follow/Unfollow author
+  - [ ] Favorite/Unfavorite article
+  - [ ] comments
+    - [ ] Get on load
+    - [ ] mark if owner
+  - [ ] delete comment if owner
+  - [ ] /article/:slug
 - [ ] Articles 
   - [ ] Repo
     - [x] create
@@ -101,27 +110,18 @@ In Progress...
     - [ ] favorite
     - [ ] unfavorite
   - [ ] Service
-    - [ ] create
+    - [x] create
     - [ ] update
     - [ ] favorite
     - [ ] unfavorite
   - [ ] Api
     - [ ] Filter articles
-      - [ ] by author
-      - [ ] Add tag
+      - [x] by author
+      - [x] Add tag
       - [ ] add favorites
     - [ ] Unfavorite
     - [ ] Insert tags
-    - [ ] Get popular tags
-- Add seed data import
-  - [x] Add xtdb
-  - [x] Add init script
-  - [x] Add users
-  - [x] Add articles
-  - [x] Add default user on cli flag
-  - [ ] Add comments
-  - [ ] Add get route
-  - [ ] Add author details
+    - [x] Get popular tags
 
 #### Done
 

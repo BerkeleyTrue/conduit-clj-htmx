@@ -115,6 +115,18 @@
                       :limit 10})
           res (->> res
                    (map (fn [[_ tag]] tag)))]
+      res))
+  
+  (get-by-id [_ article-id]
+    (let [res (xt/entity (xt/db node) article-id)]
+      res))
+
+  (get-by-slug [_ slug]
+    (let [res (xt/q (xt/db node)
+                    '{:find [(pull ?article [*])]
+                      :in [slug]
+                      :where [[?article :article/slug slug]]}
+                    slug)]
       res)))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]

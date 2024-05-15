@@ -29,8 +29,7 @@
   (create [_ user-id params] "Create an article")
   (list-articles [_ user-id params] "List articles")
   (get-popular-tags [_] "Get popular tags")
-  (get-by-slug [_ slug] "Get an article by slug")
-  (get-id-from-slug [_ slug] "Get an article id by slug")
+  (find-article [_ {:keys [article-id slug]}] "find an article by id or slug")
   (update-article [_ slug username params] "Update an article")
   (favorite [_ slug user-id] "Favorite an article")
   (unfavorite [_ slug user-id] "Unfavorite an article")
@@ -85,4 +84,14 @@
                       ; TODO: handle no user?
                       article))))))
     (get-popular-tags [_] 
-      [:ok (repo/get-popular-tags repo)])))
+      [:ok (repo/get-popular-tags repo)])
+
+    (find-article [_ {:keys [article-id slug]}]
+      (if (not (or article-id slug))
+        [:error "Find article expects an id or an article slug but found neither"]
+        (let [article (cond 
+                        slug (repo/get-by-slug repo slug)
+                        article-id (repo/get-by-id repo article-id))]
+          (if (nil? article)
+            [:error (str "No article found for " (or slug article-id))]
+            [:ok article]))))))
