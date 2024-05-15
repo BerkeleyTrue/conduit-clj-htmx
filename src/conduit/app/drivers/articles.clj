@@ -74,10 +74,8 @@
             :hx-swap "none"}
            (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
        [:i.ion-plus-round]
-       "&nbsp;"
-       (if following? "Unfollow" "Follow")
-       username]
-      "&nbsp;&nbsp;"
+       (str " " (if following? "Unfollow " "Follow ") username)]
+      "  "
       [:button.btn.btn-sm.btn-outline-primary
        (-> {:_ (hyper "on htmx:afterRequest[detail.successful]
                         log 'updateing'
@@ -85,9 +83,7 @@
             :hx-swap "none"}
            (assoc (if favorited? :hx-delete :hx-post) (str "/articles/" slug "/favorite")))
        [:i.ion-heart]
-       "&nbsp;"
-       (if favorited? "Unfavorite" "Favorite")
-       "Post"
+       (str " " (if favorited? "Unfavorite" "Favorite") " article ") 
        [:span.counter (str num-of-favs)]])
     (list 
       [:button.btn.btn-sm.btn-outline-secondary
@@ -103,18 +99,25 @@
        [:i.ion-trash-a]
        "Delete Article"])))
 
-(defhtml article-meta-comp [{:keys [key oob? authed?]} {:keys [created-at]} {:keys [image username]}]
+(defhtml article-meta-comp [{:keys [key oob? authed? my-article? following? favorited?]} 
+                            {:keys [slug created-at num-of-favs]} 
+                            {:keys [image username]}]
   [:div.article-meta
    (-> {:id key}
        (#(if oob? (assoc % :hx-oob "true") %)))
-   [:a {:href (str "/profiles" username)}
+   [:a {:href (str "/profiles/" username)}
     [:img {:src image}]]
    [:div.info
-    [:a.author {:href (str "/profiles/" username)}]
+    [:a.author {:href (str "/profiles/" username)} username]
     [:span.date
-     created-at]]
+     (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]
    (when authed?
-     (actions-comp {}))])
+     (actions-comp {:my-article? my-article?
+                    :following? following?
+                    :favorited? favorited?
+                    :username username
+                    :slug slug
+                    :num-of-favs num-of-favs}))])
 
 (defhtml article-oob-comp [article my-article?]
   (list
@@ -131,7 +134,7 @@
                        article 
                        (:author article))))
 
-(defhtml article-comp [authed? {:keys [slug title _description author] :as article}]
+(defhtml article-comp [authed? {:keys [slug title author body tags] :as article}]
   [:div#article-page.article-page
    {:_ (hyper "on update log 'article meta update'")
     :hx-get (str "/articles/" slug "?oob=true")
@@ -141,43 +144,60 @@
    [:div.banner
     [:div.container
      [:h1 title]
-     [:div:article-actions 
-      (article-meta-comp
-        {:key "article-meta-banner"
-         :oob?  false
-         :authed? authed?}
-        article
-        author)]
-     [:div.row
-      [:div.col-xs-12.col-md-8.offset-md-2
-       (if authed?
-         [:form.card.comment-form
-          {:_ (hyper "on htmx:afterRequest[detail.successful] call me.reset()")
-           :hx-post (str "/articles/" slug "comments")
-           :hx-target "#comments"
-           :hx-swap "beforeend"}
-          [:div.card-block
-           [:textarea
-            {:name "body"
-             :placeholder "Write a comment..."
-             :row "3"}]]
-          [:div.card-footer
-           [:img.comment-author-img
-            {:src (:image author)}]]]
-         [:p
-          [:a
-           {:href "/login"
-            :ui-sref "app.login"}
-           "Sign in"]
-          "or"
-          [:a
-           {:href "/register"
-            :ui-sref "app.register"}
-           "sign up"]
-          "to add comments on this article."])
-       [:div#comments
-        {:hx-get (str "/articles/" slug "/comments")
-         :hx-trigger "load delay:150ms"}]]]]]])
+     (article-meta-comp
+       {:key "article-meta-banner"
+        :oob?  false
+        :authed? authed?}
+       article
+       author)]]
+   [:div.container.page
+    [:div.row.article-content
+     [:div.col-md-12
+      [:p body]
+      [:ul.tag-list
+       (for [tag tags]
+         [:li.tag-default.tag-pill.tag-outline tag])]]]]
+   [:hr]
+
+   [:div.article-actions
+    (article-meta-comp {:key "article-meta-content"
+                        :oob? false
+                        :authed? authed?}
+                       article
+                       author)]
+     
+   [:div.row
+    [:div.col-xs-12.col-md-8.offset-md-2
+     (if authed?
+       [:form.card.comment-form
+        {:_ (hyper "on htmx:afterRequest[detail.successful] call me.reset()")
+         :hx-post (str "/articles/" slug "comments")
+         :hx-target "#comments"
+         :hx-swap "beforeend"}
+        [:div.card-block
+         [:textarea.form-control
+          {:name "body"
+           :placeholder "Write a comment..."
+           :row "3"}]]
+        [:div.card-footer
+         [:img.comment-author-img
+          {:src (:image author)}]
+         [:button.btn.btn-sm.btn-primary "Post a Comment"]]]
+       [:p
+        [:a
+         {:href "/login"
+          :ui-sref "app.login"}
+         "Sign in"]
+        "or"
+        [:a
+         {:href "/register"
+          :ui-sref "app.register"}
+         "sign up"]
+        "to add comments on this article."])
+     [:div#comments
+      {;:hx-get (str "/articles/" slug "/comments") ; TODO: add comments
+       :hx-trigger "load delay:150ms"}
+      "Loading comments..."]]]])
 
 (defn ->get-article [article-service]
   (fn [request]
@@ -187,6 +207,9 @@
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)]
+                        (tap> {:article article
+                               :authed? authed?
+                               :my-article? my-article?})
                         {:render {:title (:title article)
                                   :content (if oob? 
                                              (article-oob-comp article my-article?) 

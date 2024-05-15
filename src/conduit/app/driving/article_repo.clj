@@ -112,14 +112,15 @@
                     '{:find [(count ?article) ?tags]
                       :where [[?article :article/tags ?tags]]
                       :order-by [[(count ?article) :desc] [?tags :asc]]
-                      :limit 10})
-          res (->> res
-                   (map (fn [[_ tag]] tag)))]
-      res))
+                      :limit 10})]
+      (map (fn [[_ tag]] tag) res)))
   
   (get-by-id [_ article-id]
     (let [res (xt/entity (xt/db node) article-id)]
-      res))
+      (-> res
+          (first)
+          (first)
+          (format-to-article))))
 
   (get-by-slug [_ slug]
     (let [res (xt/q (xt/db node)
@@ -127,7 +128,10 @@
                       :in [slug]
                       :where [[?article :article/slug slug]]}
                     slug)]
-      res)))
+      (-> res
+          (first)
+          (first)
+          (format-to-article)))))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)

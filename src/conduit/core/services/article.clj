@@ -94,4 +94,7 @@
                         article-id (repo/get-by-id repo article-id))]
           (if (nil? article)
             [:error (str "No article found for " (or slug article-id))]
-            [:ok article]))))))
+
+            (match (get-profile  user-service {:author-id (:author-id article)})
+              [:ok profile] [:ok (format-article article profile (rand-int 10) false)]
+              article)))))))
