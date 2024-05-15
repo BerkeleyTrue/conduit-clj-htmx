@@ -122,18 +122,19 @@
                         tag
                         authorname))
                         
-          res (->> res
-                   (map first)
-                   (#(do (tap> 
-                           {:user-id followed-by 
-                            :authorname authorname
-                            :tag tag 
-                            :res %
-                            :count count})
-                      %))
-                   (flatten)
-                   (map format-to-article))]
-      res))
+          num-of-articles (-> count 
+                              (first) 
+                              (first))
+
+          articles (->> res
+                        (map first)
+                        (flatten)
+                        (map format-to-article))]
+
+      {:articles articles
+       :num-of-articles num-of-articles
+       :page (+ (/ offset limit) 1)}))
+
   (get-popular-tags [_]
     (let [res (xt/q (xt/db node)
                     '{:find [(count ?article) ?tags]

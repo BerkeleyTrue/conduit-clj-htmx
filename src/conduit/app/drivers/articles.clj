@@ -35,7 +35,7 @@
          tag])]]))
 
 ; TODO: pagination logic
-(defhtml list-articles [{:keys [articles no-following? num-of-articles]}]
+(defhtml list-articles [{:keys [articles no-following? num-of-articles cur-page]}]
   (list
     (if (empty? articles)
       [:div.article-preview
@@ -49,36 +49,40 @@
       [:ul.pagination
        (for [page (range 1 (+ (/ num-of-articles 10) 1))]
         [:li.page-item
+         {:class (if (= page cur-page) "active" "")}
          [:a.page-link {:href "#"} page]])])))
 
 (defn ->get-articles [article-service]
   (fn [{:keys [parameters user-id] :as _request}]
     (let [{:keys [limit offset tag favorited author]} (or (:query parameters) {})
-          {:keys [articles num-of-articles]} (article-service/list-articles
-                                              article-service
-                                              user-id
-                                              {:limit limit
-                                               :offset offset
-                                               :tag tag
-                                               :favorited-by favorited
-                                               :authorname author})
+
+          {:keys [articles num-of-articles page]} (article-service/list-articles
+                                                   article-service
+                                                   user-id
+                                                   {:limit limit
+                                                    :offset offset
+                                                    :tag tag
+                                                    :favorited-by favorited
+                                                    :authorname author})
           res (list-articles {:articles articles
                               :no-following? false
-                              :num-of-articles num-of-articles})]
+                              :num-of-articles num-of-articles
+                              :cur-page page})]
       (utils/response res))))
 
 (defn ->get-feed [article-service]
   (fn [{:keys [parameters user-id] :as _reques}]
     (let [{:keys [limit offset]} (or (:query parameters) {})
-          {:keys [articles num-of-articles]} (article-service/list-articles
-                                              article-service
-                                              user-id
-                                              {:feed? true
-                                               :limit limit
-                                               :offset offset})
+          {:keys [articles num-of-articles page]} (article-service/list-articles
+                                                   article-service
+                                                   user-id
+                                                   {:feed? true
+                                                    :limit limit
+                                                    :offset offset})
           res (list-articles {:articles articles
                               :no-following? (empty? articles)
-                              :num-of-articles num-of-articles})]
+                              :num-of-articles num-of-articles
+                              :cur-page page})]
       (utils/response res))))
 
 
