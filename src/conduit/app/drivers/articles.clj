@@ -35,22 +35,31 @@
          tag])]]))
 
 ; TODO: pagination logic
-(defhtml list-articles [{:keys [articles no-following? num-of-articles cur-page]}]
+(defhtml list-articles [{:keys [no-following? feed? articles num-of-articles cur-page]}]
   (list
-    (if (empty? articles)
-      [:div.article-preview
-       (if no-following?
-         "Follow some authors to see their articles here."
-         "No articles are here... yet.")]
-      [:div.article-preview
-       (for [article articles]
-         (article-preview article))])
-    (when (> num-of-articles 10)
-      [:ul.pagination
-       (for [page (range 1 (+ (/ num-of-articles 10) 1))]
-        [:li.page-item
-         {:class (if (= page cur-page) "active" "")}
-         [:a.page-link {:href "#"} page]])])))
+   (if (empty? articles)
+     [:div.article-list
+      (if no-following?
+        "Follow some authors to see their articles here."
+        "No articles are here... yet.")]
+     [:div.article-list
+      (for [article articles]
+        (article-preview article))])
+   (when (> num-of-articles 10)
+     [:ul.pagination
+      (for [page (range 1 (+ (/ num-of-articles 10) 1))]
+        [:li.page-item {:class (if (= page cur-page) "active" "")}
+         [:a.page-link
+          (when (not (= page cur-page))
+            {:_ (hyper "
+                       on htmx:afterRequest[detail.successful]
+                         log 'articles updated'
+                         go to the top left of #articles smoothly
+                       ")
+             :href "#"
+             :hx-get (str "/articles" (if feed? "/feed" "") "?limit=10&offset=" (* (- page 1) 10))
+             :hx-target "#articles"})
+          page]])])))
 
 (defn ->get-articles [article-service]
   (fn [{:keys [parameters user-id] :as _request}]
@@ -71,20 +80,21 @@
       (utils/response res))))
 
 (defn ->get-feed [article-service]
-  (fn [{:keys [parameters user-id] :as _reques}]
-    (let [{:keys [limit offset]} (or (:query parameters) {})
+  (fn [{:keys [parameters user-id]}]
+    (tap> {:params parameters})
+    (let [{:keys [limit offset]} (get parameters :query {})
           {:keys [articles num-of-articles page]} (article-service/list-articles
                                                    article-service
                                                    user-id
                                                    {:feed? true
                                                     :limit limit
                                                     :offset offset})
-          res (list-articles {:articles articles
+          res (list-articles {:feed? true
                               :no-following? (empty? articles)
+                              :articles articles
                               :num-of-articles num-of-articles
                               :cur-page page})]
       (utils/response res))))
-
 
 (defhtml actions-comp [{:keys [my-article? following? favorited? username slug num-of-favs]}]
   (if (not my-article?)
@@ -250,17 +260,14 @@
                                    [:author {:optional true} :string]
                                    [:favorited {:optional true} :string]]}
               :handler (->get-articles article-service)}}]
-   ["/feed"
-    {:name :articles/feed
-     :conflicting true
-     :middleware [:authorize]
-     :get {:parameters
-           {:query [:map
-                    {:closed true}
-                    [:limit {:optional true} :int]
-                    [:offset {:optional true} :int]]}
+   ["/feed" {:name :articles/feed
+             :conflicting true
+             :middleware [:authorize]
+             :get {:parameters {:query [:map {:closed true}
+                                        [:limit {:optional true} :int]
+                                        [:offset {:optional true} :int]]}
 
-           :handler (->get-feed article-service)}}]
+                   :handler (->get-feed article-service)}}]
    ["/:slug" {:name :articles/get
               :conflicting true
               :get {:parameters {:path [:map {:closed true}
