@@ -64,10 +64,9 @@
         :hx-target "#tags"
         :hx-trigger "load delay:150ms"}
        [:p "Popular Tags"]
-       [:div.tag-list
-        {:id "tags"
-         :_ (hyper
-             "
+       [:ul#tags.tag-list
+        {:_ (hyper 
+              "
               on click
                 if event.target.tagName == 'A'
                   -- log event.target
@@ -75,7 +74,7 @@
                   remove .active from .nav-link in #tabs
                   put '#' + event.target.innerHTML into <a/> in #tag-tab
                   add .active to <a/> in #tag-tab
-            ")}
+              ")}
         "Loading tags..."]]]]]])
 
 (defn get-home-page

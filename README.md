@@ -57,6 +57,7 @@ In Progress...
   - [x] load global articles
   - [x] Load tags
   - [x] load user feed articles
+  - [x] pagination
   - [ ] load tags from article preview (FE only)
 - Add seed data import
   - [x] Add xtdb
@@ -66,7 +67,6 @@ In Progress...
   - [x] Add default user on cli flag
   - [x] Add author details
   - [ ] Add comments
-  - [ ] Add get route
 - Comments
   - API
     - [ ] create comment on article
@@ -102,23 +102,28 @@ In Progress...
     - [ ] Get on load
     - [ ] mark if owner
   - [ ] delete comment if owner
-  - [ ] /article/:slug
+  - [x] /article/:slug
 - [ ] Articles 
   - [ ] Repo
     - [x] create
+    - [x] get by id
+    - [x] get by slug
     - [ ] update
     - [ ] favorite
     - [ ] unfavorite
   - [ ] Service
     - [x] create
+    - [x] find
     - [ ] update
     - [ ] favorite
     - [ ] unfavorite
   - [ ] Api
     - [ ] Filter articles
       - [x] by author
-      - [x] Add tag
-      - [ ] add favorites
+      - [x] by tag
+      - [x] by favorites
+      - [x] by author
+    - [ ] Favorite
     - [ ] Unfavorite
     - [ ] Insert tags
     - [x] Get popular tags

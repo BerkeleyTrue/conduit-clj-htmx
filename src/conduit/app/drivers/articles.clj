@@ -28,13 +28,23 @@
       [:h1 title]
       [:p description]]
      [:ul.tag-list
+      {:_ (hyper "
+              on click
+                if event.target.tagName == 'A'
+                  -- log event.target
+                  remove @hidden from #tag-tab
+                  remove .active from .nav-link in #tabs
+                  put '#' + event.target.innerHTML into <a/> in #tag-tab
+                  add .active to <a/> in #tag-tab
+                 ")}
       (for [tag tags]
         [:a.tag-default.tag-pill.tag-outline
-         ; TODO: load articles by tag
-         {:href "#"}
+         {:href "#"
+          :hx-get (str "/articles?tag=" tag)
+          :hx-target "#articles"
+          :hx-swap "innerHTML"}
          tag])]]))
 
-; TODO: pagination logic
 (defhtml list-articles [{:keys [no-following? feed? articles num-of-articles cur-page]}]
   (list
    (if (empty? articles)
@@ -205,7 +215,7 @@
      (if authed?
        [:form.card.comment-form
         {:_ (hyper "on htmx:afterRequest[detail.successful] call me.reset()")
-         :hx-post (str "/articles/" slug "comments")
+         :hx-post (str "/articles/" slug "/comments")
          :hx-target "#comments"
          :hx-swap "beforeend"}
         [:div.card-block

@@ -54,7 +54,7 @@
                 ")
           :role "tab"
           :hx-get (str "/articles?author=" username)
-          :hx-trigger "click, load delay:150ms" ; TODO: implement backend
+          :hx-trigger "click, load delay:150ms" 
           :hx-target "#articles"}
          [:a.nav-link.active
           "My Articles"]]
