@@ -71,18 +71,17 @@
                    {:followed-by user-id}
                    {:tag tag
                     :authorname authorname
-                    :favorited-by favorited-by})]
-        (->> (assoc args
-                    :limit (or limit 10)
-                    :offset (or offset 0))
-             (repo/list repo)
-             (map (fn [article]
-                    ; TODO: num-of-favorites 
-                    ; TODO: is favorited
-                    (match (get-profile user-service {:author-id (:author-id article)})
-                      [:ok profile] (format-article article profile (rand-int 10) (rand-nth [true false]))
-                      ; TODO: handle no user?
-                      article))))))
+                    :favorited-by favorited-by})
+            res (repo/list repo (assoc args :limit (or limit 10) :offset (or offset 0)))]
+        (update res :articles (fn [articles] 
+                                (->> articles
+                                     (map (fn [article]
+                                            ; TODO: num-of-favorites 
+                                            ; TODO: is favorited
+                                            (match (get-profile user-service {:author-id (:author-id article)})
+                                              [:ok profile] (format-article article profile (rand-int 10) (rand-nth [true false]))
+                                              ; TODO: handle no user?
+                                              article))))))))
     (get-popular-tags [_] 
       [:ok (repo/get-popular-tags repo)])
 

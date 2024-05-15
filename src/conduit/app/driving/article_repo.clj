@@ -67,7 +67,7 @@
           res (if followed-by
                 (xt/q db
                       {:find '[(pull ?article [*])]
-                       :where '[[?article :article/id]
+                       :where '[[?article :article/id ?article-id]
                                 [?user :user/id user-id]
                                 [?article :article/author-id ?author-id]
                                 [?user :user/following ?author-id]]
@@ -79,7 +79,7 @@
                 (xt/q db
                       {:find '[(pull ?article [*]) ?created-at (distinct ?title)]
                        :where '[[?article :article/title ?title]
-                                [?article :article/tags ?tags]
+                                [?article :article/tags ?tags] ; tags are unrolled, so we need distinct by title to reduce duplicates
                                 [?article :article/author-id ?author-id]
                                 [?article :article/created-at ?created-at]
                                 [?user :user/id ?author-id]
@@ -96,13 +96,40 @@
                       tag
                       authorname))
                       
+          count (if followed-by
+                  (xt/q db 
+                        '{:find [(count ?article)]
+                          :where [[?article :article/title]
+                                  [?user :user/id user-id]
+                                  [?article :article/author-id ?author-id]
+                                  [?user :user/following ?author-id]]
+                          :in [user-id]}
+                        followed-by)
+                  (xt/q db
+                        '{:find [(count ?article) (distinct ?title)]
+                          :where [[?article :article/title ?title]
+                                  [?article :article/tags ?tags] ; tags are unrolled, so we need distinct by title to reduce duplicates
+                                  [?article :article/author-id ?author-id]
+                                  [?article :article/created-at ?created-at]
+                                  [?user :user/id ?author-id]
+                                  [?user :user/username ?username]
+                                  (or [(not tag)] 
+                                      [(= tag ?tags)])
+                                  (or [(not authorname)] 
+                                      [(= authorname ?username)])]
+                                
+                          :in [tag authorname]}
+                        tag
+                        authorname))
+                        
           res (->> res
                    (map first)
                    (#(do (tap> 
                            {:user-id followed-by 
                             :authorname authorname
                             :tag tag 
-                            :res %})
+                            :res %
+                            :count count})
                       %))
                    (flatten)
                    (map format-to-article))]

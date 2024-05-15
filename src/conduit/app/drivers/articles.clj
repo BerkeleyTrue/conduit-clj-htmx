@@ -34,73 +34,93 @@
          {:href "#"}
          tag])]]))
 
-; TODO: show pagination
-(defhtml list-articles [{:keys [articles no-following?]}]
-  (if (empty? articles)
-    [:div.article-preview
-     (if no-following?
-       "Follow some authors to see their articles here."
-       "No articles are here... yet.")]
-    [:div
-     [:div.article-preview
-      (for [article articles]
-        (article-preview article))]]))
+; TODO: pagination logic
+(defhtml list-articles [{:keys [articles no-following? num-of-articles]}]
+  (list
+    (if (empty? articles)
+      [:div.article-preview
+       (if no-following?
+         "Follow some authors to see their articles here."
+         "No articles are here... yet.")]
+      [:div.article-preview
+       (for [article articles]
+         (article-preview article))])
+    (when (> num-of-articles 10)
+      [:ul.pagination
+       (for [page (range 1 (+ (/ num-of-articles 10) 1))]
+        [:li.page-item
+         [:a.page-link {:href "#"} page]])])))
 
 (defn ->get-articles [article-service]
   (fn [{:keys [parameters user-id] :as _request}]
     (let [{:keys [limit offset tag favorited author]} (or (:query parameters) {})
-          articles (article-service/list-articles
-                    article-service
-                    user-id
-                    {:limit limit
-                     :offset offset
-                     :tag tag
-                     :favorited-by favorited
-                     :authorname author})
-          no-following? (not (or (not user-id) (seq articles)))
+          {:keys [articles num-of-articles]} (article-service/list-articles
+                                              article-service
+                                              user-id
+                                              {:limit limit
+                                               :offset offset
+                                               :tag tag
+                                               :favorited-by favorited
+                                               :authorname author})
           res (list-articles {:articles articles
-                              :no-following? no-following?})]
+                              :no-following? false
+                              :num-of-articles num-of-articles})]
       (utils/response res))))
+
+(defn ->get-feed [article-service]
+  (fn [{:keys [parameters user-id] :as _reques}]
+    (let [{:keys [limit offset]} (or (:query parameters) {})
+          {:keys [articles num-of-articles]} (article-service/list-articles
+                                              article-service
+                                              user-id
+                                              {:feed? true
+                                               :limit limit
+                                               :offset offset})
+          res (list-articles {:articles articles
+                              :no-following? (empty? articles)
+                              :num-of-articles num-of-articles})]
+      (utils/response res))))
+
 
 (defhtml actions-comp [{:keys [my-article? following? favorited? username slug num-of-favs]}]
   (if (not my-article?)
     (list
-      [:button#follow-btn.btn.btn-sm.btn-outline-secondary.follow-btn
-       (-> {:_ (hyper "
+     [:button#follow-btn.btn.btn-sm.btn-outline-secondary.follow-btn
+      (-> {:_ (hyper "
                 on htmx:afterRequest[detail.successful]
                   log 'updating'
                   send update to #article-page
                 ")
-            :hx-swap "none"}
-           (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
-       [:i.ion-plus-round]
-       (str " " (if following? "Unfollow " "Follow ") username)]
-      "  "
-      [:button.btn.btn-sm.btn-outline-primary
-       (-> {:_ (hyper "on htmx:afterRequest[detail.successful]
+           :hx-swap "none"}
+          (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
+      [:i.ion-plus-round]
+      (str " " (if following? "Unfollow " "Follow ") username)]
+     "  "
+     [:button.btn.btn-sm.btn-outline-primary
+      (-> {:_ (hyper "on htmx:afterRequest[detail.successful]
                         log 'updateing'
                         send update to #article-page")
-            :hx-swap "none"}
-           (assoc (if favorited? :hx-delete :hx-post) (str "/articles/" slug "/favorite")))
-       [:i.ion-heart]
-       (str " " (if favorited? "Unfavorite" "Favorite") " article ") 
-       [:span.counter (str num-of-favs)]])
-    (list 
-      [:button.btn.btn-sm.btn-outline-secondary
-       {:hx-get (str "/editor/" slug)
-        :hx-target "body"
-        :hx-push-url "true"}
-       [:i.ion-edit]
-       "Edit Article"]
-      [:button.btn.btn-sm.btn-outline-danger
-       {:hx-get (str "/editor/" slug)
-        :hx-target "body"
-        :hx-push-url "true"}
-       [:i.ion-trash-a]
-       "Delete Article"])))
+           :hx-swap "none"}
+          (assoc (if favorited? :hx-delete :hx-post) (str "/articles/" slug "/favorite")))
+      [:i.ion-heart]
+      (str " " (if favorited? "Unfavorite" "Favorite") " article ")
+      [:span.counter (str num-of-favs)]])
+    (list
+     [:button.btn.btn-sm.btn-outline-secondary
+      {:hx-get (str "/editor/" slug)
+       :hx-target "body"
+       :hx-push-url "true"}
+      [:i.ion-edit]
+      "Edit Article"]
+     [:button.btn.btn-sm.btn-outline-danger
+      {:hx-get (str "/editor/" slug)
+       :hx-target "body"
+       :hx-push-url "true"}
+      [:i.ion-trash-a]
+      "Delete Article"])))
 
-(defhtml article-meta-comp [{:keys [key oob? authed? my-article? following? favorited?]} 
-                            {:keys [slug created-at num-of-favs]} 
+(defhtml article-meta-comp [{:keys [key oob? authed? my-article? following? favorited?]}
+                            {:keys [slug created-at num-of-favs]}
                             {:keys [image username]}]
   [:div.article-meta
    (-> {:id key}
@@ -121,18 +141,18 @@
 
 (defhtml article-oob-comp [article my-article?]
   (list
-    (article-meta-comp {:key "article-meta-banner"
-                        :oob? true 
-                        :authed? false
-                        :my-article? my-article?} 
-                       article 
-                       (:author article))
-    (article-meta-comp {:key "article-meta-content" 
-                        :oob? true 
-                        :authed? false
-                        :my-article? my-article?} 
-                       article 
-                       (:author article))))
+   (article-meta-comp {:key "article-meta-banner"
+                       :oob? true
+                       :authed? false
+                       :my-article? my-article?}
+                      article
+                      (:author article))
+   (article-meta-comp {:key "article-meta-content"
+                       :oob? true
+                       :authed? false
+                       :my-article? my-article?}
+                      article
+                      (:author article))))
 
 (defhtml article-comp [authed? {:keys [slug title author body tags] :as article}]
   [:div#article-page.article-page
@@ -145,11 +165,11 @@
     [:div.container
      [:h1 title]
      (article-meta-comp
-       {:key "article-meta-banner"
-        :oob?  false
-        :authed? authed?}
-       article
-       author)]]
+      {:key "article-meta-banner"
+       :oob?  false
+       :authed? authed?}
+      article
+      author)]]
    [:div.container.page
     [:div.row.article-content
      [:div.col-md-12
@@ -165,7 +185,7 @@
                         :authed? authed?}
                        article
                        author)]
-     
+
    [:div.row
     [:div.col-xs-12.col-md-8.offset-md-2
      (if authed?
@@ -207,34 +227,18 @@
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)]
-                        (tap> {:article article
-                               :authed? authed?
-                               :my-article? my-article?})
                         {:render {:title (:title article)
-                                  :content (if oob? 
-                                             (article-oob-comp article my-article?) 
+                                  :content (if oob?
+                                             (article-oob-comp article my-article?)
                                              (article-comp authed? article))}})
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
-                         (response/redirect "/" 303)))))) 
-
-(defn ->get-feed [article-service]
-  (fn [{:keys [parameters user-id] :as _reques}]
-    (let [{:keys [limit offset]} (or (:query parameters) {})
-          articles (article-service/list-articles
-                    article-service
-                    user-id
-                    {:feed? true
-                     :limit limit
-                     :offset offset})
-          res (list-articles {:articles articles
-                              :no-following? (empty? articles)})]
-      (utils/response res))))
+                         (response/redirect "/" 303))))))
 
 (defn ->articles-routes [article-service]
   ["articles"
    ["" {:name :articles/list
-        :get {:parameters {:query [:map 
+        :get {:parameters {:query [:map
                                    {:closed true}
                                    [:limit {:optional true} :int]
                                    [:offset {:optional true} :int]
