@@ -22,7 +22,8 @@
 (defmethod ig/init-key :infra.router/core
   [_ {:keys [routes session-store user-service]}]
   (let [routes (conj routes ["/public" (ring/create-resource-handler)])]
-    (timbre/info "init router " routes)
+    (timbre/info "init router")
+    (tap> {:routes routes})
     (ring/router
      ["" {} routes]
      {::middleware/registry {:authorize authorize-middleware}

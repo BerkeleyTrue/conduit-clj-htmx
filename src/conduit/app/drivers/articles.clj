@@ -91,7 +91,6 @@
 
 (defn ->get-feed [article-service]
   (fn [{:keys [parameters user-id]}]
-    (tap> {:params parameters})
     (let [{:keys [limit offset]} (get parameters :query {})
           {:keys [articles num-of-articles page]} (article-service/list-articles
                                                    article-service
@@ -129,23 +128,24 @@
       [:i.ion-heart]
       (str " " (if favorited? "Unfavorite" "Favorite") " article ")
       [:span.counter (str num-of-favs)]])
-    (list
-     [:button.btn.btn-sm.btn-outline-secondary
-      {:hx-get (str "/editor/" slug)
-       :hx-target "body"
-       :hx-push-url "true"}
-      [:i.ion-edit]
-      "Edit Article"]
-     [:button.btn.btn-sm.btn-outline-danger
-      {:hx-get (str "/editor/" slug)
-       :hx-target "body"
-       :hx-push-url "true"}
-      [:i.ion-trash-a]
-      "Delete Article"])))
+    (when my-article?
+      (list
+       [:button.btn.btn-sm.btn-outline-secondary
+        {:hx-get (str "/editor/" slug)
+         :hx-target "body"
+         :hx-push-url "true"}
+        [:i.ion-edit]
+        "Edit Article"]
+       [:button.btn.btn-sm.btn-outline-danger
+        {:hx-get (str "/editor/" slug)
+         :hx-target "body"
+         :hx-push-url "true"}
+        [:i.ion-trash-a]
+        "Delete Article"]))))
 
-(defhtml article-meta-comp [{:keys [key oob? authed? my-article? following? favorited?]}
+(defhtml article-meta-comp [{:keys [key oob? my-article? favorited?]}
                             {:keys [slug created-at num-of-favs]}
-                            {:keys [image username]}]
+                            {:keys [image username following?]}]
   [:div.article-meta
    (-> {:id key}
        (#(if oob? (assoc % :hx-oob "true") %)))
@@ -155,30 +155,32 @@
     [:a.author {:href (str "/profiles/" username)} username]
     [:span.date
      (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]
-   (when authed?
-     (actions-comp {:my-article? my-article?
-                    :following? following?
-                    :favorited? favorited?
-                    :username username
-                    :slug slug
-                    :num-of-favs num-of-favs}))])
+   (actions-comp {:my-article? my-article?
+                  :following? following?
+                  :favorited? favorited?
+                  :username username
+                  :slug slug
+                  :num-of-favs num-of-favs})])
 
-(defhtml article-oob-comp [article my-article?]
+(defhtml article-oob-comp [article {:keys [my-article? following? favorited?]}]
   (list
    (article-meta-comp {:key "article-meta-banner"
                        :oob? true
-                       :authed? false
-                       :my-article? my-article?}
+                       :my-article? my-article?
+                       :following? following?
+                       :favorited? favorited?}
                       article
                       (:author article))
    (article-meta-comp {:key "article-meta-content"
                        :oob? true
-                       :authed? false
-                       :my-article? my-article?}
+                       :my-article? my-article?
+                       :following? following?
+                       :favorited? favorited?}
                       article
                       (:author article))))
 
-(defhtml article-comp [authed? {:keys [slug title author body tags] :as article}]
+(defhtml article-comp [{:keys [authed? my-article? favorited?]} 
+                       {:keys [slug title author body tags] :as article}]
   [:div#article-page.article-page
    {:_ (hyper "on update log 'article meta update'")
     :hx-get (str "/articles/" slug "?oob=true")
@@ -191,7 +193,8 @@
      (article-meta-comp
       {:key "article-meta-banner"
        :oob?  false
-       :authed? authed?}
+       :favorited? favorited?
+       :my-article? my-article?}
       article
       author)]]
    [:div.container.page
@@ -206,7 +209,8 @@
    [:div.article-actions
     (article-meta-comp {:key "article-meta-content"
                         :oob? false
-                        :authed? authed?}
+                        :my-article? my-article?
+                        :favorited? favorited?}
                        article
                        author)]
 
@@ -231,12 +235,12 @@
         [:a
          {:href "/login"
           :ui-sref "app.login"}
-         "Sign in"]
+         "Sign in "]
         "or"
         [:a
          {:href "/register"
           :ui-sref "app.register"}
-         "sign up"]
+         " sign up "]
         "to add comments on this article."])
      [:div#comments
       {;:hx-get (str "/articles/" slug "/comments") ; TODO: add comments
@@ -246,15 +250,21 @@
 (defn ->get-article [article-service]
   (fn [request]
     (let [slug (get-in request [:parameters :path :slug])
-          oob? (get-in request [:parameters :query :oob])]
-      (match (article-service/find-article article-service {:slug slug})
+          oob? (get-in request [:parameters :query :oob])
+          user-id (:user-id request)]
+      (match (article-service/find-article article-service {:user-id user-id 
+                                                            :slug slug})
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)]
                         {:render {:title (:title article)
                                   :content (if oob?
-                                             (article-oob-comp article my-article?)
-                                             (article-comp authed? article))}})
+                                             (article-oob-comp article {:my-article? my-article?})
+                                             (article-comp 
+                                               {:authed? authed?
+                                                :my-article? my-article?
+                                                :favorited? false}
+                                               article))}})
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
                          (response/redirect "/" 303))))))

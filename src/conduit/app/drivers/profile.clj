@@ -4,9 +4,10 @@
    [ring.util.response :as response]
    [conduit.utils.dep-macro :refer [defact]]
    [conduit.utils.hyper :refer [hyper]]
+   [conduit.infra.utils :as utils]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.middleware.flash :refer [push-flash]]
-   [conduit.core.services.user :refer [service? find-user]]))
+   [conduit.core.services.user :refer [service? find-user follow-author unfollow-author]]))
 
 (def place-holder "https://static.productionready.io/images/smiley-cyrus.jpg")
 
@@ -94,8 +95,39 @@
                                                               :self? self?
                                                               :authed? (not (nil? (:user-id request)))))}})))
 
+; TODO: add following counter
+(defhtml profile-follow-button [authorname following?]
+  [:button#profile-follow-btn.btn.btn-sm.btn-outline-secondary.follow-btn
+   (assoc {:hx-swap "outerHtml"} (if following? :hx-delete :hx-post) (str "/profiles/" authorname "/follow"))
+   [:i.ion-plus-round
+    (str " " (if following? "Unfollow " "Follow ") authorname)
+    [:span.counter "(?)"]]])
+
+
+(defn ->follow-author [user-service]
+  (fn [request]
+    (let [authorname (get-in request [:parameters :path :username])
+          user-id (get request :user-id)]
+      (match (follow-author user-service user-id {:authorname authorname})
+        [:error error] (utils/list-errors error)
+        [:ok _] (-> (profile-follow-button authorname true)
+                    (utils/response))))))
+
+(defn ->unfollow-author [user-service]
+  (fn [request]
+    (let [authorname (get-in request [:parameters :path :username])
+          user-id (get request :user-id)]
+      (match (unfollow-author user-service user-id {:authorname authorname})
+        [:error error] (utils/list-errors error)
+        [:ok _] (-> (profile-follow-button authorname false)
+                    (utils/response))))))
+
 (defn ->profile-routes [user-service]
-  ["profiles/:username"
-   {:parameters {:path {:username :string}}
-    :get {:name :profile/get
-          :handler (->get-profile-page user-service)}}])
+  ["profiles"
+   ["/:username" {:name :profile/get
+                  :parameters {:path {:username :string}}
+                  :get {:handler (->get-profile-page user-service)}}
+    ["/follow" {:name :profile/follow
+                :middleware [:authorize]
+                :post {:handler (->follow-author user-service)}
+                :delete {:handler (->unfollow-author user-service)}}]]])

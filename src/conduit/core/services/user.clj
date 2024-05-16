@@ -31,11 +31,11 @@
   (register [_ params] "Register a new user")
   (login [_ params] "A user attempts to login")
   (find-user [_ params] "Find a user by id, username, or email")
-  (get-profile [_ params] "Get a authors profile by id, username, or email")
+  (get-profile [_ {:keys [user-id author-id authorname]}] "Get a authors profile by id or username")
   (get-following [_ user-id] "Get a users follows")
   (update-user [_ params] "Update a user")
-  (follow [_ params] "A user follows an author")
-  (unfollow [_ params] "A user unfollows an author"))
+  (follow-author [_ user-id {:keys [author-id authorname]}] "A user follows an author")
+  (unfollow-author [_ user-id {:keys [author-id authorname]}] "A user unfollows an author"))
 
 (defn service? [user-service?]
   (satisfies? UserService user-service?))
@@ -74,14 +74,15 @@
           [:error "No user found"]
           [:ok user])))
 
-    (get-profile [_ {:keys [author-id authorname user-id]}]
+    (get-profile [_ {:keys [user-id author-id authorname]}]
       (let [author (if author-id
                      (repo/get-by-id repo author-id)
-                     (repo/get-by-username repo authorname))]
+                     (repo/get-by-username repo authorname))
+            user (repo/get-by-id repo user-id)]
         (if (nil? author)
           [:error "No user found"]
-          (let [following? (if user-id
-                             (contains? (:following author) user-id)
+          (let [following? (if user
+                             (contains? (:following user) (:user-id author))
                              false)]
             [:ok (format-to-public-profile author following?)]))))
 
@@ -102,24 +103,24 @@
             [:error "Couldn't update user"]
             [:ok user]))))
 
-    (follow [_ {:keys [user-id author-id authorname]}]
+    (follow-author [_ user-id {:keys [author-id authorname]}]
       (if-not (or author-id authorname)
         [:error "follow requires author name or id"]
         (if-let [author-id (if author-id
                              author-id
                              (:user-id (repo/get-by-username repo authorname)))]
-          (if-let [user (repo/follow-author repo user-id author-id)]
-            [:ok (format-to-public-profile user true)]
+          (if-let [author (repo/follow-author repo user-id author-id)]
+            [:ok (format-to-public-profile author true)]
             [:error (str "Could not find a user for user-id " user-id)])
           [:error (str "Could not find author for authorname " authorname)])))
 
-    (unfollow [_ {:keys [user-id author-id authorname]}]
+    (unfollow-author [_ user-id {:keys [author-id authorname]}]
       (if-not (or author-id authorname)
         [:error "follow requires author name or id"]
         (if-let [author-id (if author-id
                              author-id
                              (:user-id (repo/get-by-username repo authorname)))]
-          (if-let [user (repo/unfollow-author repo user-id author-id)]
-            [:ok (format-to-public-profile user true)]
+          (if-let [author (repo/unfollow-author repo user-id author-id)]
+            [:ok (format-to-public-profile author false)]
             [:error (str "Could not find a user for user-id " user-id)])
           [:error (str "Could not find author for authorname " authorname)])))))

@@ -147,9 +147,9 @@
   (get-following [_ user-id]
     (-> (xt/db node)
         (xt/q
-         '{:find [(pull ?user [*])]
-           :where [[?e :xt/id]
-                   [?e :following/author ?author-id]]
+         '{:find [?following]
+           :where [[?user :user/id id]
+                   [?user :user/following ?following]]
            :in [id]}
          user-id)
         (first)

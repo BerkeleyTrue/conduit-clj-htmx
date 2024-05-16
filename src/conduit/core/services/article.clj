@@ -78,14 +78,15 @@
                                      (map (fn [article]
                                             ; TODO: num-of-favorites 
                                             ; TODO: is favorited
-                                            (match (get-profile user-service {:author-id (:author-id article)})
+                                            (match (get-profile user-service {:user-id user-id 
+                                                                              :author-id (:author-id article)})
                                               [:ok profile] (format-article article profile (rand-int 10) (rand-nth [true false]))
-                                              ; TODO: handle no user?
-                                              article))))))))
+                                              ; NOTE: handle no user?
+                                              :else article))))))))
     (get-popular-tags [_] 
       [:ok (repo/get-popular-tags repo)])
 
-    (find-article [_ {:keys [article-id slug]}]
+    (find-article [_ {:keys [article-id slug user-id]}]
       (if (not (or article-id slug))
         [:error "Find article expects an id or an article slug but found neither"]
         (let [article (cond 
@@ -94,6 +95,7 @@
           (if (nil? article)
             [:error (str "No article found for " (or slug article-id))]
 
-            (match (get-profile  user-service {:author-id (:author-id article)})
+            (match (get-profile user-service {:user-id user-id
+                                              :author-id (:author-id article)})
               [:ok profile] [:ok (format-article article profile (rand-int 10) false)]
-              article)))))))
+              x x)))))))
