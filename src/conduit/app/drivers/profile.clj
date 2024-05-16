@@ -103,24 +103,29 @@
     (str " " (if following? "Unfollow " "Follow ") authorname)
     [:span.counter "(?)"]]])
 
-
 (defn ->follow-author [user-service]
   (fn [request]
     (let [authorname (get-in request [:parameters :path :username])
-          user-id (get request :user-id)]
+          user-id (get request :user-id)
+          update-profile? (= "profile-follow-btn" (get-in request [:headers "hx-trigger"]))]
       (match (follow-author user-service user-id {:authorname authorname})
         [:error error] (utils/list-errors error)
-        [:ok _] (-> (profile-follow-button authorname true)
-                    (utils/response))))))
+        [:ok _] (if update-profile?
+                  (-> (profile-follow-button authorname true)
+                      (utils/response))
+                  (response/status 200))))))
 
 (defn ->unfollow-author [user-service]
   (fn [request]
     (let [authorname (get-in request [:parameters :path :username])
-          user-id (get request :user-id)]
+          user-id (get request :user-id)
+          update-profile? (= "profile-follow-btn" (get-in request [:headers "hx-trigger"]))]
       (match (unfollow-author user-service user-id {:authorname authorname})
         [:error error] (utils/list-errors error)
-        [:ok _] (-> (profile-follow-button authorname false)
-                    (utils/response))))))
+        [:ok _] (if update-profile?
+                  (-> (profile-follow-button authorname true)
+                      (utils/response))
+                  (response/status 200))))))
 
 (defn ->profile-routes [user-service]
   ["profiles"

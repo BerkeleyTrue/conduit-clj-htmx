@@ -148,7 +148,7 @@
                             {:keys [image username following?]}]
   [:div.article-meta
    (-> {:id key}
-       (#(if oob? (assoc % :hx-oob "true") %)))
+       (#(if oob? (assoc % :hx-swap-oob "true") %)))
    [:a {:href (str "/profiles/" username)}
     [:img {:src image}]]
    [:div.info
@@ -257,14 +257,15 @@
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)]
-                        {:render {:title (:title article)
-                                  :content (if oob?
-                                             (article-oob-comp article {:my-article? my-article?})
-                                             (article-comp 
+                        (if oob?
+                          (-> (article-oob-comp article {:my-article? my-article?})
+                              (utils/response))
+                          {:render {:title (:title article)
+                                    :content (article-comp 
                                                {:authed? authed?
                                                 :my-article? my-article?
                                                 :favorited? false}
-                                               article))}})
+                                               article)}}))
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
                          (response/redirect "/" 303))))))
