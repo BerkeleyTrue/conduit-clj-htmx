@@ -7,7 +7,7 @@
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
-   [conduit.core.services.article :as article-service :refer [favorite]]))
+   [conduit.core.services.article :as article-service :refer [favorite unfavorite]]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
@@ -278,6 +278,14 @@
         [:error error] (response/bad-request (str error))
         [:ok _] (response/status 200)))))
 
+(defn ->unfav-article [user-service]
+  (fn [request]
+    (let [slug (get-in request [:parameters :path :slug])
+          user-id (get request :user-id)]
+      (match (unfavorite user-service user-id slug)
+        [:error error] (response/bad-request (str error))
+        [:ok _] (response/status 200)))))
+
 (defn ->articles-routes [article-service]
   ["articles"
    ["" {:name :articles/list
@@ -305,5 +313,5 @@
                                     [:oob {:optional true} :boolean]]}
                :handler (->get-article article-service)}}]
     ["/favorite" {:name :article/fav
-                  :post {:handler (->fav-article article-service)}}]]])
-    ;               ; :delete {:handler (->unfav-article article-service)}}]]])
+                  :post {:handler (->fav-article article-service)}
+                  :delete {:handler (->unfav-article article-service)}}]]])

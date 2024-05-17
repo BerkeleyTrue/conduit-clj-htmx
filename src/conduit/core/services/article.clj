@@ -114,4 +114,20 @@
                             [:ok profile] profile
                             _ {})
                   favorited? (contains? favs user-id)]
+              [:ok (format-article article profile (count favs) favorited?)])))))
+
+    (unfavorite [_ user-id slug]
+      (if (not slug)
+        [:error "Find article expects an id or an article slug but found neither"]
+        (let [article (repo/get-by-slug repo slug)]
+          (if (nil? article)
+            [:error (str "No article found for " slug)]
+            (let [author-id (:author-id article)
+                  article-id (:article-id article)
+                  favs (repo/unfavorite repo article-id user-id)
+                  profile (match (get-profile user-service {:user-id user-id
+                                                            :author-id author-id})
+                            [:ok profile] profile
+                            _ {})
+                  favorited? (contains? favs user-id)]
               [:ok (format-article article profile (count favs) favorited?)])))))))
