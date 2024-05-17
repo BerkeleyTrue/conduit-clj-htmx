@@ -267,7 +267,7 @@
                                               article)}}))
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
-                         (response/redirect "/" 303))))))
+                         (response/redirect "/" :see-other))))))
 
 (defn ->fav-article [user-service]
   (fn [request]

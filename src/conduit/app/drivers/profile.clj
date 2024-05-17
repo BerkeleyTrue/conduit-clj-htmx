@@ -88,7 +88,7 @@
               [:ok (:user request)]
               (find-user user-service {:username username}))]
     (match res
-      [:error _error] (-> (response/redirect "/")
+      [:error _error] (-> (response/redirect "/" :see-other)
                           (push-flash :warning (str "No user found for " username)))
       [:ok user] {:render {:title (str "Profile: " username)
                            :content (profile-component (assoc user

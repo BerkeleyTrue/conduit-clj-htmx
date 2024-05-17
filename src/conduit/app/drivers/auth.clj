@@ -67,7 +67,7 @@
   (match (login user-service params)
     [:error error] (utils/list-errors-response {:login error})
     [:ok user] (let [{:keys [user-id]} user]
-                 (-> (response/redirect "/" 303)
+                 (-> (response/redirect "/")
                      (push-flash :success "Welcome!")
                      (update :session assoc :identity user-id)))))
 

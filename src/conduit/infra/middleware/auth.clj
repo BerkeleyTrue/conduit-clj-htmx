@@ -26,8 +26,12 @@
                                   (assoc :username (:username user)))))
         [:error error] (do 
                          (timbre/info "User session: " error) 
-                         (-> (response/redirect "/login" :see-other)
-                             (update :session dissoc :identity))))
+                         (if (get-in request [:headers "Hx-Request"])
+                           (-> (response/redirect "/login" 200)
+                               (response/header "HX-Redirect" "/login")
+                               (update :session dissoc :identity))
+                           (-> (response/redirect "/login" :see-other)
+                               (update :session dissoc :identity)))))
       (handler request))))
 
 (defn authorize-middleware
@@ -38,4 +42,7 @@
     [request]
     (if-not (nil? (:user-id request))
       (handler request)
-      (response/redirect "/login" :see-other))))
+      (if (get-in request [:headers "Hx-Request"])
+        (-> (response/redirect "/login" 200) ; HTMX request expects a 200 in order to process hx-redirect
+            (response/header "HX-Redirect" "/login"))
+        (response/redirect "/login" :see-other)))))
