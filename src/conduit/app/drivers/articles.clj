@@ -255,7 +255,8 @@
       (match (article-service/find-article article-service user-id slug)
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
-                            my-article? (= (get-in article [:author :username]) username)]
+                            my-article? (= (get-in article [:author :username]) username)
+                            favorited? (:favorited? article)]
                         (if oob?
                           (-> (article-oob-comp article {:my-article? my-article?})
                               (utils/response))
@@ -263,7 +264,7 @@
                                     :content (article-comp
                                               {:authed? authed?
                                                :my-article? my-article?
-                                               :favorited? false}
+                                               :favorited? favorited?}
                                               article)}}))
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
