@@ -5,7 +5,6 @@
    [malli.registry :as mr]
    [malli.error :as me]))
 
-(println :malli)
 (def email
   [:and
    [:string]

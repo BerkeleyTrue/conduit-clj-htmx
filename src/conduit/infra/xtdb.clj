@@ -6,6 +6,14 @@
    [taoensso.timbre :as timbre]
    [conduit.app.driving.user-repo :as user-repo]))
 
+(def transaction-functions
+  [[::xt/put
+    {:xt/id :update-entity
+     :xt/fn '(fn [ctx eid key f val]
+               (let [db (xtdb.api/db ctx)
+                     entity (xtdb.api/entity db eid)]
+                 [[::xt/put (update entity key f val)]]))}]])
+
 (defmethod ig/init-key :infra.db/xtdb [_ {:keys [index-dir doc-dir log-dir]}]
   (let [node (xt/start-node
               {:xtdb/tx-log {:kv-store {:xtdb/module 'xtdb.lmdb/->kv-store
@@ -14,7 +22,7 @@
                                                 :db-dir (io/file doc-dir)}}
                :xtdb/index-store {:kv-store {:xtdb/module 'xtdb.lmdb/->kv-store
                                              :db-dir (io/file index-dir)}}})
-        _ (xt/submit-tx node user-repo/transaction-functions)
+        _ (xt/submit-tx node (into [] (concat transaction-functions user-repo/transaction-functions)))
         f (future (xt/sync node))]
 
     (while (not (realized? f))

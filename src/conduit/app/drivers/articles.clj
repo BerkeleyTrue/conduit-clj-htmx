@@ -7,7 +7,7 @@
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
-   [conduit.core.services.article :as article-service]))
+   [conduit.core.services.article :as article-service :refer [favorite]]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
@@ -179,7 +179,7 @@
                       article
                       (:author article))))
 
-(defhtml article-comp [{:keys [authed? my-article? favorited?]} 
+(defhtml article-comp [{:keys [authed? my-article? favorited?]}
                        {:keys [slug title author body tags] :as article}]
   [:div#article-page.article-page
    {:_ (hyper "on update log 'article meta update'")
@@ -252,8 +252,7 @@
     (let [slug (get-in request [:parameters :path :slug])
           oob? (get-in request [:parameters :query :oob])
           user-id (:user-id request)]
-      (match (article-service/find-article article-service {:user-id user-id 
-                                                            :slug slug})
+      (match (article-service/find-article article-service user-id slug)
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)]
@@ -261,14 +260,22 @@
                           (-> (article-oob-comp article {:my-article? my-article?})
                               (utils/response))
                           {:render {:title (:title article)
-                                    :content (article-comp 
-                                               {:authed? authed?
-                                                :my-article? my-article?
-                                                :favorited? false}
-                                               article)}}))
+                                    :content (article-comp
+                                              {:authed? authed?
+                                               :my-article? my-article?
+                                               :favorited? false}
+                                              article)}}))
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
                          (response/redirect "/" 303))))))
+
+(defn ->fav-article [user-service]
+  (fn [request]
+    (let [slug (get-in request [:parameters :path :slug])
+          user-id (get request :user-id)]
+      (match (favorite user-service user-id slug)
+        [:error error] (response/bad-request (str error))
+        [:ok _] (response/status 200)))))
 
 (defn ->articles-routes [article-service]
   ["articles"
@@ -289,10 +296,13 @@
                                         [:offset {:optional true} :int]]}
 
                    :handler (->get-feed article-service)}}]
-   ["/:slug" {:name :articles/get
-              :conflicting true
-              :get {:parameters {:path [:map {:closed true}
-                                        [:slug :string]]
-                                 :query [:map {:closed true}
-                                         [:oob {:optional true} :boolean]]}
-                    :handler (->get-article article-service)}}]])
+   ["/:slug" {:conflicting true
+              :parameters {:path [:map {:closed true}
+                                  [:slug :string]]}}
+    ["" {:name :article/get
+         :get {:parameters {:query [:map {:closed true}
+                                    [:oob {:optional true} :boolean]]}
+               :handler (->get-article article-service)}}]
+    ["/favorite" {:name :article/fav
+                  :post {:handler (->fav-article article-service)}}]]])
+    ;               ; :delete {:handler (->unfav-article article-service)}}]]])
