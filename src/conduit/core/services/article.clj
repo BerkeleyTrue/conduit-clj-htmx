@@ -102,14 +102,16 @@
 
     (favorite [_ user-id slug]
       (if (not slug)
-        [:error "Find article expects an article slug but found none"]
+        [:error "Find article expects an id or an article slug but found neither"]
         (let [article (repo/get-by-slug repo slug)]
           (if (nil? article)
-            [:error (str "No article found for slug " slug)]
-            (let [profile (match (get-profile user-service {:user-id user-id
-                                                            :author-id (:author-id article)})
+            [:error (str "No article found for " slug)]
+            (let [author-id (:author-id article)
+                  article-id (:article-id article)
+                  favs (repo/favorite repo article-id user-id)
+                  profile (match (get-profile user-service {:user-id user-id
+                                                            :author-id author-id})
                             [:ok profile] profile
                             _ {})
-                  favs (or (repo/get-num-of-favorites repo (:article-id article)) [])
                   favorited? (contains? favs user-id)]
               [:ok (format-article article profile (count favs) favorited?)])))))))

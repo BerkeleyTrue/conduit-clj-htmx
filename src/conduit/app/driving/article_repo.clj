@@ -161,7 +161,7 @@
           (first)
           (format-to-article))))
   
-  (favorite [_ article-id user-id]
+  (favorite [repo article-id user-id]
     (let [tx-res (xt/submit-tx 
                    node
                    [[::xt/put {:xt/id {:article-id article-id
@@ -169,8 +169,7 @@
                                :fav/user-id user-id
                                :fav/article-id article-id}]])] 
       (xt/await-tx node tx-res)
-      (-> (xt/entity (xt/db node) article-id)
-          (format-to-article))))
+      (.get-num-of-favorites repo article-id)))
 
   (unfavorite [_ article-id user-id]
     (let [tx-res (xt/submit-tx 
@@ -186,13 +185,12 @@
   (get-num-of-favorites [_ article-id]
     (let [res (xt/q
                 (xt/db node)
-                '{:find [(conj #{} ?user-id)]
+                '{:find [?user-id]
                   :in [article-id]
                   :where [[?fav :fav/article-id article-id]
-                          [?fav :var/user-id ?user-id]]}
+                          [?fav :fav/user-id ?user-id]]}
                 article-id)]
-      (-> res
-          (first)))))
+      (into #{} (map first res)))))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)
