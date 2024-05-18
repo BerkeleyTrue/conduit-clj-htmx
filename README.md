@@ -96,12 +96,12 @@ In Progress...
 #### Doing
 - Get Article page
   - [ ] delete if owner
-  - [ ] Follow/Unfollow author
-  - [ ] Favorite/Unfavorite article
+  - [x] Follow/Unfollow author
+  - [x] Favorite/Unfavorite article
   - [ ] comments
     - [ ] Get on load
     - [ ] mark if owner
-  - [ ] delete comment if owner
+    - [ ] delete comment if owner
   - [x] /article/:slug
 - [ ] Articles 
   - [ ] Repo
@@ -109,22 +109,22 @@ In Progress...
     - [x] get by id
     - [x] get by slug
     - [ ] update
-    - [ ] favorite
-    - [ ] unfavorite
+    - [x] favorite
+    - [x] unfavorite
   - [ ] Service
     - [x] create
     - [x] find
     - [ ] update
-    - [ ] favorite
-    - [ ] unfavorite
+    - [x] favorite
+    - [x] unfavorite
   - [ ] Api
     - [ ] Filter articles
       - [x] by author
       - [x] by tag
       - [x] by favorites
       - [x] by author
-    - [ ] Favorite
-    - [ ] Unfavorite
+    - [x] Favorite
+    - [x] Unfavorite
     - [ ] Insert tags
     - [x] Get popular tags
 

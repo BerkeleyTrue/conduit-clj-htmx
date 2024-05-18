@@ -129,9 +129,10 @@
 
 (defn ->profile-routes [user-service]
   ["profiles"
-   ["/:username" {:name :profile/get
-                  :parameters {:path {:username :string}}
-                  :get {:handler (->get-profile-page user-service)}}
+   ["/:username" {:name :profiles
+                  :parameters {:path {:username :string}}}
+    ["" {:name :profile/get
+         :get {:handler (->get-profile-page user-service)}}]
     ["/follow" {:name :profile/follow
                 :middleware [:authorize]
                 :post {:handler (->follow-author user-service)}
