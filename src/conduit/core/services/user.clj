@@ -1,5 +1,6 @@
 (ns conduit.core.services.user
   (:require
+   [clojure.core.match :refer [match]]
    [java-time.api :as jt]
    [integrant.core :as ig]
    [malli.core :as m]
@@ -86,10 +87,15 @@
                              false)]
             [:ok (format-to-public-profile author following?)]))))
 
-    (get-following [_ {:keys [user-id]}]
-      (if-let [following (repo/get-following repo user-id)]
-        [:ok following]
-        [:error (str "Could not find a following for " user-id)]))
+    (get-following [service {:keys [user-id username]}]
+      (if-let [{:keys [user-id]} (if user-id
+                                   {:user-id user-id} 
+                                   (match (.find-user service {:username username})
+                                     [:ok user] user
+                                     [:error _err] {}))]
+        (let [following (repo/get-following repo user-id)]
+          [:ok following])
+        [:error (str "Could not find a following for " (or user-id username))]))
 
     (update-user [_ {:keys [user-id] :as params}]
       (if (nil? user-id)

@@ -145,15 +145,16 @@
         (format-to-user)))
 
   (get-following [_ user-id]
-    (-> (xt/db node)
-        (xt/q
-         '{:find [?following]
-           :where [[?user :user/id id]
-                   [?user :user/following ?following]]
-           :in [id]}
-         user-id)
-        (first)
-        (format-to-user)))
+    (let [res  (xt/q 
+                 (xt/db node)
+                 '{:find [?follower-id]
+                   :where [[?user :user/following author-id]
+                           [?user :user/id ?follower-id]]
+                   :in [author-id]}
+                 user-id)]
+      (->> res
+           (map first)
+           (into #{}))))
 
   (update [_ user-id params]
     (let [tx-res (xt/submit-tx

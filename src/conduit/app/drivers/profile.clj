@@ -7,19 +7,18 @@
    [conduit.infra.utils :as utils]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.middleware.flash :refer [push-flash]]
-   [conduit.core.services.user :refer [service? find-user follow-author unfollow-author]]))
+   [conduit.core.services.user :refer [service? find-user follow-author unfollow-author get-following]]))
 
 (def place-holder "https://static.productionready.io/images/smiley-cyrus.jpg")
 
-(defhtml follow-button-component [{:keys [username following?]}]
-  [:button#profile-follow-button.btn.btn-sm.btn-outline-secondary.follow-btn
-   (-> {:hx-swap "outerHtml"}
-       (assoc (if following? :hx-delete :hx-post) (str "/profiles/" username "/follow")))
+(defhtml profile-follow-button [authorname num-of-followers following?]
+  [:button#profile-follow-btn.btn.btn-sm.btn-outline-secondary.follow-btn
+   (assoc {:hx-swap "outerHTML"} (if following? :hx-delete :hx-post) (str "/profiles/" authorname "/follow"))
    [:i.ion-plus-round
-    (str " " (if following? "Unfollow" "Follow") " " username)
-    [:span.counter "(?)"]]])
+    (str " " (if following? "Unfollow " "Follow ") authorname)
+    [:span.counter (str " (" num-of-followers ")")]]])
 
-(defhtml profile-component [{:keys [username image bio self? authed?]}]
+(defhtml profile-component [{:keys [username image bio self? following? num-of-followers]}]
   [:div.profile-page
    [:div.user-info
     [:div.container
@@ -28,17 +27,15 @@
        [:img {:src (if (empty? image) place-holder image) :class "user-img"}]
        [:h4 {:class "user-name"} username]
        [:p (if (seq bio) bio "Go to settings to add a bio!")]
-       (when authed?
-         (if self?
-           [:button.btn.btn-sm.btn-outline-secondary.action-btn
-            {:hx-get "/settings"
-             :hx-target "body"
-             :hx-swap "innerHTML"
-             :hx-push-url "/settings"}
-            [:i.ion-gear-a " Edit Profile Settings"]]
-           (follow-button-component {:username username
-                                     ; TODO: implement backend
-                                     :following? false})))]]]]
+       (if self?
+         [:button.btn.btn-sm.btn-outline-secondary.action-btn
+          {:hx-get "/settings"
+           :hx-target "body"
+           :hx-swap "innerHTML"
+           :hx-push-url "/settings"}
+          [:i.ion-gear-a " Edit Profile Settings"]]
+         (profile-follow-button username num-of-followers following?))]]]]
+
    [:div.container
     [:div.row
      [:div.col-xs-12.col-md-10.offset-md-1
@@ -82,7 +79,8 @@
   [user-service]
   {:pre [(service? user-service)]}
   [request]
-  (let [username (get-in request [:path-params :username])
+  (let [user-id (get request :user-id)
+        username (get-in request [:path-params :username])
         self? (= (:username request) username)
         res (if self?
               [:ok (:user request)]
@@ -90,18 +88,17 @@
     (match res
       [:error _error] (-> (response/redirect "/" :see-other)
                           (push-flash :warning (str "No user found for " username)))
-      [:ok user] {:render {:title (str "Profile: " username)
-                           :content (profile-component (assoc user
-                                                              :self? self?
-                                                              :authed? (not (nil? (:user-id request)))))}})))
-
-; TODO: add following counter
-(defhtml profile-follow-button [authorname following?]
-  [:button#profile-follow-btn.btn.btn-sm.btn-outline-secondary.follow-btn
-   (assoc {:hx-swap "outerHtml"} (if following? :hx-delete :hx-post) (str "/profiles/" authorname "/follow"))
-   [:i.ion-plus-round
-    (str " " (if following? "Unfollow " "Follow ") authorname)
-    [:span.counter "(?)"]]])
+      [:ok user] (let [followers (match (get-following user-service {:username username})
+                                    [:ok following] following
+                                    _ 0)]
+                   {:render {:title (str "Profile: " username)
+                             :content (profile-component 
+                                        (assoc user
+                                               :self? self?
+                                               :following? (if user-id
+                                                             (contains? followers user-id)
+                                                             false)
+                                               :num-of-followers (count followers)))}}))))
 
 (defn ->follow-author [user-service]
   (fn [request]
@@ -109,11 +106,16 @@
           user-id (get request :user-id)
           update-profile? (= "profile-follow-btn" (get-in request [:headers "hx-trigger"]))]
       (match (follow-author user-service user-id {:authorname authorname})
-        [:error error] (utils/list-errors error)
-        [:ok _] (if update-profile?
-                  (-> (profile-follow-button authorname true)
-                      (utils/response))
-                  (response/status 200))))))
+        [:error error] (utils/list-errors {:user error})
+        [:ok _profile] (if update-profile?
+                         (match (get-following user-service {:username authorname})
+                           [:error error] 
+                           (utils/list-errors {:user error})
+
+                           [:ok followers] 
+                           (-> (profile-follow-button authorname (count followers) true)
+                               (utils/response)))
+                         (response/status 200))))))
 
 (defn ->unfollow-author [user-service]
   (fn [request]
@@ -122,10 +124,16 @@
           update-profile? (= "profile-follow-btn" (get-in request [:headers "hx-trigger"]))]
       (match (unfollow-author user-service user-id {:authorname authorname})
         [:error error] (utils/list-errors error)
-        [:ok _] (if update-profile?
-                  (-> (profile-follow-button authorname true)
-                      (utils/response))
-                  (response/status 200))))))
+        [:ok _profile] (if update-profile?
+                         (match (get-following user-service authorname)
+                           [:error error] 
+                           (utils/list-errors {:user error})
+
+                           [:ok followers] 
+                           (-> (profile-follow-button authorname (count followers) false)
+                               (utils/response)))
+
+                         (response/status 200))))))
 
 (defn ->profile-routes [user-service]
   ["profiles"
