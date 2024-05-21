@@ -14,17 +14,20 @@
     [:div.article-preview
      [:div.article-meta
       [:a
-       {:href (str "/profiles/" username)}
+       {:href (str "/profiles/" username)
+        :hx-boost "true"}
        [:img
         {:src image}]]
       [:div.info
        [:a.author
-        {:href (str "/profiles/" username)}
+        {:href (str "/profiles/" username)
+         :hx-boost "true"}
         username]
        [:span.date
         (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id)))]]]
      [:a.preview-link
-      {:href (str "/articles/" slug)}
+      {:href (str "/articles/" slug)
+       :hx-boost "true"}
       [:h1 title]
       [:p description]]
      [:ul.tag-list
