@@ -2,12 +2,12 @@
   (:require
    [clojure.string :as str]
    [clojure.core.match :refer [match]]
-   [java-time.api :as jt]
    [ring.util.response :as response]
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
-   [conduit.core.services.article :as article-service :refer [favorite unfavorite]]))
+   [conduit.infra.middleware.flash :refer [push-flash]]
+   [conduit.core.services.article :as article-service :refer [find-article]]))
 
 (defhtml editor-comp [{:keys [article new?]}]
   [:div.editor-page
@@ -21,21 +21,26 @@
 
         [:fieldset.form-group
          [:input#text.form-control.form-control-lg
-          {:type "text"
-           :name "title"
-           :placeholder "Article Title"}]]
+          (assoc
+            {:type "text"
+             :name "title"
+             :placeholder "Article Title"}
+            :value (if new? nil (:title article)))]]
         
         [:fieldset.form-group
          [:input.form-control
-          {:type "text"
-           :name "description"
-           :placeholder "What's this article about?"}]]
+          (assoc
+            {:type "text"
+             :name "description"
+             :placeholder "What's this article about?"}
+            :value (if new? nil (:description article)))]]
 
         [:fieldset.form-group
          [:textarea.form-control
           {:rows "8",
            :name "body"
-           :placeholder "Write your article (in markdown)"}]]
+           :placeholder "Write your article (in markdown)"}
+          (if new? nil (:body article))]]
 
         [:fieldset.form-group
          [:input#tag-input.form-control
@@ -77,7 +82,9 @@ on deleteTag(tag)
   call Array.from(tagsSet) then set #tags.value to it.join(',')
   send updateTags to #tags-list
 end
-                     ")}
+                     ")
+             :value (if new? nil (str/join "," (:tags article)))
+             :hidden true}
              
             :value (if new? "" (str/join "," (:tags article))))]
          [:div#tags-list.tags-list
@@ -117,13 +124,25 @@ on updateTags or load
            (if new? "/articles" (str "/articles/" (:slug article))))
          "Publish Article"]]]]]]])
 
-(defn ->get-editor [article-service]
+(defn ->get-editor [edit? service]
   (fn [request]
-    (let [slug (get-in request [:parameters :path :slug])
+    (let [user-id (get request :user-id)
+          slug (get-in request [:parameters :path :slug])
           new? (not (nil? slug))]
-      {:render {:title "New Article"
-                :content (editor-comp {:new? new?
-                                       :article {}})}})))
+      (if (not edit?)
+        {:render {:title "New Article"
+                  :content (editor-comp {:new? new?
+                                         :article {}})}}
+        (if (and edit? (nil? slug))
+          (-> (response/redirect "/" :see-other)
+              (push-flash :warning (str "No article found for" slug)))
+          (match (find-article service user-id slug)
+            [:error error] (utils/list-errors {:article error})
+            [:ok article] (do 
+                            (tap> {:article article})
+                            {:render {:title (str "Edit " (:title article))
+                                      :content (editor-comp {:new? false
+                                                             :article article})}})))))))
 
 (defn ->editor-routes [article-service]
   ["editor"
@@ -135,9 +154,9 @@ on updateTags or load
                                    [:tag {:optional true} :string]
                                    [:author {:optional true} :string]
                                    [:favorited {:optional true} :string]]}
-              :handler (->get-editor article-service)}}]
+              :handler (->get-editor false article-service)}}]
    ["/:slug" {:name :editor/update
               :conflicting true
               :parameters {:path [:map {:closed true}
                                   [:slug :string]]}
-              :handler (->get-editor article-service)}]])
+              :handler (->get-editor true article-service)}]])
