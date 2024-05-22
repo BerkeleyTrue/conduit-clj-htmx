@@ -42,20 +42,17 @@
           {:_ (hyper "
 on keyup
   if (my.value).length >= 3
-    log 'leng ' + (my.value).length
-    log 'code ' + event.keyCode
     if the event's key is 'Enter' 
       halt the event
-      set taginput to my.value
+      set taginput to my.value.trim()
       send newTag(tag: taginput) to #tags
       set my.value to ''
 
     else 
       if the event's keyCode is 188 and (my.value).length >= 4
         halt the event
-        set taginput to my.value.slice(0, -1)
+        set taginput to my.value.slice(0, -1).trim()
         send newTag(tag: taginput) to #tags
-        send newTag(tag: taginput) to #tags-list
         set my.value to ''
                      ")
            :type "text",
@@ -64,7 +61,6 @@ on keyup
           (assoc
             {:_ (hyper "
 on newTag(tag)
-  log `new tag: $tag`
   call (my.value).split(',')
   make a Set from it called tagsSet
   call tagsSet.add(tag)
@@ -74,23 +70,19 @@ on newTag(tag)
 end
 
 on deleteTag(tag)
-  log `delete tag: $tag`
-  call (@value of me).split(',')
+  call (#tags.value).split(',')
   make a Set from it called tagsSet
-  log 'current val ' + (@value of me)
-  log 'tags before delete ' + tagsSet
   call tagsSet.delete(tag)
   call tagsSet.delete('')
-  call Array.from(tagsSet) then set my @value to it.join(',')
+  call Array.from(tagsSet) then set #tags.value to it.join(',')
   send updateTags to #tags-list
 end
-                     ")
-             :hidden "true"}
+                     ")}
+             
             :value (if new? "" (str/join "," (:tags article))))]
          [:div#tags-list.tags-list
           {:_ (hyper "
 on click
-  log 'click'
   if target matches .ion-close-round
     set tag to target.parentElement.tag
     remove target.parentElement
@@ -100,20 +92,21 @@ on click
   end
   
   if tag then
-    send deleteTag(tag: tag of target) to #tags
+    send deleteTag(tag: tag) to #tags
   end
 end
 
 on updateTags or load
-  remove my children
-  log `update tags`
-  set tags to (#tags).value
-  log `tags: $tags`
+  remove <span.tag-pill /> from me
+  call (#tags.value).split(',')
+  make a Set from it called tagsSet
+  call tagsSet.delete('')
 
-  repeat for tag in tags.split(`,`).filter(Boolean)
+  repeat for tag in tagsSet
     make a <span.tag-default.tag-pill /> called tagEl
     set { tag: tag } on tagEl
     make <i.ion-close-round /> then put it into tagEl
+    append '  ' to tagEl
     append tag to tagEl
     put tagEl at the end of #tags-list
                      ")}]]
