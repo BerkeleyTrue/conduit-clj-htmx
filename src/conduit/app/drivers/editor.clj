@@ -133,16 +133,12 @@ on updateTags or load
         {:render {:title "New Article"
                   :content (editor-comp {:new? new?
                                          :article {}})}}
-        (if (and edit? (nil? slug))
-          (-> (response/redirect "/" :see-other)
-              (push-flash :warning (str "No article found for" slug)))
-          (match (find-article service user-id slug)
-            [:error error] (utils/list-errors {:article error})
-            [:ok article] (do 
-                            (tap> {:article article})
-                            {:render {:title (str "Edit " (:title article))
-                                      :content (editor-comp {:new? false
-                                                             :article article})}})))))))
+        (match (find-article service user-id slug)
+          [:error _error] (-> (response/redirect "/" :see-other)
+                              (push-flash :warning (str "No article found for '" slug "'")))
+          [:ok article] {:render {:title (str "Edit " (:title article))
+                                  :content (editor-comp {:new? false
+                                                         :article article})}})))))
 
 (defn ->editor-routes [article-service]
   ["editor"
