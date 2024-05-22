@@ -8,7 +8,8 @@
     [conduit.app.drivers.settings :as settings]
     [conduit.app.drivers.profile :as profile]
     [conduit.app.drivers.articles :as articles]
-    [conduit.app.drivers.tag :as tag]))
+    [conduit.app.drivers.tag :as tag]
+    [conduit.app.drivers.editor :as editor]))
 
 (defmethod ig/init-key :app.routes/drivers
   [_ {:keys [on-start-ch user-service article-service]}]
@@ -21,6 +22,7 @@
       (settings/->settings-routes user-service)
       (profile/->profile-routes user-service)
       (articles/->articles-routes article-service)
-      (tag/->tag-routes article-service)])])
+      (tag/->tag-routes article-service)
+      (editor/->editor-routes article-service)])])
 
 (derive :app.routes/drivers :app/routes)
