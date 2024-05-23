@@ -7,7 +7,8 @@
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
-   [conduit.core.services.article :as article-service :refer [favorite unfavorite]]))
+   [conduit.infra.middleware.flash :refer [push-flash]]
+   [conduit.core.services.article :refer [create-article find-article list-articles update-article favorite unfavorite]]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
@@ -48,7 +49,7 @@
           :hx-swap "innerHTML"}
          tag])]]))
 
-(defhtml list-articles [{:keys [no-following? feed? articles num-of-articles cur-page]}]
+(defhtml articles-comp [{:keys [no-following? feed? articles num-of-articles cur-page]}]
   (list
    (if (empty? articles)
      [:div.article-list
@@ -78,7 +79,7 @@
   (fn [{:keys [parameters user-id] :as _request}]
     (let [{:keys [limit offset tag favorited author]} (or (:query parameters) {})
 
-          {:keys [articles num-of-articles page]} (article-service/list-articles
+          {:keys [articles num-of-articles page]} (list-articles
                                                    article-service
                                                    user-id
                                                    {:limit limit
@@ -86,7 +87,7 @@
                                                     :tag tag
                                                     :favorited-by favorited
                                                     :authorname author})
-          res (list-articles {:articles articles
+          res (articles-comp {:articles articles
                               :no-following? false
                               :num-of-articles num-of-articles
                               :cur-page page})]
@@ -95,13 +96,13 @@
 (defn ->get-feed [article-service]
   (fn [{:keys [parameters user-id]}]
     (let [{:keys [limit offset]} (get parameters :query {})
-          {:keys [articles num-of-articles page]} (article-service/list-articles
+          {:keys [articles num-of-articles page]} (list-articles
                                                    article-service
                                                    user-id
                                                    {:feed? true
                                                     :limit limit
                                                     :offset offset})
-          res (list-articles {:feed? true
+          res (articles-comp {:feed? true
                               :no-following? (empty? articles)
                               :articles articles
                               :num-of-articles num-of-articles
@@ -255,7 +256,7 @@
     (let [slug (get-in request [:parameters :path :slug])
           oob? (get-in request [:parameters :query :oob])
           user-id (:user-id request)]
-      (match (article-service/find-article article-service user-id slug)
+      (match (find-article article-service user-id slug)
         [:ok article] (let [username (:username request)
                             authed? (not (nil? (:user-id request)))
                             my-article? (= (get-in article [:author :username]) username)
@@ -289,17 +290,47 @@
         [:error error] (response/bad-request (str error))
         [:ok _] (response/status 200)))))
 
+(defn ->create-article [service]
+  (fn [request]
+    (let [user-id (:user-id request)
+          params (get-in request [:parameters :body])]
+
+      (match (create-article service user-id params)
+        [:error error] (utils/list-errors-response {:article error})
+        [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
+                          (push-flash :success "Article updated successfully"))))))
+
+(defn ->update-article [service]
+  (fn [request]
+    (let [user-id (:user-id request)
+          slug (get-in request [:parameters :path :slug])
+          params (get-in request [:parameters :body])]
+
+      (match (update-article service user-id slug params)
+        [:error error] (utils/list-errors-response {:article error})
+        [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
+                          (push-flash :success "Article updated successfully"))))))
+
 (defn ->articles-routes [article-service]
   ["articles"
-   ["" {:name :articles/list
-        :get {:parameters {:query [:map
+   ["" {:get {:name :articles/list
+              :parameters {:query [:map
                                    {:closed true}
                                    [:limit {:optional true} :int]
                                    [:offset {:optional true} :int]
                                    [:tag {:optional true} :string]
                                    [:author {:optional true} :string]
                                    [:favorited {:optional true} :string]]}
-              :handler (->get-articles article-service)}}]
+              :handler (->get-articles article-service)}
+
+        :post {:name :article/create
+               :middleware [:authorize]
+               :handler (->create-article article-service)
+               :parameters {:body [:map {:closed true}
+                                   [:title {:min 1 :max 254} :string]
+                                   [:description {:min 1 :max 254} :string]
+                                   [:body {:min 1 :max 254} :string]
+                                   [:tags [:set :string]]]}}}]
    ["/feed" {:name :articles/feed
              :conflicting true
              :middleware [:authorize]
@@ -311,10 +342,19 @@
    ["/:slug" {:conflicting true
               :parameters {:path [:map {:closed true}
                                   [:slug :string]]}}
-    ["" {:name :article/get
-         :get {:parameters {:query [:map {:closed true}
+    ["" {:get {:name :article/read
+               :parameters {:query [:map {:closed true}
                                     [:oob {:optional true} :boolean]]}
-               :handler (->get-article article-service)}}]
+               :handler (->get-article article-service)}
+
+         :put {:name :article/update
+               :handler (->update-article article-service)
+               :parameters {:body [:map {:closed true}
+                                   [:title {:min 1 :max 254} :string]
+                                   [:description {:min 1 :max 254} :string]
+                                   [:body {:min 1 :max 254} :string]
+                                   [:tags [:set :string]]]}}}]
+
     ["/favorite" {:name :article/fav
                   :post {:handler (->fav-article article-service)}
                   :delete {:handler (->unfav-article article-service)}}]]])

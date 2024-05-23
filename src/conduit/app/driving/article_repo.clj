@@ -84,20 +84,20 @@
                                 [?article :article/created-at ?created-at]
                                 [?user :user/id ?author-id]
                                 [?user :user/username ?username]
-                                (or [(not tag)] 
+                                (or [(not tag)]
                                     [(= tag ?tags)])
-                                (or [(not authorname)] 
+                                (or [(not authorname)]
                                     [(= authorname ?username)])]
-                                
+
                        :in '[tag authorname]
                        :limit limit
                        :offset offset
                        :order-by '[[?created-at :desc]]}
                       tag
                       authorname))
-                      
+
           count (if followed-by
-                  (xt/q db 
+                  (xt/q db
                         '{:find [(count ?article)]
                           :where [[?article :article/title]
                                   [?user :user/id user-id]
@@ -113,17 +113,17 @@
                                   [?article :article/created-at ?created-at]
                                   [?user :user/id ?author-id]
                                   [?user :user/username ?username]
-                                  (or [(not tag)] 
+                                  (or [(not tag)]
                                       [(= tag ?tags)])
-                                  (or [(not authorname)] 
+                                  (or [(not authorname)]
                                       [(= authorname ?username)])]
-                                
+
                           :in [tag authorname]}
                         tag
                         authorname))
-                        
-          num-of-articles (-> count 
-                              (first) 
+
+          num-of-articles (-> count
+                              (first)
                               (first))
 
           articles (->> res
@@ -142,7 +142,7 @@
                       :order-by [[(count ?article) :desc] [?tags :asc]]
                       :limit 10})]
       (map (fn [[_ tag]] tag) res)))
-  
+
   (get-by-id [_ article-id]
     (let [res (xt/entity (xt/db node) article-id)]
       (-> res
@@ -160,34 +160,47 @@
           (first)
           (first)
           (format-to-article))))
-  
+
   (get-num-of-favorites [_ article-id]
     (let [res (xt/q
-                (xt/db node)
-                '{:find [?user-id]
-                  :in [article-id]
-                  :where [[?fav :fav/article-id article-id]
-                          [?fav :fav/user-id ?user-id]]}
-                article-id)]
+               (xt/db node)
+               '{:find [?user-id]
+                 :in [article-id]
+                 :where [[?fav :fav/article-id article-id]
+                         [?fav :fav/user-id ?user-id]]}
+               article-id)]
       (into #{} (map first res))))
-  
+
   (favorite [repo article-id user-id]
-    (let [tx-res (xt/submit-tx 
-                   node
-                   [[::xt/put {:xt/id {:article-id article-id
-                                       :user-id user-id}
-                               :fav/user-id user-id
-                               :fav/article-id article-id}]])] 
+    (let [tx-res (xt/submit-tx
+                  node
+                  [[::xt/put {:xt/id {:article-id article-id
+                                      :user-id user-id}
+                              :fav/user-id user-id
+                              :fav/article-id article-id}]])]
       (xt/await-tx node tx-res)
       (.get-num-of-favorites repo article-id)))
 
   (unfavorite [repo article-id user-id]
-    (let [tx-res (xt/submit-tx 
-                   node 
-                   [[::xt/delete {:article-id article-id
-                                  :user-id user-id}]])] 
+    (let [tx-res (xt/submit-tx
+                  node
+                  [[::xt/delete {:article-id article-id
+                                 :user-id user-id}]])]
       (xt/await-tx node tx-res)
-      (.get-num-of-favorites repo article-id))))
+      (.get-num-of-favorites repo article-id)))
+
+  (update [_repo article-id {:keys [title slug body description tags]}]
+    (let [transactions (filterv
+                        boolean
+                        [(when title [::xt/fn :assoc-entity article-id :title title])
+                         (when title [::xt/fn :assoc-entity article-id :slug slug])
+                         (when body [::xt/fn :assoc-entity article-id :body body])
+                         (when description [::xt/fn :assoc-entity article-id :description description])
+                         (when (seq tags) [::xt/fn :assoc-entity article-id :tags tags])])
+          tx-res (xt/submit-tx node transactions)]
+      (xt/await-tx node tx-res)
+      (-> (xt/entity (xt/db node) article-id)
+          (format-to-article)))))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)

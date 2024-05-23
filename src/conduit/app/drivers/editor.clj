@@ -5,7 +5,6 @@
    [ring.util.response :as response]
    [conduit.utils.hyper :refer [hyper]]
    [conduit.infra.hiccup :refer [defhtml]]
-   [conduit.infra.utils :as utils]
    [conduit.infra.middleware.flash :refer [push-flash]]
    [conduit.core.services.article :as article-service :refer [find-article]]))
 

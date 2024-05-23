@@ -1,6 +1,7 @@
 (ns conduit.core.services.article
   (:require
    [clojure.core.match :refer [match]]
+   [camel-snake-kebab.core :as csk]
    [java-time.api :as jt]
    [integrant.core :as ig]
    [malli.core :as m]
@@ -26,14 +27,14 @@
    [:updated-at [:maybe :instant]]])
 
 (defprotocol ArticleService
-  (create [_ user-id params] "Create an article")
+  (create-article [_ user-id {:keys [title description body tags]}] "Create an article")
   (list-articles [_ user-id {:keys [tag authorname favorited-by limit offset]}] "List articles")
   (get-popular-tags [_] "Get popular tags")
   (find-article [_ user-id slug] "find an article by id or slug")
-  (update-article [_ user-id slug {:keys [title description body]}] "Update an article")
+  (update-article [_ user-id slug {:keys [title description body tags]}] "Update an article")
   (favorite [_ user-id slug] "Favorite an article")
   (unfavorite [_ user-id slug] "Unfavorite an article")
-  (delete [_ user-id slug] "Delete an article"))
+  (delete-article [_ user-id slug] "Delete an article"))
 
 (defn service? [service?]
   (satisfies? ArticleService service?))
@@ -55,12 +56,14 @@
 (defmethod ig/init-key :core.services/article [_ {:keys [repo user-service]}]
   (assert (repo/repo? repo) (str "Article services expects a article repository but found " repo))
   (assert (user-service/service? user-service) (str "Article services expects a user service but found " user-service))
+
   (reify ArticleService
-    (create [_ user-id params]
+    (create-article [_ user-id params]
       (let [article (repo/create repo
                                  (assoc params
                                         :created-at (str (jt/instant))
-                                        :author-id user-id))]
+                                        :author-id user-id
+                                        :slug (csk/->kebab-case (:title params))))]
         (if (nil? article)
           [:error "Couldn't create article"]
           (let [user (get-profile user-service {:user-id user-id})]
@@ -130,4 +133,20 @@
                             [:ok profile] profile
                             _ {})
                   favorited? (contains? favs user-id)]
-              [:ok (format-article article profile (count favs) favorited?)])))))))
+              [:ok (format-article article profile (count favs) favorited?)])))))
+
+    (update-article [_ user-id slug {:keys [title] :as params}]
+      (let [{:keys [article-id author-id] :as old-article} (repo/get-by-slug repo slug)
+            new-slug (if title
+                       (csk/->kebab-case title)
+                       (:slug old-article))
+            article (repo/update repo article-id (assoc params :slug new-slug))
+            favs (repo/unfavorite repo article-id user-id)
+            profile (match (get-profile user-service {:user-id user-id
+                                                      :author-id author-id})
+                      [:ok profile] profile
+                      _ {})
+            favorited? (contains? favs user-id)]
+        (if article
+          [:ok (format-article article profile (count favs) favorited?)]
+          [:error "Could not update article"])))))

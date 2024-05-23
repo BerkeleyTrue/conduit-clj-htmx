@@ -12,7 +12,13 @@
      :xt/fn '(fn [ctx eid key f val]
                (let [db (xtdb.api/db ctx)
                      entity (xtdb.api/entity db eid)]
-                 [[::xt/put (update entity key f val)]]))}]])
+                 [[::xt/put (update entity key f val)]]))}]
+   [::xt/put
+    {:xt/id :assoc-entity
+     :xt/fn '(fn [ctx eid key val]
+               (let [db (xtdb.api/db ctx)
+                     entity (xtdb.api/entity db eid)]
+                 [[::xt/put (assoc entity key val)]]))}]])
 
 (defmethod ig/init-key :infra.db/xtdb [_ {:keys [index-dir doc-dir log-dir]}]
   (let [node (xt/start-node
