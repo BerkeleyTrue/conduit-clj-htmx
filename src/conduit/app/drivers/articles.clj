@@ -1,6 +1,7 @@
 (ns conduit.app.drivers.articles
   (:require
    [clojure.core.match :refer [match]]
+   [clojure.string :as str]
    [java-time.api :as jt]
    [taoensso.timbre :as timbre]
    [ring.util.response :as response]
@@ -293,12 +294,17 @@
 (defn ->create-article [service]
   (fn [request]
     (let [user-id (:user-id request)
-          params (get-in request [:parameters :body])]
+          params (get-in request [:parameters :form])
+          params (if (:tags params) 
+                   (assoc params :tags (str/split (:tags params) #","))
+                   params)]
 
-      (match (create-article service user-id params)
-        [:error error] (utils/list-errors-response {:article error})
-        [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
-                          (push-flash :success "Article updated successfully"))))))
+      (if (nil? params)
+        (utils/list-errors-response {:article "No parameters found"})
+        (match (create-article service user-id params)
+          [:error error] (utils/list-errors-response {:article error})
+          [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
+                            (push-flash :success "Article updated successfully")))))))
 
 (defn ->update-article [service]
   (fn [request]
@@ -326,11 +332,11 @@
         :post {:name :article/create
                :middleware [:authorize]
                :handler (->create-article article-service)
-               :parameters {:body [:map {:closed true}
-                                   [:title {:min 1 :max 254} :string]
-                                   [:description {:min 1 :max 254} :string]
-                                   [:body {:min 1 :max 254} :string]
-                                   [:tags [:set :string]]]}}}]
+               :parameters {:form [:map {:closed true}
+                                   [:title [:string {:min 4 :max 254}]]
+                                   [:description [:string {:min 10 :max 254}]]
+                                   [:body [:string {:min 10 :max 254}]]
+                                   [:tags :string]]}}}]
    ["/feed" {:name :articles/feed
              :conflicting true
              :middleware [:authorize]
@@ -350,10 +356,10 @@
          :put {:name :article/update
                :handler (->update-article article-service)
                :parameters {:body [:map {:closed true}
-                                   [:title {:min 1 :max 254} :string]
-                                   [:description {:min 1 :max 254} :string]
-                                   [:body {:min 1 :max 254} :string]
-                                   [:tags [:set :string]]]}}}]
+                                   [:title [:string {:min 4 :max 254}]]
+                                   [:description [:string {:min 4 :max 254}]]
+                                   [:body [:string {:min 4 :max 254}]]
+                                   [:tags :string]]}}}]
 
     ["/favorite" {:name :article/fav
                   :post {:handler (->fav-article article-service)}

@@ -7,7 +7,9 @@
    [malli.core :as m]
    [conduit.core.models :refer [Article]]
    [conduit.core.ports.article-repo :as repo]
-   [conduit.core.services.user :refer [UserProfile get-profile] :as user-service]))
+   [conduit.core.services.user :refer [UserProfile get-profile] :as user-service])
+  (:import
+   [java.util UUID]))
 
 (def ArticleOutput
   [:map
@@ -61,6 +63,7 @@
     (create-article [_ user-id params]
       (let [article (repo/create repo
                                  (assoc params
+                                        :article-id (UUID/randomUUID)
                                         :created-at (str (jt/instant))
                                         :author-id user-id
                                         :slug (csk/->kebab-case (:title params))))]

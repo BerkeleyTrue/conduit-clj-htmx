@@ -50,11 +50,13 @@
 
 (defrecord ArticleRepo [node]
   article-repo/ArticleRepository
-  (create [_ article]
-    (let [tx-res (xt/submit-tx node [(article->put article)])]
-      (xt/await-tx node tx-res)
-      (-> (xt/entity (xt/db node) (:article-id article))
-          (format-to-article))))
+  (create [_ {:keys [article-id] :as article}]
+    (if (nil? article-id)
+      nil
+      (let [tx-res (xt/submit-tx node [(article->put article)])]
+        (xt/await-tx node tx-res)
+        (-> (xt/entity (xt/db node) article-id)
+            (format-to-article)))))
 
   (create-many [_ articles]
     (let [tx-res (xt/submit-tx node (map article->put articles))]

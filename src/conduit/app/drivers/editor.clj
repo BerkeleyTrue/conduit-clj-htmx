@@ -83,7 +83,8 @@ on deleteTag(tag)
 end
                      ")
              :value (if new? nil (str/join "," (:tags article)))
-             :hidden true}
+             :hidden true
+             :name "tags"}
              
             :value (if new? "" (str/join "," (:tags article))))]
          [:div#tags-list.tags-list
@@ -118,7 +119,10 @@ on updateTags or load
                      ")}]]
         [:button#submit.btn.btn-lg.pull-xs-right.btn-primary
          (assoc
-           {:type "button"}
+           {:type "button"
+            :hx-swap "outerHTML"
+            :hx-target "body"
+            :hx-push-url "true"}
            (if new? :hx-post :hx-put) 
            (if new? "/articles" (str "/articles/" (:slug article))))
          "Publish Article"]]]]]]])
@@ -126,11 +130,10 @@ on updateTags or load
 (defn ->get-editor [edit? service]
   (fn [request]
     (let [user-id (get request :user-id)
-          slug (get-in request [:parameters :path :slug])
-          new? (not (nil? slug))]
+          slug (get-in request [:parameters :path :slug])]
       (if (not edit?)
         {:render {:title "New Article"
-                  :content (editor-comp {:new? new?
+                  :content (editor-comp {:new? true
                                          :article {}})}}
         (match (find-article service user-id slug)
           [:error _error] (-> (response/redirect "/" :see-other)
@@ -142,15 +145,8 @@ on updateTags or load
 (defn ->editor-routes [article-service]
   ["editor"
    ["" {:name :editor/new
-        :get {:parameters {:query [:map
-                                   {:closed true}
-                                   [:limit {:optional true} :int]
-                                   [:offset {:optional true} :int]
-                                   [:tag {:optional true} :string]
-                                   [:author {:optional true} :string]
-                                   [:favorited {:optional true} :string]]}
-              :handler (->get-editor false article-service)}}]
-   ["/:slug" {:name :editor/update
+        :get {:handler (->get-editor false article-service)}}]
+   ["/:slug" {:name :editor/edit
               :conflicting true
               :parameters {:path [:map {:closed true}
                                   [:slug :string]]}
