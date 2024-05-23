@@ -194,12 +194,13 @@
   (update [_repo article-id {:keys [title slug body description tags]}]
     (let [transactions (filterv
                         boolean
-                        [(when title [::xt/fn :assoc-entity article-id :title title])
-                         (when title [::xt/fn :assoc-entity article-id :slug slug])
-                         (when body [::xt/fn :assoc-entity article-id :body body])
-                         (when description [::xt/fn :assoc-entity article-id :description description])
-                         (when (seq tags) [::xt/fn :assoc-entity article-id :tags tags])])
-          tx-res (xt/submit-tx node transactions)]
+                        [(when title [::xt/fn :assoc-entity article-id :article/title title])
+                         (when title [::xt/fn :assoc-entity article-id :article/slug slug])
+                         (when body [::xt/fn :assoc-entity article-id :article/body body])
+                         (when description [::xt/fn :assoc-entity article-id :article/description description])
+                         (when (seq tags) [::xt/fn :assoc-entity article-id :article/tags tags])
+                         [::xt/fn :assoc-entity article-id :article/updated-at (java.time.Instant/now)]])
+          tx-res (xt/submit-tx node transactions)] 
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) article-id)
           (format-to-article)))))

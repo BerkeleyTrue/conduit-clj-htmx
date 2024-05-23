@@ -304,18 +304,23 @@
         (match (create-article service user-id params)
           [:error error] (utils/list-errors-response {:article error})
           [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
-                            (push-flash :success "Article updated successfully")))))))
+                            (push-flash :success "Article created successfully")))))))
 
 (defn ->update-article [service]
   (fn [request]
     (let [user-id (:user-id request)
           slug (get-in request [:parameters :path :slug])
-          params (get-in request [:parameters :body])]
+          params (get-in request [:parameters :form])
+          params (if (:tags params) 
+                   (assoc params :tags (str/split (:tags params) #","))
+                   params)]
 
-      (match (update-article service user-id slug params)
-        [:error error] (utils/list-errors-response {:article error})
-        [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
-                          (push-flash :success "Article updated successfully"))))))
+      (if (nil? params)
+        (utils/list-errors-response {:article "No parameters found"})
+        (match (update-article service user-id slug params)
+          [:error error] (utils/list-errors-response {:article error})
+          [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
+                            (push-flash :success "Article updated successfully")))))))
 
 (defn ->articles-routes [article-service]
   ["articles"
@@ -355,7 +360,7 @@
 
          :put {:name :article/update
                :handler (->update-article article-service)
-               :parameters {:body [:map {:closed true}
+               :parameters {:form [:map {:closed true}
                                    [:title [:string {:min 4 :max 254}]]
                                    [:description [:string {:min 4 :max 254}]]
                                    [:body [:string {:min 4 :max 254}]]
