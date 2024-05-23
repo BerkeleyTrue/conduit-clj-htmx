@@ -45,20 +45,13 @@ In Progress...
   - [x] Get profile page
   - [x] link to settings
   - [x] hide follow if own profile
-  - [ ] Make content live
-  - [ ] follow author
+  - [x] Make content live
+  - [x] follow author
   - [ ] show favorited articles
 - Views
   - [x] add banners
   - [x] add error message on htmx 500
   - [ ] add flash on oob request
-- Home
-  - [x] Render Page
-  - [x] load global articles
-  - [x] Load tags
-  - [x] load user feed articles
-  - [x] pagination
-  - [ ] load tags from article preview (FE only)
 - Add seed data import
   - [x] Add xtdb
   - [x] Add init script
@@ -86,12 +79,6 @@ In Progress...
     - [ ] mark if owner
 - [ ] Docker Build
   > a build to let non-nix users run server
-- Get new/edit articles page
-  - [ ] edit tags
-  - [ ] /editor/slug - edit
-    - [ ] Load article and prefill page
-    - [ ] update links to patch
-  - [ ] /editor - new
 
 #### Doing
 - Get Article page
@@ -103,34 +90,37 @@ In Progress...
     - [ ] mark if owner
     - [ ] delete comment if owner
   - [x] /article/:slug
-- [ ] Articles 
+- Articles 
   - [ ] Repo
     - [x] create
     - [x] get by id
     - [x] get by slug
-    - [ ] update
+    - [x] update
     - [x] favorite
     - [x] unfavorite
-  - [ ] Service
+    - [ ] delete
+  - Service
     - [x] create
     - [x] find
-    - [ ] update
+    - [x] update
     - [x] favorite
     - [x] unfavorite
+    - [ ] delete article
   - [ ] Api
-    - [ ] Filter articles
+    - [x] Filter articles
       - [x] by author
       - [x] by tag
       - [x] by favorites
       - [x] by author
     - [x] Favorite
     - [x] Unfavorite
-    - [ ] Insert tags
+    - [x] Insert tags
     - [x] Get popular tags
+    - [ ] delete article
 
 #### Done
 
-- [x] refactor to xtdb
+- refactor to xtdb
   - [x] swap out datalevin for xtdb
   - [x] swap session to xtdb or some kv store other then datalevin
 - Auth
@@ -158,3 +148,16 @@ In Progress...
     - [x] bio
     - [x] email
     - [x] password
+- Get new/edit articles page
+  - [x] edit tags
+  - [x] /editor/slug - edit
+    - [x] Load article and prefill page
+    - [x] update links to patch
+  - [x] /editor - new
+- Home
+  - [x] Render Page
+  - [x] load global articles
+  - [x] Load tags
+  - [x] load user feed articles
+  - [x] pagination
+  - [x] load tags from article preview (FE only)
