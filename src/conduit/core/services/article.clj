@@ -151,4 +151,14 @@
             favorited? (contains? favs user-id)]
         (if article
           [:ok (format-article article profile (count favs) favorited?)]
-          [:error "Could not update article"])))))
+          [:error "Could not update article"])))
+
+    (delete-article [_ user-id slug]
+      (if (nil? slug)
+        [:error "delete requires a slug but found none"]
+        (let [{:keys [article-id author-id]} (repo/get-by-slug repo slug)]
+          (if (not (= user-id author-id))
+            [:error "user must be the author of article in order to delete"]
+            (if-let [_success? (repo/delete repo article-id)]
+              [:ok "Article deleted"]
+              [:error "Could not delete article"])))))))

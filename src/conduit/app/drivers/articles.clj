@@ -9,7 +9,7 @@
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
    [conduit.infra.middleware.flash :refer [push-flash]]
-   [conduit.core.services.article :refer [create-article find-article list-articles update-article favorite unfavorite]]))
+   [conduit.core.services.article :refer [create-article find-article list-articles update-article favorite unfavorite delete-article]]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
@@ -142,7 +142,7 @@
         [:i.ion-edit]
         "Edit Article"]
        [:button.btn.btn-sm.btn-outline-danger
-        {:hx-get (str "/editor/" slug)
+        {:hx-delete (str "/articles/" slug)
          :hx-target "body"
          :hx-push-url "true"}
         [:i.ion-trash-a]
@@ -322,6 +322,18 @@
           [:ok article] (-> (response/redirect (str "/editor/" (:slug article)) :see-other)
                             (push-flash :success "Article updated successfully")))))))
 
+(defn ->delete-article [service]
+  (fn [request]
+    (let [author-id (:user-id request)
+          authorname (:username request)
+          slug (get-in request [:parameters :path :slug])]
+
+      (match (delete-article service author-id slug)
+        [:error error] (-> (utils/list-errors-response {:article error})
+                           (push-flash :warning "Could not delete article"))
+        [:ok _] (-> (response/redirect (str "/profiles/" authorname) :see-other)
+                    (push-flash :info "Article deleted"))))))
+
 (defn ->articles-routes [article-service]
   ["articles"
    ["" {:get {:name :articles/list
@@ -359,13 +371,18 @@
                :handler (->get-article article-service)}
 
          :put {:name :article/update
+               :middleware [:authorize]
                :handler (->update-article article-service)
                :parameters {:form [:map {:closed true}
                                    [:title [:string {:min 4 :max 254}]]
                                    [:description [:string {:min 4 :max 254}]]
                                    [:body [:string {:min 4 :max 254}]]
-                                   [:tags :string]]}}}]
+                                   [:tags :string]]}}
+         :delete {:name :article/delete
+                  :middleware [:authorize]
+                  :handler (->delete-article article-service)}}]
 
     ["/favorite" {:name :article/fav
+                  :middleware [:authorize]
                   :post {:handler (->fav-article article-service)}
                   :delete {:handler (->unfav-article article-service)}}]]])

@@ -204,7 +204,13 @@
           tx-res (xt/submit-tx node transactions)] 
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) article-id)
-          (format-to-article)))))
+          (format-to-article))))
+
+  (delete [_repo article-id]
+    (let [tx-res (xt/submit-tx node [[::xt/delete article-id]])
+          _ (xt/await-tx node tx-res)
+          res (xt/entity (xt/db node) article-id)]
+      (boolean (not res)))))
 
 (defmethod ig/init-key :app.repos/article [_ {:keys [node]}]
   (node? node)

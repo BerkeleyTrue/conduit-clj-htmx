@@ -48,10 +48,6 @@ In Progress...
   - [x] Make content live
   - [x] follow author
   - [ ] show favorited articles
-- Views
-  - [x] add banners
-  - [x] add error message on htmx 500
-  - [ ] add flash on oob request
 - Add seed data import
   - [x] Add xtdb
   - [x] Add init script
@@ -82,7 +78,7 @@ In Progress...
 
 #### Doing
 - Get Article page
-  - [ ] delete if owner
+  - [x] delete if owner
   - [x] Follow/Unfollow author
   - [x] Favorite/Unfavorite article
   - [ ] comments
@@ -95,17 +91,18 @@ In Progress...
     - [x] create
     - [x] get by id
     - [x] get by slug
+    - [ ] list by favorited
     - [x] update
     - [x] favorite
     - [x] unfavorite
-    - [ ] delete
+    - [x] delete
   - Service
     - [x] create
     - [x] find
     - [x] update
     - [x] favorite
     - [x] unfavorite
-    - [ ] delete article
+    - [x] delete article
   - [ ] Api
     - [x] Filter articles
       - [x] by author
@@ -116,7 +113,7 @@ In Progress...
     - [x] Unfavorite
     - [x] Insert tags
     - [x] Get popular tags
-    - [ ] delete article
+    - [x] delete article
 
 #### Done
 
@@ -161,3 +158,6 @@ In Progress...
   - [x] load user feed articles
   - [x] pagination
   - [x] load tags from article preview (FE only)
+- Views
+  - [x] add banners
+  - [x] add error message on htmx 500
