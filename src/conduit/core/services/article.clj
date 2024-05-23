@@ -2,7 +2,6 @@
   (:require
    [clojure.core.match :refer [match]]
    [camel-snake-kebab.core :as csk]
-   [java-time.api :as jt]
    [integrant.core :as ig]
    [malli.core :as m]
    [conduit.core.models :refer [Article]]
@@ -64,7 +63,7 @@
       (let [article (repo/create repo
                                  (assoc params
                                         :article-id (UUID/randomUUID)
-                                        :created-at (str (jt/instant))
+                                        :created-at (java.time.Instant/now)
                                         :author-id user-id
                                         :slug (csk/->kebab-case (:title params))))]
         (if (nil? article)

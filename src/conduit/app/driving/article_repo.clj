@@ -50,8 +50,9 @@
 
 (defrecord ArticleRepo [node]
   article-repo/ArticleRepository
-  (create [_ {:keys [article-id] :as article}]
-    (if (nil? article-id)
+  (create [_ {:keys [article-id created-at] :as article}]
+    (if (or (nil? article-id)
+            (not (inst? created-at)))
       nil
       (let [tx-res (xt/submit-tx node [(article->put article)])]
         (xt/await-tx node tx-res)
