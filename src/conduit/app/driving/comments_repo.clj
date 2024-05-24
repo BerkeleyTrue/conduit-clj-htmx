@@ -53,7 +53,7 @@
   (find-by-id [_ comment-id]
     (let [res (xt/entity (xt/db node) comment-id)]
       (tap> {:find res})
-      (first res)))
+      (->Comment (first res))))
   
   (list-by-article [_ article-id]
     (let [res (xt/q (xt/db node)
@@ -64,7 +64,9 @@
                       :sort-by [[?created-at :desc]]}
                     article-id)]
       (tap> {:list res})
-      (mapv first res)))
+      (->> res
+        (mapv first)
+        (mapv ->Comment))))
 
   (delete [_ comment-id]
     (let [tx-res (xt/submit-tx node [[::xt/delete comment-id]])]
