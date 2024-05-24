@@ -335,17 +335,17 @@
         [:ok _] (-> (response/redirect (str "/profiles/" authorname) :see-other)
                     (push-flash :info "Article deleted"))))))
 
-(defhtml comment-comp [slug {:keys [body author? comment-id created-at] :author/keys [image username]}]
+(defhtml comment-comp [slug {:keys [body author? comment-id created-at author]}]
   [:div.card
    [:div.card-block
     [:p.card-text
      body]]
    [:div.card-footer
-    [:a.comment-author {:href (str "/profiles/" username)}
-     [:img.comment-author-img {:src image}]]
+    [:a.comment-author {:href (str "/profiles/" (:username author))}
+     [:img.comment-author-img {:src (:image author)}]]
     " "
-    [:a.comment-author {:href (str "/profiles/" username)}
-     username]
+    [:a.comment-author {:href (str "/profiles/" (:username author))}
+     (:username author)]
     [:span.date-posted
      (when created-at
        (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id))))]
@@ -364,11 +364,13 @@
   (fn [request]
     (let [user-id (get request :user-id)
           slug (get-in request [:parameters :path :slug])]
-      (tap> {:get-comments slug})
       (match (list-comments service user-id slug)
         [:error error] (utils/list-errors-response {:comments error})
-        [:ok comments] (-> (comments-comp slug comments)
-                           (utils/response))))))
+        [:ok comments] (do 
+                         (tap> {:get-comments slug
+                                :comments comments})
+                         (-> (comments-comp slug comments)
+                            (utils/response)))))))
 
 (defn ->create-comment [service]
   (fn [request]
