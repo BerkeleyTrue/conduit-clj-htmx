@@ -368,11 +368,8 @@
           slug (get-in request [:parameters :path :slug])]
       (match (list-comments service user-id slug)
         [:error error] (utils/list-errors-response {:comments error})
-        [:ok comments] (do 
-                         (tap> {:get-comments slug
-                                :comments comments})
-                         (-> (comments-comp slug comments)
-                             (utils/response)))))))
+        [:ok comments] (-> (comments-comp slug comments)
+                           (utils/response))))))
 
 (defn ->create-comment [service]
   (fn [request]
@@ -380,8 +377,6 @@
           slug (get-in request [:parameters :path :slug])
           body (get-in request [:parameters :form :body])]
 
-      (tap> {:->comment slug
-             :body body})
       (match (create-comment service user-id slug body)
         [:error error] (utils/list-errors-response {:comments error})
         [:ok comment] (-> (comment-comp slug comment)

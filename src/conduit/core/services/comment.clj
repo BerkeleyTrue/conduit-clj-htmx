@@ -49,7 +49,9 @@
                                                                          :author-id author-id})
                                          [:error _error] {}
                                          [:ok profile] profile)]
-                           (assoc comment :author profile)))))]))
+                           (assoc comment 
+                                  :author profile
+                                  :author? (= user-id author-id))))))]))
 
     (delete-comment [_ user-id comment-id]
       (let [{:keys [author-id]} (or (repo/find-by-id repo comment-id) {})]
