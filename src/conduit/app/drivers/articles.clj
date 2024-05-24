@@ -186,7 +186,8 @@
                       (:author article))))
 
 (defhtml article-comp [{:keys [authed? my-article? favorited?]}
-                       {:keys [slug title author body tags] :as article}]
+                       {:keys [slug title author body tags] :as article}
+                       {:keys [image]}]
   [:div#article-page.article-page
    {:_ (hyper "on update log 'article meta update'")
     :hx-get (str "/articles/" slug "?oob=true")
@@ -235,7 +236,7 @@
            :row "3"}]]
         [:div.card-footer
          [:img.comment-author-img
-          {:src (:image author)}]
+          {:src image}]
          [:button.btn.btn-sm.btn-primary "Post a Comment"]]]
        [:p
         [:a
@@ -271,7 +272,8 @@
                                               {:authed? authed?
                                                :my-article? my-article?
                                                :favorited? favorited?}
-                                              article)}}))
+                                              article
+                                              (:user request))}})) 
         [:error error] (do
                          (timbre/info (str "Error fetching article " error))
                          (response/redirect "/" :see-other))))))
@@ -370,7 +372,7 @@
                          (tap> {:get-comments slug
                                 :comments comments})
                          (-> (comments-comp slug comments)
-                            (utils/response)))))))
+                             (utils/response)))))))
 
 (defn ->create-comment [service]
   (fn [request]
