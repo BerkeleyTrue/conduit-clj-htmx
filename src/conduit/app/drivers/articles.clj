@@ -9,7 +9,8 @@
    [conduit.infra.hiccup :refer [defhtml]]
    [conduit.infra.utils :as utils]
    [conduit.infra.middleware.flash :refer [push-flash]]
-   [conduit.core.services.article :refer [create-article find-article list-articles update-article favorite unfavorite delete-article]]))
+   [conduit.core.services.article :refer [create-article find-article list-articles update-article favorite unfavorite delete-article]]
+   [conduit.core.services.comment :refer [create-comment list-comments delete-comment]]))
 
 (defhtml article-preview [{:keys [title slug description tags created-at author]}]
   (let [{:keys [image username]} author]
@@ -248,7 +249,7 @@
          " sign up "]
         "to add comments on this article."])
      [:div#comments
-      {;:hx-get (str "/articles/" slug "/comments") ; TODO: add comments
+      {:hx-get (str "/articles/" slug "/comments")
        :hx-trigger "load delay:150ms"}
       "Loading comments..."]]]])
 
@@ -295,7 +296,7 @@
   (fn [request]
     (let [user-id (:user-id request)
           params (get-in request [:parameters :form])
-          params (if (:tags params) 
+          params (if (:tags params)
                    (assoc params :tags (str/split (:tags params) #","))
                    params)]
 
@@ -311,7 +312,7 @@
     (let [user-id (:user-id request)
           slug (get-in request [:parameters :path :slug])
           params (get-in request [:parameters :form])
-          params (if (:tags params) 
+          params (if (:tags params)
                    (assoc params :tags (str/split (:tags params) #","))
                    params)]
 
@@ -334,7 +335,64 @@
         [:ok _] (-> (response/redirect (str "/profiles/" authorname) :see-other)
                     (push-flash :info "Article deleted"))))))
 
-(defn ->articles-routes [article-service]
+(defhtml comment-comp [slug {:keys [body author? comment-id created-at] :author/keys [image username]}]
+  [:div.card
+   [:div.card-block
+    [:p.card-text
+     body]]
+   [:div.card-footer
+    [:a.comment-author {:href (str "/profiles/" username)}
+     [:img.comment-author-img {:src image}]]
+    " "
+    [:a.comment-author {:href (str "/profiles/" username)}
+     username]
+    [:span.date-posted
+     (when created-at
+       (jt/format "MMMM d, YYYY" (jt/zoned-date-time created-at (jt/zone-id))))]
+    (when author?
+      [:span.mod-options
+       {:_ (hyper "on htmx:afterRequest[detail.successful] remove the closest .card")
+        :hx-delete (str "/articles/" slug "/comments/" comment-id)}
+       [:i.ion-trash-a]])]])
+
+(defhtml comments-comp [slug comments]
+  [:div
+   (for [comment comments]
+     (comment-comp slug comment))])
+
+(defn ->get-comments [service]
+  (fn [request]
+    (let [user-id (get request :user-id)
+          slug (get-in request [:parameters :path :slug])]
+      (tap> {:get-comments slug})
+      (match (list-comments service user-id slug)
+        [:error error] (utils/list-errors-response {:comments error})
+        [:ok comments] (-> (comments-comp slug comments)
+                           (utils/response))))))
+
+(defn ->create-comment [service]
+  (fn [request]
+    (let [user-id (get request :user-id)
+          slug (get-in request [:parameters :path :slug])
+          body (get-in request [:parameters :form :body])]
+
+      (tap> {:->comment slug
+             :body body})
+      (match (create-comment service user-id slug body)
+        [:error error] (utils/list-errors-response {:comments error})
+        [:ok comment] (-> (comment-comp slug comment)
+                          (utils/response))))))
+
+(defn ->delete-comment [service]
+  (fn [request]
+    (let [user-id (get request :user-id)
+          comment-id (get-in request [:parameters :path :id])]
+
+      (match (delete-comment service user-id comment-id)
+        [:error error] (utils/list-errors-response {:comments error})
+        [:ok _] (response/status 204)))))
+
+(defn ->articles-routes [article-service comment-service]
   ["articles"
    ["" {:get {:name :articles/list
               :parameters {:query [:map
@@ -385,4 +443,14 @@
     ["/favorite" {:name :article/fav
                   :middleware [:authorize]
                   :post {:handler (->fav-article article-service)}
-                  :delete {:handler (->unfav-article article-service)}}]]])
+                  :delete {:handler (->unfav-article article-service)}}]
+    ["/comments"
+     {:middleware [:authorize]}
+     ["" {:get {:name :articles/comments
+                :handler (->get-comments comment-service)}
+          :post {:name :comments/get
+                 :parameters {:form [:map [:body [:string {:min 5 :max 254}]]]}
+                 :handler (->create-comment comment-service)}}]
+     ["/:id" {:parameters {:path [:map [:id :uuid]]}
+              :delete {:name :comments/delete
+                       :handler (->delete-comment comment-service)}}]]]])

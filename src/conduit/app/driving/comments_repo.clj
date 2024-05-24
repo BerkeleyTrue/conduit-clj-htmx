@@ -44,20 +44,27 @@
 
 (defrecord CommentsRepo [node]
   repo/CommentRepository
-  (create [_ {:keys [comment-id]} :as params] 
+  (create [_ {:keys [comment-id] :as params}] 
     (let [tx-res (xt/submit-tx node [(->comment-put params)])]
       (xt/await-tx node tx-res)
       (-> (xt/entity (xt/db node) comment-id)
           (->Comment))))
+
+  (find-by-id [_ comment-id]
+    (let [res (xt/entity (xt/db node) comment-id)]
+      (tap> {:find res})
+      (first res)))
   
   (list-by-article [_ article-id]
     (let [res (xt/q (xt/db node)
                     '{:find [(pull ?comment [*]) ?created-at]
-                      :where [?comment :comment/article-id article-id]
-                      :in [article-id]}
+                      :where [[?comment :comment/article-id article-id]
+                              [?comment :comment/created-at ?created-at]]
+                      :in [article-id]
+                      :sort-by [[?created-at :desc]]}
                     article-id)]
       (tap> {:list res})
-      (map first res)))
+      (mapv first res)))
 
   (delete [_ comment-id]
     (let [tx-res (xt/submit-tx node [[::xt/delete comment-id]])]

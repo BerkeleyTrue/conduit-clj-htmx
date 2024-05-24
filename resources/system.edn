@@ -30,11 +30,16 @@
 
  :app.repos/user {:node #ig/ref :infra.db/xtdb}
  :app.repos/article {:node #ig/ref :infra.db/xtdb}
+ :app.repos/comments {:node #ig/ref :infra.db/xtdb}
 
  :core.services/user {:repo #ig/ref :app.repos/user}
  :core.services/article {:repo #ig/ref :app.repos/article
                          :user-service #ig/ref :core.services/user}
+ :core.services/comments {:repo #ig/ref :app.repos/comments
+                          :user-service #ig/ref :core.services/user
+                          :article-service #ig/ref :core.services/article}
 
  :app.routes/drivers {:on-start-ch #ig/ref :app/on-start-ch
                       :user-service #ig/ref :core.services/user
-                      :article-service #ig/ref :core.services/article}}
+                      :article-service #ig/ref :core.services/article
+                      :comment-service #ig/ref :core.services/comments}}
