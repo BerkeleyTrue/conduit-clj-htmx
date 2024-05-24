@@ -142,6 +142,7 @@
          :hx-push-url "true"}
         [:i.ion-edit]
         "Edit Article"]
+       " "
        [:button.btn.btn-sm.btn-outline-danger
         {:hx-delete (str "/articles/" slug)
          :hx-target "body"
