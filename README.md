@@ -41,51 +41,10 @@ In Progress...
 
 ### Todo
 
-- Profile page
-  - [x] Get profile page
-  - [x] link to settings
-  - [x] hide follow if own profile
-  - [x] Make content live
-  - [x] follow author
-  - [ ] show favorited articles
-- Add seed data import
-  - [x] Add xtdb
-  - [x] Add init script
-  - [x] Add users
-  - [x] Add articles
-  - [x] Add default user on cli flag
-  - [x] Add author details
-  - [ ] Add comments
-- Comments
-  - API
-    - [ ] create comment on article
-    - [ ] delete comment from article
-    - [ ] get articles by slug
-  - Repo
-    - [ ] create
-    - [ ] read
-      - [ ] by id
-      - [ ] by author
-      - [ ] by article
-    - [ ] delete
-  - Service
-    - [ ] create
-    - [ ] read
-    - [ ] delete
-    - [ ] mark if owner
 - [ ] Docker Build
   > a build to let non-nix users run server
 
 #### Doing
-- Get Article page
-  - [x] delete if owner
-  - [x] Follow/Unfollow author
-  - [x] Favorite/Unfavorite article
-  - [ ] comments
-    - [ ] Get on load
-    - [ ] mark if owner
-    - [ ] delete comment if owner
-  - [x] /article/:slug
 - Articles 
   - [ ] Repo
     - [x] create
@@ -103,7 +62,7 @@ In Progress...
     - [x] favorite
     - [x] unfavorite
     - [x] delete article
-  - [ ] Api
+  - [x] Api
     - [x] Filter articles
       - [x] by author
       - [x] by tag
@@ -114,6 +73,21 @@ In Progress...
     - [x] Insert tags
     - [x] Get popular tags
     - [x] delete article
+- Profile page
+  - [x] Get profile page
+  - [x] link to settings
+  - [x] hide follow if own profile
+  - [x] Make content live
+  - [x] follow author
+  - [ ] show favorited articles
+- Add seed data import
+  - [x] Add xtdb
+  - [x] Add init script
+  - [x] Add users
+  - [x] Add articles
+  - [x] Add default user on cli flag
+  - [x] Add author details
+  - [ ] Add comments
 
 #### Done
 
@@ -161,3 +135,26 @@ In Progress...
 - Views
   - [x] add banners
   - [x] add error message on htmx 500
+- Comments
+  - API
+    - [x] create comment on article
+    - [x] delete comment from article
+    - [x] get article comment by slug
+  - Repo
+    - [x] create
+    - [x] read by id
+    - [x] list by article id
+    - [x] delete
+  - Service
+    - [x] create
+    - [x] delete
+    - [x] mark if owner
+- Get Article page
+  - [x] delete if owner
+  - [x] Follow/Unfollow author
+  - [x] Favorite/Unfavorite article
+  - [x] comments
+    - [x] Get on load
+    - [x] mark if owner
+    - [x] delete comment if owner
+  - [x] /article/:slug
