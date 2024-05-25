@@ -10,8 +10,9 @@
    [xtdb.api :as xt]
    [conduit.config :refer [get-config]]
    [conduit.core.ports.user-repo :as user-repo]
-   [conduit.core.services.user :refer [register]]
-   [conduit.core.ports.article-repo :as article-repo])
+   [conduit.core.ports.article-repo :as article-repo]
+   [conduit.core.ports.comment-repo :as comments-repo]
+   [conduit.core.services.user :refer [register]])
   (:import
    [java.util UUID]))
 
@@ -78,6 +79,7 @@
 ; TODO: add favorites, comments
 (defmethod ig/init-key :seed/generate [_ {user-repo :user
                                           article-repo :article
+                                          comments-repo :comments
                                           user-service :user-service
                                           node :node}]
   (println "Generating seed data...")
@@ -89,8 +91,20 @@
         _articles (->> (repeatedly #(generate-article (rand-nth users)))
                        (take num-of-articles)
                        (vec)
-                       (article-repo/create-many article-repo))]
+                       (article-repo/create-many article-repo))
 
+        _comments (doall (->> _articles
+                             (map (fn [{:article/keys [id]}]
+                                    (->> users
+                                         (map (fn [user]
+                                                (comments-repo/create
+                                                 comments-repo
+                                                 {:comment-id (UUID/randomUUID)
+                                                  :author-id (:user-id user)
+                                                  :article-id id
+                                                  :body (paragraph)
+                                                  :created-at (random-date)}))))))
+                             (flatten)))]
     (match (register
             user-service
             {:email "foo@bar.com"
@@ -128,6 +142,9 @@
 
           [articles-count] (first (xt/q (xt/db node) '{:find [(count ?articles)]
                                                        :where [[?articles :article/title]]}))
+
+          [comments-count] (first (xt/q (xt/db node) '{:find [(count ?comment)]
+                                                       :where [[?comment :comment/body]]}))
           dev-follows (xt/q (xt/db node)
                             '{:find [?following]
                               :in [email]
@@ -137,6 +154,7 @@
 
       (println "Generated" user-count "users")
       (println "Generated" articles-count "articles")
+      (println "Generated" comments-count "comments")
       (println "Dev user follows " (count dev-follows)))))
 
 (defn start-seed []
@@ -148,10 +166,12 @@
 
     :app.repos/user {:node (ig/ref :infra.db/xtdb)}
     :app.repos/article {:node (ig/ref :infra.db/xtdb)}
+    :app.repos/comments {:node (ig/ref :infra.db/xtdb)}
     :core.services/user {:repo (ig/ref :app.repos/user)}
     :seed/generate {:node (ig/ref :infra.db/xtdb)
                     :user (ig/ref :app.repos/user)
                     :article (ig/ref :app.repos/article)
+                    :comments (ig/ref :app.repos/comments)
                     :user-service (ig/ref :core.services/user)}}
    (ig/prep)
    (ig/init)
