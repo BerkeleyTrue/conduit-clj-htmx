@@ -5,6 +5,7 @@
    [ring.util.response :as response]
    [taoensso.timbre :as timbre]
    [conduit.utils.dep-macro :refer [defact]]
+   [conduit.infra.middleware.flash :refer [push-flash]]
    [conduit.core.services.user :refer [service? find-user]]))
 
 (def auth-backend (backends/session))
@@ -29,8 +30,10 @@
                          (if (get-in request [:headers "Hx-Request"])
                            (-> (response/redirect "/login" 200)
                                (response/header "HX-Redirect" "/login")
+                               (push-flash :warning "You need to sign in to see that")
                                (update :session dissoc :identity))
                            (-> (response/redirect "/login" :see-other)
+                               (push-flash :warning "You need to sign in to see that")
                                (update :session dissoc :identity)))))
       (handler request))))
 
@@ -43,6 +46,7 @@
     (if-not (nil? (:user-id request))
       (handler request)
       (if (get-in request [:headers "Hx-Request"])
-        (-> (response/redirect "/login" 200) ; HTMX request expects a 200 in order to process hx-redirect
-            (response/header "HX-Redirect" "/login"))
-        (response/redirect "/login" :see-other)))))
+        (-> (response/redirect "/" 200) ; HTMX request expects a 200 in order to process hx-redirect
+            (push-flash :warning "You are not authorized to see that")
+            (response/header "HX-Redirect" "/"))
+        (response/redirect "/" :see-other)))))

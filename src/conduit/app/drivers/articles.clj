@@ -445,12 +445,13 @@
                   :post {:handler (->fav-article article-service)}
                   :delete {:handler (->unfav-article article-service)}}]
     ["/comments"
-     {:middleware [:authorize]}
      ["" {:get {:name :articles/comments
                 :handler (->get-comments comment-service)}
           :post {:name :comments/get
+                 :middleware [:authorize]
                  :parameters {:form [:map [:body [:string {:min 5 :max 254}]]]}
                  :handler (->create-comment comment-service)}}]
      ["/:id" {:parameters {:path [:map [:id :uuid]]}
+              :middleware [:authorize]
               :delete {:name :comments/delete
                        :handler (->delete-comment comment-service)}}]]]])
