@@ -1,13 +1,10 @@
 (ns conduit.core.services.comment
   (:require
    [clojure.core.match :refer [match]]
-   [camel-snake-kebab.core :as csk]
    [integrant.core :as ig]
-   [malli.core :as m]
-   [conduit.core.models :refer [Comment]]
    [conduit.core.ports.comment-repo :as repo]
    [conduit.core.services.article :refer [find-article]]
-   [conduit.core.services.user :refer [UserProfile get-profile] :as user-service])
+   [conduit.core.services.user :refer [get-profile] :as user-service])
   (:import
    [java.util UUID]))
 

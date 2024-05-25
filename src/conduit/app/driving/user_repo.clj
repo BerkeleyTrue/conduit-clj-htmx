@@ -55,7 +55,7 @@
    [:password :string]
    [:created-at :instant]
    [:image {:optional true} :string]
-   [:bio {:opitonal true} :string]])
+   [:bio {:optional true} :string]])
 
 (def UserEntity
   [:map
