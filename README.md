@@ -45,49 +45,8 @@ In Progress...
   > a build to let non-nix users run server
 
 #### Doing
-- Articles 
-  - [ ] Repo
-    - [x] create
-    - [x] get by id
-    - [x] get by slug
-    - [ ] list by favorited
-    - [x] update
-    - [x] favorite
-    - [x] unfavorite
-    - [x] delete
-  - Service
-    - [x] create
-    - [x] find
-    - [x] update
-    - [x] favorite
-    - [x] unfavorite
-    - [x] delete article
-  - [x] Api
-    - [x] Filter articles
-      - [x] by author
-      - [x] by tag
-      - [x] by favorites
-      - [x] by author
-    - [x] Favorite
-    - [x] Unfavorite
-    - [x] Insert tags
-    - [x] Get popular tags
-    - [x] delete article
-- Profile page
-  - [x] Get profile page
-  - [x] link to settings
-  - [x] hide follow if own profile
-  - [x] Make content live
-  - [x] follow author
-  - [ ] show favorited articles
-- Add seed data import
-  - [x] Add xtdb
-  - [x] Add init script
-  - [x] Add users
-  - [x] Add articles
-  - [x] Add default user on cli flag
-  - [x] Add author details
-  - [ ] Add comments
+
+- [ ] switch to libsql
 
 #### Done
 
@@ -158,3 +117,46 @@ In Progress...
     - [x] mark if owner
     - [x] delete comment if owner
   - [x] /article/:slug
+- Articles 
+  - [x] Repo
+    - [x] create
+    - [x] get by id
+    - [x] get by slug
+    - [x] list by favorited
+    - [x] update
+    - [x] favorite
+    - [x] unfavorite
+    - [x] delete
+  - Service
+    - [x] create
+    - [x] find
+    - [x] update
+    - [x] favorite
+    - [x] unfavorite
+    - [x] delete article
+  - [x] Api
+    - [x] Filter articles
+      - [x] by author
+      - [x] by tag
+      - [x] by favorites
+      - [x] by author
+    - [x] Favorite
+    - [x] Unfavorite
+    - [x] Insert tags
+    - [x] Get popular tags
+    - [x] delete article
+- Profile page
+  - [x] Get profile page
+  - [x] link to settings
+  - [x] hide follow if own profile
+  - [x] Make content live
+  - [x] follow author
+  - [ ] show favorited articles
+- Add seed data import
+  - [x] Add xtdb
+  - [x] Add init script
+  - [x] Add users
+  - [x] Add articles
+  - [x] Add default user on cli flag
+  - [x] Add author details
+  - [x] Add comments
