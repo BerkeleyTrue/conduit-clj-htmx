@@ -16,3 +16,4 @@ bb/.clj-kondo/.lock
 .direnv
 .cpcache
 data/
+*.sqlite

@@ -24,6 +24,8 @@
 
  :infra.db/xtdb-listener {:node #ig/ref :infra.db/xtdb}
 
+ :infra.db/sqlite {:db "data/db.sqlite"}
+
  :infra.middleware.session/xtdb {:node #ig/ref :infra.db/xtdb}
 
  :app/on-start-ch {}

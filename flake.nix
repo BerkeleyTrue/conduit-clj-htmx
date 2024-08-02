@@ -21,7 +21,7 @@
       }: let
         dev = pkgs.writeShellScriptBin "dev" ''
           echo "Starting dev repl"
-          ./bin/launchpad dev --go
+          ./bin/launchpad dev
         '';
         koacha = pkgs.writeShellScriptBin "koacha" ''
           ${pkgs.clojure}/bin/clj -M:test "$@"
@@ -45,12 +45,16 @@
             config.boulder.devShell
           ];
 
-          buildInputs = with pkgs; [
-            babashka
-            clojure
-            clojure-lsp
-            neil
-          ];
+          buildInputs =
+            (with pkgs; [
+              babashka
+              clojure
+              clojure-lsp
+              neil
+            ])
+            ++ (with pkgs.nodePackages; [
+              sql-formatter
+            ]);
         };
       };
       flake = {
