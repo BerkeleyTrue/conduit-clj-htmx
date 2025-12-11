@@ -35,6 +35,12 @@ nix develop
 
 This will install the binaries needed as well as display useful information to get started developing.
 
+### Clojure CLI
+ Run the application using the standard Clojure CLI. This will start the development server.
+```bash
+clj -M:dev
+```
+
 ## Project status
 
 In Progress...
