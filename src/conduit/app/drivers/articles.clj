@@ -61,7 +61,7 @@
      [:div.article-list
       (for [article articles]
         (article-preview article))])
-   (when (> num-of-articles 10)
+   (when (> (or num-of-articles 0) 10)
      [:ul.pagination
       (for [page (range 1 (+ (/ num-of-articles 10) 1))]
         [:li.page-item {:class (if (= page cur-page) "active" "")}
