@@ -53,7 +53,9 @@
           :type "password"}]]
        [:button.btn.btn-lg.btn-primary.pull-xs-right
         {:type "submit"}
-        "Sign in"]]]]]])
+         (if register?
+          "Sign up"
+          "Sign in")]]]]]])
 
 (defn get-login-page [request]
   (if (:identity request)
