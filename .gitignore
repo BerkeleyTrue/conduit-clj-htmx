@@ -17,3 +17,5 @@ bb/.clj-kondo/.lock
 .cpcache
 data/
 *.sqlite
+.dylib
+.DS_Store
